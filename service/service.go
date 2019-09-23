@@ -4,6 +4,7 @@ import (
 	accountsv1 "github.com/videocoin/cloud-api/accounts/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
+	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-dispatcher/rpc"
 	"github.com/videocoin/cloud-pkg/grpcutil"
@@ -54,10 +55,24 @@ func NewService(cfg *Config) (*Service, error) {
 		return nil, err
 	}
 
+	ds, err := datastore.NewDatastore(cfg.DBURI)
+	if err != nil {
+		return nil, err
+	}
+
+	dm, err := datastore.NewDataManager(
+		ds,
+		cfg.Logger.WithField("system", "datamanager"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	ebConfig := &eventbus.Config{
 		URI:    cfg.MQURI,
 		Name:   cfg.Name,
 		Logger: cfg.Logger.WithField("system", "eventbus"),
+		DM:     dm,
 	}
 	eb, err := eventbus.New(ebConfig)
 	if err != nil {

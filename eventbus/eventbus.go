@@ -1,6 +1,7 @@
 package eventbus
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/opentracing/opentracing-go"
@@ -8,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	privatev1 "github.com/videocoin/cloud-api/streams/private/v1"
+	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-pkg/mqmux"
 	tracerext "github.com/videocoin/cloud-pkg/tracer"
 )
@@ -16,11 +18,13 @@ type Config struct {
 	Logger *logrus.Entry
 	URI    string
 	Name   string
+	DM     *datastore.DataManager
 }
 
 type EventBus struct {
 	logger *logrus.Entry
 	mq     *mqmux.WorkerMux
+	dm     *datastore.DataManager
 }
 
 func New(c *Config) (*EventBus, error) {
@@ -35,6 +39,7 @@ func New(c *Config) (*EventBus, error) {
 	return &EventBus{
 		logger: c.Logger,
 		mq:     mq,
+		dm:     c.DM,
 	}, nil
 }
 
@@ -76,6 +81,13 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	span.SetTag("event_type", req.Type.String())
 
 	e.logger.Debugf("handling request %+v", req)
+
+	ctx := opentracing.ContextWithSpan(context.Background(), span)
+	err = e.dm.CreateTask(ctx, &datastore.Task{ID: req.StreamID})
+	if err != nil {
+		tracerext.SpanLogError(span, err)
+		return err
+	}
 
 	return nil
 }
