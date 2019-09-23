@@ -14,6 +14,7 @@ type Config struct {
 	EmitterRPCAddr  string `default:"0.0.0.0:5003" envconfig:"EMITTER_RPC_ADDR"`
 
 	DBURI string `default:"root:root@/videocoin?charset=utf8&parseTime=True&loc=Local" envconfig:"DBURI"`
+	MQURI string `default:"amqp://guest:guest@127.0.0.1:5672" envconfig:"MQURI"`
 
 	AuthTokenSecret string `default:"" envconfig:"AUTH_TOKEN_SECRET"`
 

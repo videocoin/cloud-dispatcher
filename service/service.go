@@ -4,6 +4,7 @@ import (
 	accountsv1 "github.com/videocoin/cloud-api/accounts/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
+	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-dispatcher/rpc"
 	"github.com/videocoin/cloud-pkg/grpcutil"
 	"google.golang.org/grpc"
@@ -12,6 +13,7 @@ import (
 type Service struct {
 	cfg *Config
 	rpc *rpc.RpcServer
+	eb  *eventbus.EventBus
 }
 
 func NewService(cfg *Config) (*Service, error) {
@@ -52,9 +54,20 @@ func NewService(cfg *Config) (*Service, error) {
 		return nil, err
 	}
 
+	ebConfig := &eventbus.Config{
+		URI:    cfg.MQURI,
+		Name:   cfg.Name,
+		Logger: cfg.Logger.WithField("system", "eventbus"),
+	}
+	eb, err := eventbus.New(ebConfig)
+	if err != nil {
+		return nil, err
+	}
+
 	svc := &Service{
 		cfg: cfg,
 		rpc: rpc,
+		eb:  eb,
 	}
 
 	return svc, nil
@@ -62,9 +75,11 @@ func NewService(cfg *Config) (*Service, error) {
 
 func (s *Service) Start() error {
 	go s.rpc.Start()
+	go s.eb.Start()
 	return nil
 }
 
 func (s *Service) Stop() error {
+	s.eb.Stop()
 	return nil
 }
