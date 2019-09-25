@@ -3,7 +3,7 @@ package service
 import (
 	accountsv1 "github.com/videocoin/cloud-api/accounts/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
-	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
+	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-dispatcher/rpc"
@@ -34,13 +34,13 @@ func NewService(cfg *Config) (*Service, error) {
 	}
 	emitter := emitterv1.NewEmitterServiceClient(emitterConn)
 
-	slogger := cfg.Logger.WithField("system", "streamscli")
+	slogger := cfg.Logger.WithField("system", "pstreamscli")
 	sGrpcDialOpts := grpcutil.ClientDialOptsWithRetry(slogger)
 	streamsConn, err := grpc.Dial(cfg.StreamsRPCAddr, sGrpcDialOpts...)
 	if err != nil {
 		return nil, err
 	}
-	streams := streamsv1.NewStreamServiceClient(streamsConn)
+	streams := streamsv1.NewStreamsServiceClient(streamsConn)
 
 	rpcConfig := &rpc.RpcServerOpts{
 		Addr:     cfg.RPCAddr,
@@ -62,6 +62,7 @@ func NewService(cfg *Config) (*Service, error) {
 
 	dm, err := datastore.NewDataManager(
 		ds,
+		streams,
 		cfg.Logger.WithField("system", "datamanager"),
 	)
 	if err != nil {

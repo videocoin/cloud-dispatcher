@@ -5,17 +5,24 @@ import (
 
 	"github.com/mailru/dbr"
 	"github.com/sirupsen/logrus"
+	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 )
 
 type DataManager struct {
-	logger *logrus.Entry
-	ds     *Datastore
+	logger  *logrus.Entry
+	ds      *Datastore
+	streams streamsv1.StreamsServiceClient
 }
 
-func NewDataManager(ds *Datastore, logger *logrus.Entry) (*DataManager, error) {
+func NewDataManager(
+	ds *Datastore,
+	streams streamsv1.StreamsServiceClient,
+	logger *logrus.Entry,
+) (*DataManager, error) {
 	return &DataManager{
-		logger: logger,
-		ds:     ds,
+		logger:  logger,
+		ds:      ds,
+		streams: streams,
 	}, nil
 }
 
@@ -44,6 +51,37 @@ func (m *DataManager) CreateTask(ctx context.Context, task *Task) error {
 	}
 	defer tx.RollbackUnlessCommitted()
 
+	err = m.ds.Tasks.Create(ctx, task)
+	if err != nil {
+		return failedTo("create task", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DataManager) CreateTaskFromStreamID(ctx context.Context, streamID string) error {
+	logger := m.logger.WithField("stream_id", streamID)
+
+	logger.Info("creating task from stream id")
+
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("create task from stream id", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	streamReq := &streamsv1.StreamRequest{Id: streamID}
+	streamResp, err := m.streams.Get(ctx, streamReq)
+	if err != nil {
+		return failedTo("get stream", err)
+	}
+
+	task := TaskFromStreamResponse(streamResp)
 	err = m.ds.Tasks.Create(ctx, task)
 	if err != nil {
 		return failedTo("create task", err)

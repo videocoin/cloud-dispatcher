@@ -83,7 +83,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	e.logger.Debugf("handling request %+v", req)
 
 	ctx := opentracing.ContextWithSpan(context.Background(), span)
-	err = e.dm.CreateTask(ctx, &datastore.Task{ID: req.StreamID})
+	err = e.dm.CreateTaskFromStreamID(ctx, req.StreamID)
 	if err != nil {
 		tracerext.SpanLogError(span, err)
 		return err

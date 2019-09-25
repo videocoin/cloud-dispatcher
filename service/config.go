@@ -10,7 +10,7 @@ type Config struct {
 
 	RPCAddr         string `default:"0.0.0.0:5008" envconfig:"RPC_ADDR"`
 	AccountsRPCAddr string `default:"0.0.0.0:5001" envconfig:"ACCOUNTS_RPC_ADDR"`
-	StreamsRPCAddr  string `default:"0.0.0.0:5002" envconfig:"STREAMS_RPC_ADDR"`
+	StreamsRPCAddr  string `default:"0.0.0.0:5102" envconfig:"STREAMS_RPC_ADDR"`
 	EmitterRPCAddr  string `default:"0.0.0.0:5003" envconfig:"EMITTER_RPC_ADDR"`
 
 	DBURI string `default:"root:@/videocoin?charset=utf8&parseTime=True&loc=Local" envconfig:"DBURI"`

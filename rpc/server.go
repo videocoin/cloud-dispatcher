@@ -10,7 +10,7 @@ import (
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	"github.com/videocoin/cloud-api/rpc"
-	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
+	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	"github.com/videocoin/cloud-pkg/grpcutil"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -20,7 +20,7 @@ type RpcServerOpts struct {
 	Addr     string
 	Accounts accountsv1.AccountServiceClient
 	Emitter  emitterv1.EmitterServiceClient
-	Streams  streamsv1.StreamServiceClient
+	Streams  streamsv1.StreamsServiceClient
 	Logger   *logrus.Entry
 }
 
@@ -30,7 +30,7 @@ type RpcServer struct {
 	listen    net.Listener
 	accounts  accountsv1.AccountServiceClient
 	emitter   emitterv1.EmitterServiceClient
-	streams   streamsv1.StreamServiceClient
+	streams   streamsv1.StreamsServiceClient
 	validator *requestValidator
 	logger    *logrus.Entry
 }
