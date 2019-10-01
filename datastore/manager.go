@@ -5,24 +5,28 @@ import (
 
 	"github.com/mailru/dbr"
 	"github.com/sirupsen/logrus"
+	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 )
 
 type DataManager struct {
-	logger  *logrus.Entry
-	ds      *Datastore
-	streams streamsv1.StreamsServiceClient
+	logger   *logrus.Entry
+	ds       *Datastore
+	streams  streamsv1.StreamsServiceClient
+	profiles profilesv1.ProfilesServiceClient
 }
 
 func NewDataManager(
 	ds *Datastore,
 	streams streamsv1.StreamsServiceClient,
+	profiles profilesv1.ProfilesServiceClient,
 	logger *logrus.Entry,
 ) (*DataManager, error) {
 	return &DataManager{
-		logger:  logger,
-		ds:      ds,
-		streams: streams,
+		logger:   logger,
+		ds:       ds,
+		streams:  streams,
+		profiles: profiles,
 	}, nil
 }
 
@@ -82,6 +86,20 @@ func (m *DataManager) CreateTaskFromStreamID(ctx context.Context, streamID strin
 	}
 
 	task := TaskFromStreamResponse(streamResp)
+
+	logger.Debugf("task %+v\n", task)
+
+	profileReq := &profilesv1.RenderRequest{
+		Id:     task.ProfileID,
+		Input:  task.Input.GetURI(),
+		Output: task.Output.GetPath(),
+	}
+	renderResp, err := m.profiles.Render(ctx, profileReq)
+	if err != nil {
+		return failedTo("get profile", err)
+	}
+	task.Cmdline = renderResp.Render
+
 	err = m.ds.Tasks.Create(ctx, task)
 	if err != nil {
 		return failedTo("create task", err)

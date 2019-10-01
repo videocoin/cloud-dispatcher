@@ -1,21 +1,32 @@
 package datastore
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	dispatcherv1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 )
 
 type Task struct {
-	ID        string     `db:"id"`
-	CreatedAt time.Time  `db:"created_at"`
-	DeletedAt *time.Time `db:"deleted_at"`
-	ProfileID int32      `db:"profile_id"`
+	*dispatcherv1.Task
 }
 
 func TaskFromStreamResponse(s *streamsv1.StreamResponse) *Task {
+	out := &dispatcherv1.TaskOutput{Path: fmt.Sprintf("$OUTPUT/%s", s.ID)}
+
 	return &Task{
-		ID:        s.ID,
-		ProfileID: int32(s.ProfileID),
+		Task: &dispatcherv1.Task{
+			ID:        s.ID,
+			OwnerID:   0,
+			CreatedAt: pointer.ToTime(time.Now()),
+			ProfileID: s.ProfileID,
+			Status:    dispatcherv1.TaskStatusCreated,
+			Input: &dispatcherv1.TaskInput{
+				URI: s.InputURL,
+			},
+			Output: out,
+		},
 	}
 }

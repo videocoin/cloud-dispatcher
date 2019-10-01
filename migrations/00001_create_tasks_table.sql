@@ -3,7 +3,12 @@
 CREATE TABLE tasks (
     `id`              VARCHAR(255) PRIMARY KEY NOT NULL,
     `created_at`      TIMESTAMP DEFAULT NOW(),
-    `deleted_at`      TIMESTAMP NULL DEFAULT NULL
+    `owner_id`        INT(11) NOT NULL,
+    `status`          VARCHAR(30) NOT NULL,
+    `profile_id`      CHAR(36) NOT NULL,
+    `cmdline`         TEXT DEFAULT NULL,
+    `input`           JSON,
+    `output`          JSON
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

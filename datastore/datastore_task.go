@@ -5,9 +5,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/videocoin/cloud-pkg/uuid4"
+	"github.com/AlekSi/pointer"
 
 	"github.com/mailru/dbr"
+	"github.com/videocoin/cloud-pkg/uuid4"
 )
 
 var (
@@ -58,10 +59,10 @@ func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
 	}
 
 	if task.CreatedAt.IsZero() {
-		task.CreatedAt = time.Now()
+		task.CreatedAt = pointer.ToTime(time.Now())
 	}
 
-	cols := []string{"id", "created_at"}
+	cols := []string{"id", "owner_id", "created_at", "status", "profile_id", "input", "output", "cmdline"}
 	_, err := tx.InsertInto(ds.table).Columns(cols...).Record(task).Exec()
 	if err != nil {
 		return err
