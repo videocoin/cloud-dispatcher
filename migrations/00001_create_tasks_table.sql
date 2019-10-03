@@ -8,7 +8,8 @@ CREATE TABLE tasks (
     `profile_id`      CHAR(36) NOT NULL,
     `cmdline`         TEXT DEFAULT NULL,
     `input`           JSON,
-    `output`          JSON
+    `output`          JSON,
+    `machine_id`      CHAR(36) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

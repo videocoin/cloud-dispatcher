@@ -3,7 +3,10 @@ package datastore
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
+
+	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 
 	"github.com/AlekSi/pointer"
 
@@ -138,4 +141,122 @@ func (ds *TaskDatastore) GetByID(ctx context.Context, id string) (*Task, error) 
 	}
 
 	return task, nil
+}
+
+func (ds *TaskDatastore) GetPendingTask(ctx context.Context) (*Task, error) {
+	var sess *dbr.Session
+	var tx *dbr.Tx
+
+	sess, _ = DbSessionFromContext(ctx)
+	if sess == nil {
+		sess = ds.conn.NewSession(nil)
+	}
+
+	tx, _ = DbTxFromContext(ctx)
+	if tx == nil {
+		tx, err := sess.Begin()
+		if err != nil {
+			return nil, err
+		}
+
+		defer func() {
+			tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	task := &Task{}
+	err := tx.
+		Select("*").
+		From(ds.table).
+		Where("status = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)]).
+		Where("machine_id IS NULL").
+		Limit(1).
+		LoadStruct(task)
+
+	if err != nil {
+		if err == dbr.ErrNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return task, nil
+}
+
+func (ds *TaskDatastore) MarkTaskAsPending(ctx context.Context, task *Task) error {
+	err := ds.markTaskStatusAs(ctx, task, v1.TaskStatusPending)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *TaskDatastore) MarkTaskAsAssigned(ctx context.Context, task *Task) error {
+	err := ds.markTaskStatusAs(ctx, task, v1.TaskStatusAssigned)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *TaskDatastore) markTaskStatusAs(
+	ctx context.Context,
+	task *Task,
+	status v1.TaskStatus,
+) error {
+	var sess *dbr.Session
+	var tx *dbr.Tx
+
+	sess, _ = DbSessionFromContext(ctx)
+	if sess == nil {
+		sess = ds.conn.NewSession(nil)
+	}
+
+	tx, _ = DbTxFromContext(ctx)
+	if tx == nil {
+		tx, err := sess.Begin()
+		if err != nil {
+			return err
+		}
+
+		defer func() {
+			tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	task.Status = status
+	builder := tx.
+		Update(ds.table).
+		Where("id = ?", task.ID).
+		Set("status", status)
+
+	if status == v1.TaskStatusAssigned {
+		builder = builder.
+			Where("status = ?", v1.TaskStatusPending).
+			Set("machine_id", task.MachineID)
+	}
+
+	r, err := builder.Exec()
+	if err != nil {
+		return err
+	}
+
+	n, err := r.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if n == 0 {
+		return fmt.Errorf("mark status as %s: no rows affected", status)
+	}
+
+	if n > 1 {
+		return fmt.Errorf("mark status as %s: rows affected are %d", status, n)
+	}
+
+	return nil
 }

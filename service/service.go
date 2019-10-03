@@ -51,19 +51,6 @@ func NewService(cfg *Config) (*Service, error) {
 	}
 	profiles := profilesv1.NewProfilesServiceClient(profilesConn)
 
-	rpcConfig := &rpc.RpcServerOpts{
-		Addr:     cfg.RPCAddr,
-		Accounts: accounts,
-		Emitter:  emitter,
-		Streams:  streams,
-		Logger:   cfg.Logger,
-	}
-
-	rpc, err := rpc.NewRpcServer(rpcConfig)
-	if err != nil {
-		return nil, err
-	}
-
 	ds, err := datastore.NewDatastore(cfg.DBURI)
 	if err != nil {
 		return nil, err
@@ -75,6 +62,20 @@ func NewService(cfg *Config) (*Service, error) {
 		profiles,
 		cfg.Logger.WithField("system", "datamanager"),
 	)
+	if err != nil {
+		return nil, err
+	}
+
+	rpcConfig := &rpc.RpcServerOpts{
+		Addr:     cfg.RPCAddr,
+		Accounts: accounts,
+		Emitter:  emitter,
+		Streams:  streams,
+		Logger:   cfg.Logger,
+		DM:       dm,
+	}
+
+	rpc, err := rpc.NewRpcServer(rpcConfig)
 	if err != nil {
 		return nil, err
 	}

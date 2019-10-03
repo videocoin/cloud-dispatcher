@@ -8,7 +8,7 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
-	privatev1 "github.com/videocoin/cloud-api/streams/private/v1"
+	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-pkg/mqmux"
 	tracerext "github.com/videocoin/cloud-pkg/tracer"
@@ -70,7 +70,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 
 	defer span.Finish()
 
-	req := new(privatev1.Event)
+	req := new(pstreamsv1.Event)
 	err = json.Unmarshal(d.Body, req)
 	if err != nil {
 		tracerext.SpanLogError(span, err)
@@ -83,10 +83,33 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	e.logger.Debugf("handling request %+v", req)
 
 	ctx := opentracing.ContextWithSpan(context.Background(), span)
-	err = e.dm.CreateTaskFromStreamID(ctx, req.StreamID)
-	if err != nil {
-		tracerext.SpanLogError(span, err)
-		return err
+
+	switch req.Type {
+	case pstreamsv1.EventTypeCreate:
+		{
+			e.logger.Info("creating task")
+			task, err := e.dm.CreateTaskFromStreamID(ctx, req.StreamID)
+			if err != nil {
+				tracerext.SpanLogError(span, err)
+				return err
+			}
+
+			err = e.dm.MarkTaskAsPending(ctx, task)
+			if err != nil {
+				tracerext.SpanLogError(span, err)
+				return err
+			}
+		}
+	case pstreamsv1.EventTypeUpdate:
+		{
+			e.logger.Info("updating task")
+		}
+	case pstreamsv1.EventTypeDelete:
+		{
+			e.logger.Info("deleting task")
+		}
+	case pstreamsv1.EventTypeUnknown:
+		e.logger.Error("event type is unknown")
 	}
 
 	return nil

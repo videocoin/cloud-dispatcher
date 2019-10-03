@@ -11,20 +11,23 @@ import (
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-pkg/grpcutil"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 type RpcServerOpts struct {
+	Logger   *logrus.Entry
 	Addr     string
 	Accounts accountsv1.AccountServiceClient
 	Emitter  emitterv1.EmitterServiceClient
 	Streams  streamsv1.StreamsServiceClient
-	Logger   *logrus.Entry
+	DM       *datastore.DataManager
 }
 
 type RpcServer struct {
+	logger    *logrus.Entry
 	addr      string
 	grpc      *grpc.Server
 	listen    net.Listener
@@ -32,7 +35,7 @@ type RpcServer struct {
 	emitter   emitterv1.EmitterServiceClient
 	streams   streamsv1.StreamsServiceClient
 	validator *requestValidator
-	logger    *logrus.Entry
+	dm        *datastore.DataManager
 }
 
 func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
@@ -53,6 +56,7 @@ func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 		streams:   opts.Streams,
 		logger:    opts.Logger.WithField("system", "rpc"),
 		validator: newRequestValidator(),
+		dm:        opts.DM,
 	}
 
 	v1.RegisterDispatcherServiceServer(grpcServer, rpcServer)
