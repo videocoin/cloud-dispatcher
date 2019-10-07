@@ -3,28 +3,32 @@ package eventbus
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-pkg/mqmux"
 	tracerext "github.com/videocoin/cloud-pkg/tracer"
 )
 
 type Config struct {
-	Logger *logrus.Entry
-	URI    string
-	Name   string
-	DM     *datastore.DataManager
+	Logger  *logrus.Entry
+	URI     string
+	Name    string
+	DM      *datastore.DataManager
+	Streams pstreamsv1.StreamsServiceClient
 }
 
 type EventBus struct {
-	logger *logrus.Entry
-	mq     *mqmux.WorkerMux
-	dm     *datastore.DataManager
+	logger  *logrus.Entry
+	mq      *mqmux.WorkerMux
+	dm      *datastore.DataManager
+	streams pstreamsv1.StreamsServiceClient
 }
 
 func New(c *Config) (*EventBus, error) {
@@ -37,9 +41,10 @@ func New(c *Config) (*EventBus, error) {
 	}
 
 	return &EventBus{
-		logger: c.Logger,
-		mq:     mq,
-		dm:     c.DM,
+		logger:  c.Logger,
+		mq:      mq,
+		dm:      c.DM,
+		streams: c.Streams,
 	}, nil
 }
 
@@ -88,13 +93,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	case pstreamsv1.EventTypeCreate:
 		{
 			e.logger.Info("creating task")
-			task, err := e.dm.CreateTaskFromStreamID(ctx, req.StreamID)
-			if err != nil {
-				tracerext.SpanLogError(span, err)
-				return err
-			}
-
-			err = e.dm.MarkTaskAsPending(ctx, task)
+			_, err := e.dm.CreateTaskFromStreamID(ctx, req.StreamID)
 			if err != nil {
 				tracerext.SpanLogError(span, err)
 				return err
@@ -103,6 +102,27 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	case pstreamsv1.EventTypeUpdate:
 		{
 			e.logger.Info("updating task")
+
+			streamReq := &pstreamsv1.StreamRequest{Id: req.StreamID}
+			streamResp, err := e.streams.Get(ctx, streamReq)
+			if err != nil {
+				tracerext.SpanLogError(span, err)
+				return fmt.Errorf("failed to get stream: %s", err)
+			}
+
+			if streamResp.Status == streamsv1.StreamStatusPending {
+				task, err := e.dm.GetTaskByID(ctx, streamResp.ID)
+				if err != nil {
+					tracerext.SpanLogError(span, err)
+					return err
+				}
+
+				err = e.dm.MarkTaskAsPending(ctx, task)
+				if err != nil {
+					tracerext.SpanLogError(span, err)
+					return err
+				}
+			}
 		}
 	case pstreamsv1.EventTypeDelete:
 		{
