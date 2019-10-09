@@ -9,7 +9,9 @@ CREATE TABLE tasks (
     `cmdline`         TEXT DEFAULT NULL,
     `input`           JSON,
     `output`          JSON,
-    `machine_id`      CHAR(36) NULL
+    `machine_id`      CHAR(36) NULL,
+    `stream_contract_id` BIGINT(10) NULL,
+    `stream_contract_address` VARCHAR(255) NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

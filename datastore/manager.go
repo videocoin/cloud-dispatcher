@@ -212,3 +212,23 @@ func (m *DataManager) MarkTaskAsAssigned(ctx context.Context, task *Task) error 
 
 	return nil
 }
+
+func (m *DataManager) UpdateTaskStreamContract(ctx context.Context, task *Task, id int64, address string) error {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("update task stream contract", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.Tasks.UpdateStreamContract(ctx, task, id, address)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

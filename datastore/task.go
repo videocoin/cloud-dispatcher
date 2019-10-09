@@ -11,15 +11,17 @@ import (
 )
 
 type Task struct {
-	ID        string         `db:"id"`
-	OwnerID   int32          `db:"owner_id"`
-	CreatedAt *time.Time     `db:"created_at"`
-	Status    v1.TaskStatus  `db:"status"`
-	ProfileID string         `db:"profile_id"`
-	Input     *v1.TaskInput  `db:"input"`
-	Output    *v1.TaskOutput `db:"output"`
-	Cmdline   string         `db:"cmdline"`
-	MachineID dbr.NullString `db:"machine_id"`
+	ID                    string         `db:"id"`
+	OwnerID               int32          `db:"owner_id"`
+	CreatedAt             *time.Time     `db:"created_at"`
+	Status                v1.TaskStatus  `db:"status"`
+	ProfileID             string         `db:"profile_id"`
+	Input                 *v1.TaskInput  `db:"input"`
+	Output                *v1.TaskOutput `db:"output"`
+	Cmdline               string         `db:"cmdline"`
+	MachineID             dbr.NullString `db:"machine_id"`
+	StreamContractID      dbr.NullInt64  `db:"stream_contract_id"`
+	StreamContractAddress dbr.NullString `db:"stream_contract_address"`
 }
 
 func TaskFromStreamResponse(s *streamsv1.StreamResponse) *Task {
@@ -34,6 +36,8 @@ func TaskFromStreamResponse(s *streamsv1.StreamResponse) *Task {
 		Input: &v1.TaskInput{
 			URI: s.InputURL,
 		},
-		Output: out,
+		Output:                out,
+		StreamContractID:      dbr.NewNullInt64(s.StreamContractID),
+		StreamContractAddress: dbr.NewNullString(s.StreamContractAddress),
 	}
 }

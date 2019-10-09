@@ -35,6 +35,8 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 	}
 
 	v1Task.MachineID = task.MachineID.String
+	v1Task.StreamContractID = uint64(task.StreamContractID.Int64)
+	v1Task.StreamContractAddress = task.StreamContractAddress.String
 
 	return v1Task, nil
 }

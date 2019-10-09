@@ -117,6 +117,21 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 					return err
 				}
 
+				e.logger.Info("updating task stream contract")
+
+				err = e.dm.UpdateTaskStreamContract(
+					ctx,
+					task,
+					int64(streamResp.StreamContractID),
+					streamResp.StreamContractAddress,
+				)
+				if err != nil {
+					tracerext.SpanLogError(span, err)
+					return err
+				}
+
+				e.logger.Info("marking task as pending")
+
 				err = e.dm.MarkTaskAsPending(ctx, task)
 				if err != nil {
 					tracerext.SpanLogError(span, err)

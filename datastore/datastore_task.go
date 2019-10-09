@@ -260,3 +260,46 @@ func (ds *TaskDatastore) markTaskStatusAs(
 
 	return nil
 }
+
+func (ds *TaskDatastore) UpdateStreamContract(
+	ctx context.Context,
+	task *Task,
+	id int64,
+	address string,
+) error {
+	var sess *dbr.Session
+	var tx *dbr.Tx
+
+	sess, _ = DbSessionFromContext(ctx)
+	if sess == nil {
+		sess = ds.conn.NewSession(nil)
+	}
+
+	tx, _ = DbTxFromContext(ctx)
+	if tx == nil {
+		tx, err := sess.Begin()
+		if err != nil {
+			return err
+		}
+
+		defer func() {
+			tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	task.StreamContractID = dbr.NewNullInt64(id)
+	task.StreamContractAddress = dbr.NewNullString(address)
+	builder := tx.
+		Update(ds.table).
+		Where("id = ?", task.ID).
+		Set("stream_contract_id", task.StreamContractID).
+		Set("stream_contract_address", task.StreamContractAddress)
+
+	_, err := builder.Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
