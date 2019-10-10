@@ -5,6 +5,7 @@ import (
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-dispatcher/rpc"
@@ -51,6 +52,14 @@ func NewService(cfg *Config) (*Service, error) {
 	}
 	profiles := profilesv1.NewProfilesServiceClient(profilesConn)
 
+	vlogger := cfg.Logger.WithField("system", "validatorcli")
+	vGrpcDialOpts := grpcutil.ClientDialOptsWithRetry(vlogger)
+	validatorConn, err := grpc.Dial(cfg.ValidatorRPCAddr, vGrpcDialOpts...)
+	if err != nil {
+		return nil, err
+	}
+	validator := validatorv1.NewValidatorServiceClient(validatorConn)
+
 	ds, err := datastore.NewDatastore(cfg.DBURI)
 	if err != nil {
 		return nil, err
@@ -67,12 +76,13 @@ func NewService(cfg *Config) (*Service, error) {
 	}
 
 	rpcConfig := &rpc.RpcServerOpts{
-		Addr:     cfg.RPCAddr,
-		Accounts: accounts,
-		Emitter:  emitter,
-		Streams:  streams,
-		Logger:   cfg.Logger,
-		DM:       dm,
+		Addr:      cfg.RPCAddr,
+		Accounts:  accounts,
+		Emitter:   emitter,
+		Streams:   streams,
+		Validator: validator,
+		Logger:    cfg.Logger,
+		DM:        dm,
 	}
 
 	rpc, err := rpc.NewRpcServer(rpcConfig)
