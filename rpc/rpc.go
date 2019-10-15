@@ -22,7 +22,7 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 		return nil, rpc.ErrRpcNotFound
 	}
 
-	task.MachineID = dbr.NewNullString(req.MachineID)
+	task.ClientID = dbr.NewNullString(req.ClientID)
 	err = s.dm.MarkTaskAsAssigned(ctx, task)
 	if err != nil {
 		logFailedTo(s.logger, "mark as assigned", err)
@@ -36,7 +36,7 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 		return nil, rpc.ErrRpcInternal
 	}
 
-	v1Task.MachineID = task.MachineID.String
+	v1Task.ClientID = task.ClientID.String
 	v1Task.StreamContractID = uint64(task.StreamContractID.Int64)
 	v1Task.StreamContractAddress = task.StreamContractAddress.String
 
@@ -61,7 +61,7 @@ func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task,
 		return nil, rpc.ErrRpcInternal
 	}
 
-	v1Task.MachineID = task.MachineID.String
+	v1Task.ClientID = task.ClientID.String
 
 	return v1Task, nil
 }

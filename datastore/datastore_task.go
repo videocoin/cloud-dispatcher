@@ -237,7 +237,7 @@ func (ds *TaskDatastore) markTaskStatusAs(
 	if status == v1.TaskStatusAssigned {
 		builder = builder.
 			Where("status = ?", v1.TaskStatusPending).
-			Set("machine_id", task.MachineID)
+			Set("client_id", task.ClientID)
 	}
 
 	r, err := builder.Exec()

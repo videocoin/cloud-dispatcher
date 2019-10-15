@@ -19,7 +19,7 @@ type Task struct {
 	Input                 *v1.TaskInput  `db:"input"`
 	Output                *v1.TaskOutput `db:"output"`
 	Cmdline               string         `db:"cmdline"`
-	MachineID             dbr.NullString `db:"machine_id"`
+	ClientID              dbr.NullString `db:"client_id"`
 	StreamContractID      dbr.NullInt64  `db:"stream_contract_id"`
 	StreamContractAddress dbr.NullString `db:"stream_contract_address"`
 }
