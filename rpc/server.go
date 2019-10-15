@@ -11,6 +11,7 @@ import (
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-pkg/grpcutil"
@@ -26,6 +27,7 @@ type RpcServerOpts struct {
 	Emitter   emitterv1.EmitterServiceClient
 	Streams   streamsv1.StreamsServiceClient
 	Validator validatorv1.ValidatorServiceClient
+	Syncer    syncerv1.SyncerServiceClient
 }
 
 type RpcServer struct {
@@ -37,12 +39,15 @@ type RpcServer struct {
 	emitter   emitterv1.EmitterServiceClient
 	streams   streamsv1.StreamsServiceClient
 	validator validatorv1.ValidatorServiceClient
+	syncer    syncerv1.SyncerServiceClient
 	v         *requestValidator
 	dm        *datastore.DataManager
 }
 
 func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 	grpcOpts := grpcutil.DefaultServerOpts(opts.Logger)
+	grpcOpts = append(grpcOpts, grpc.MaxRecvMsgSize(1024*1024*1024))
+	grpcOpts = append(grpcOpts, grpc.MaxSendMsgSize(1024*1024*1024))
 	grpcServer := grpc.NewServer(grpcOpts...)
 
 	listen, err := net.Listen("tcp", opts.Addr)
@@ -58,6 +63,7 @@ func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 		emitter:   opts.Emitter,
 		streams:   opts.Streams,
 		validator: opts.Validator,
+		syncer:    opts.Syncer,
 		logger:    opts.Logger.WithField("system", "rpc"),
 		v:         newRequestValidator(),
 		dm:        opts.DM,

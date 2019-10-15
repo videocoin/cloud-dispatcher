@@ -170,7 +170,7 @@ func (ds *TaskDatastore) GetPendingTask(ctx context.Context) (*Task, error) {
 		Select("*").
 		From(ds.table).
 		Where("status = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)]).
-		Where("machine_id IS NULL").
+		Where("client_id IS NULL").
 		Limit(1).
 		LoadStruct(task)
 
@@ -195,6 +195,24 @@ func (ds *TaskDatastore) MarkTaskAsPending(ctx context.Context, task *Task) erro
 
 func (ds *TaskDatastore) MarkTaskAsAssigned(ctx context.Context, task *Task) error {
 	err := ds.markTaskStatusAs(ctx, task, v1.TaskStatusAssigned)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *TaskDatastore) MarkTaskAsCompleted(ctx context.Context, task *Task) error {
+	err := ds.markTaskStatusAs(ctx, task, v1.TaskStatusCompleted)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *TaskDatastore) MarkTaskAsFailed(ctx context.Context, task *Task) error {
+	err := ds.markTaskStatusAs(ctx, task, v1.TaskStatusFailed)
 	if err != nil {
 		return err
 	}

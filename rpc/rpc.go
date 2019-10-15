@@ -8,6 +8,7 @@ import (
 	"github.com/mailru/dbr"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-api/rpc"
+	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 )
 
@@ -66,9 +67,74 @@ func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task,
 	return v1Task, nil
 }
 
+func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+	task, err := s.dm.GetTaskByID(ctx, req.ID)
+	if err != nil {
+		logFailedTo(s.logger, "get task", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	if task == nil {
+		return nil, rpc.ErrRpcNotFound
+	}
+
+	err = s.dm.MarkTaskAsCompleted(ctx, task)
+	if err != nil {
+		logFailedTo(s.logger, "mark task as completed", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	v1Task := &v1.Task{}
+	err = copier.Copy(v1Task, task)
+	if err != nil {
+		logFailedTo(s.logger, "copy task", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	v1Task.ClientID = task.ClientID.String
+
+	return v1Task, nil
+}
+
+func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+	task, err := s.dm.GetTaskByID(ctx, req.ID)
+	if err != nil {
+		logFailedTo(s.logger, "get task", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	if task == nil {
+		return nil, rpc.ErrRpcNotFound
+	}
+
+	err = s.dm.MarkTaskAsFailed(ctx, task)
+	if err != nil {
+		logFailedTo(s.logger, "mark task as failed", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	v1Task := &v1.Task{}
+	err = copier.Copy(v1Task, task)
+	if err != nil {
+		logFailedTo(s.logger, "copy task", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	v1Task.ClientID = task.ClientID.String
+
+	return v1Task, nil
+}
+
 func (s *RpcServer) ValidateProof(
 	ctx context.Context,
 	req *validatorv1.ValidateProofRequest,
 ) (*prototypes.Empty, error) {
 	return s.validator.ValidateProof(ctx, req)
+}
+
+func (s *RpcServer) Sync(
+	ctx context.Context,
+	req *syncerv1.SyncRequest,
+) (*prototypes.Empty, error) {
+	return s.syncer.Sync(ctx, req)
 }
