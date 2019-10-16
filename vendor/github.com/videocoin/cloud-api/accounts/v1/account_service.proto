@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package cloud.api.account.v1;
+
+import "accounts/v1/account.proto";
+
+import "github.com/videocoin/cloud-api/rpc/health.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+service AccountService {
+    rpc Health(google.protobuf.Empty) returns (cloud.api.rpc.HealthStatus) {
+        option (google.api.http) = {
+            get: "/healthz"
+        };
+    }
+
+    rpc Get(AccountRequest) returns (AccountProfile) {
+        option (google.api.http) = {
+            get: "/api/v1/accounts/{id}"
+        };
+    }
+
+    rpc GetByAddress(Address) returns (AccountProfile) {}
+    rpc GetByOwner(AccountRequest) returns (AccountProfile) {}
+    rpc Create(AccountRequest) returns (AccountProfile) {}
+    rpc List(google.protobuf.Empty) returns (ListResponse) {}
+
+    rpc Key(AccountRequest) returns (AccountKey) {}
+}
+
+message AccountRequest {
+    string id = 1;
+    string owner_id = 2;
+}
+
+message Address {
+    string address = 1;
+}
+
+message ListResponse {
+    repeated AccountProfile items = 1;
+}
+
+

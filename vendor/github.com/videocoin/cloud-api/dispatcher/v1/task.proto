@@ -1,0 +1,62 @@
+syntax = "proto3";
+
+package cloud.api.dispatcher.v1;
+
+import "google/api/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+enum TaskStatus {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "TaskStatus";
+
+    CREATED = 0 [(gogoproto.enumvalue_customname) = "TaskStatusCreated"];
+    PENDING = 1 [(gogoproto.enumvalue_customname) = "TaskStatusPending"];
+    ASSIGNED = 2 [(gogoproto.enumvalue_customname) = "TaskStatusAssigned"];
+    ENCODING = 3 [(gogoproto.enumvalue_customname) = "TaskStatusEncoding"];
+    COMPLETED = 4 [(gogoproto.enumvalue_customname) = "TaskStatusCompleted"];
+    FAILED = 5 [(gogoproto.enumvalue_customname) = "TaskStatusFailed"];
+    CANCELED = 6 [(gogoproto.enumvalue_customname) = "TaskStatusCanceled"];
+}
+
+message TaskInput {
+    string uri = 1 [(gogoproto.customname) = "URI"];
+}
+
+message TaskOutput {
+    string path = 1;
+}
+
+message Task {
+    string id = 1 [
+        (gogoproto.customname) = "ID"
+    ];
+    int32 owner_id = 2 [
+        (gogoproto.customname) = "OwnerID"
+    ];
+    google.protobuf.Timestamp created_at = 3 [
+        (gogoproto.stdtime) = true,
+        (gogoproto.moretags) = "db:\"created_at\""
+    ];
+    TaskStatus status = 4;
+    string profile_id = 5 [
+        (gogoproto.customname) = "ProfileID"
+    ];
+    TaskInput input = 6;
+    TaskOutput output = 7;
+    string cmdline = 8;
+    string client_id = 9 [
+        (gogoproto.customname) = "ClientID"
+    ];
+    uint64 stream_contract_id = 10 [
+        (gogoproto.customname) = "StreamContractID"
+    ];
+    string stream_contract_address = 11;
+}

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package cloud.api.validator.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/videocoin/cloud-api/rpc/health.proto";
+
+option go_package = "v1";
+option (gogoproto.unmarshaler_all) = false;
+option (gogoproto.marshaler_all) = false;
+option (gogoproto.sizer_all) = false;
+
+service ValidatorService {
+  rpc Health(google.protobuf.Empty) returns (cloud.api.rpc.HealthStatus) {
+    option (google.api.http) = {
+      get : "/healthz"
+    };
+  };
+
+  rpc ValidateProof(ValidateProofRequest) returns (google.protobuf.Empty) {}
+}
+
+message ValidateProofRequest {
+    string stream_contract_id = 1;
+    string stream_contract_address = 2;
+    bytes profile_id = 3;
+    bytes input_chunk_id = 4;
+    bytes output_chunk_id = 5;
+}

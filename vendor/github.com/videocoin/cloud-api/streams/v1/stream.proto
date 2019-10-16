@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package cloud.api.streams.v1;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+enum StreamStatus {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "StreamStatus";
+
+    STREAM_STATUS_NONE = 0 [ (gogoproto.enumvalue_customname) = "StreamStatusNone" ];
+    STREAM_STATUS_NEW = 1 [ (gogoproto.enumvalue_customname) = "StreamStatusNew" ];
+    STREAM_STATUS_PREPARING = 2 [ (gogoproto.enumvalue_customname) = "StreamStatusPreparing" ];
+    STREAM_STATUS_PREPARED = 3 [ (gogoproto.enumvalue_customname) = "StreamStatusPrepared" ];
+    STREAM_STATUS_PENDING = 4 [ (gogoproto.enumvalue_customname) = "StreamStatusPending" ];
+    STREAM_STATUS_PROCESSING = 5 [ (gogoproto.enumvalue_customname) = "StreamStatusProcessing" ];
+    STREAM_STATUS_READY = 6 [ (gogoproto.enumvalue_customname) = "StreamStatusReady" ];
+    STREAM_STATUS_COMPLETED = 7 [ (gogoproto.enumvalue_customname) = "StreamStatusCompleted" ];
+    STREAM_STATUS_CANCELLED = 8 [ (gogoproto.enumvalue_customname) = "StreamStatusCancelled" ];
+    STREAM_STATUS_FAILED = 9 [ (gogoproto.enumvalue_customname) = "StreamStatusFailed" ];
+}
+
+enum InputStatus {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "InputStatus";
+
+    INPUT_STATUS_NONE = 0 [ (gogoproto.enumvalue_customname) = "InputStatusNone" ];
+    INPUT_STATUS_PENDING = 1 [ (gogoproto.enumvalue_customname) = "InputStatusPending" ];
+    INPUT_STATUS_ACTIVE = 2 [ (gogoproto.enumvalue_customname) = "InputStatusActive" ];
+    INPUT_STATUS_ERROR = 3 [ (gogoproto.enumvalue_customname) = "InputStatusError" ];
+}
+
+message Stream {
+    string id = 1 [
+        (gogoproto.moretags) = "gorm:\"type:char(36);\""
+    ];
+
+    string user_id = 2;
+    string name = 3;
+
+    string profile_id = 4;
+
+    StreamStatus status = 5;
+    InputStatus input_status = 6;
+
+    uint64 stream_contract_id = 8;
+    string stream_contract_address = 9;
+
+    string input_url = 11;
+    string output_url = 12;
+
+    bool refunded = 13;
+
+    google.protobuf.Timestamp created_at = 16 [
+        (gogoproto.stdtime) = true
+    ];
+
+    google.protobuf.Timestamp updated_at = 17 [
+        (gogoproto.stdtime) = true
+    ];
+
+    google.protobuf.Timestamp ready_at = 18 [
+        (gogoproto.stdtime) = true
+    ];
+
+    google.protobuf.Timestamp completed_at = 19 [
+        (gogoproto.stdtime) = true
+    ];
+
+    string rtmp_url = 20;
+}
+
+message Streams {
+    repeated Stream items = 1;
+}
+
+message StreamProfile {
+    string id = 1;
+    string name = 2;
+
+    string input_url = 4;
+    string output_url = 5;
+
+    uint64 stream_contract_id = 7;
+    string stream_contract_address = 8;
+
+    StreamStatus status = 9;
+    InputStatus input_status = 10;
+
+    google.protobuf.Timestamp created_at = 11 [
+        (gogoproto.stdtime) = true
+    ];
+
+    google.protobuf.Timestamp updated_at = 17 [
+        (gogoproto.stdtime) = true
+    ];
+
+    google.protobuf.Timestamp ready_at = 12 [
+        (gogoproto.stdtime) = true
+    ];
+
+    google.protobuf.Timestamp completed_at = 13 [
+        (gogoproto.stdtime) = true
+    ];
+
+    string rtmp_url = 14;
+}
+
+message StreamProfiles {
+    repeated StreamProfile items = 1;
+}

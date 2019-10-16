@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package cloud.api.profiles.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/videocoin/cloud-api/rpc/health.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+service ProfilesService {
+    rpc Health(google.protobuf.Empty) returns (cloud.api.rpc.HealthStatus) {
+        option (google.api.http) = {
+            get: "/healthz"
+        };
+    }
+
+    rpc List(google.protobuf.Empty) returns (ProfileListItems)  {
+        option (google.api.http) = {
+            get: "/api/v1/profiles"
+        };
+    }
+
+    rpc Render(RenderRequest) returns (RenderResponse) {}
+}
+
+message ProfileListItem {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    bool is_enabled = 4;
+}
+
+
+message ProfileListItems {
+    repeated ProfileListItem items = 1;
+}
+
+message RenderRequest {
+    string id = 1;
+    string input = 2;
+    string output = 3;
+}
+
+message RenderResponse {
+    string render = 1;
+}

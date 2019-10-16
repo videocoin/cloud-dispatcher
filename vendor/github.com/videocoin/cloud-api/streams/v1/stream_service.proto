@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package cloud.api.streams.v1;
+
+import "github.com/videocoin/cloud-api/rpc/health.proto";
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+import "streams/v1/stream.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+service StreamService {
+    rpc Health(google.protobuf.Empty) returns (cloud.api.rpc.HealthStatus) {
+      option (google.api.http) = {
+        get: "/healthz"
+      };
+    }
+
+    rpc Create(CreateStreamRequest) returns (StreamProfile) {
+      option (google.api.http) = {
+        post: "/api/v1/streams"
+        body: "*"
+      };
+    };
+
+    rpc Get(StreamRequest) returns (StreamProfile) {
+      option (google.api.http) = {
+        get: "/api/v1/streams/{id}"
+      };
+    };
+
+    rpc Delete(StreamRequest) returns (google.protobuf.Empty) {
+      option (google.api.http) = {
+        delete: "/api/v1/streams/{id}"
+      };
+    };
+
+    rpc List(google.protobuf.Empty) returns (StreamProfiles) {
+        option (google.api.http) = {
+            get: "/api/v1/streams"
+        };
+    }
+
+    rpc Update(UpdateStreamRequest) returns (StreamProfile) {
+      option (google.api.http) = {
+        put: "/api/v1/streams/{id}"
+        body: "*"
+      };
+    };
+
+    rpc UpdateStatus(UpdateStreamRequest) returns (google.protobuf.Empty) {};
+
+    rpc Run(StreamRequest) returns (StreamProfile) {
+      option (google.api.http) = {
+        post: "/api/v1/streams/{id}/run"
+      };
+    };
+
+    rpc Stop(StreamRequest) returns (StreamProfile) {
+      option (google.api.http) = {
+        post: "/api/v1/streams/{id}/stop"
+      };
+    };
+}
+
+message CreateStreamRequest {
+    string name = 1 [
+      (gogoproto.moretags) = "validate:\"required\""
+    ];
+
+    string profile_id = 2 [
+      (gogoproto.moretags) = "validate:\"required\""
+    ];
+}
+
+message StreamRequest {
+  string id = 1;
+  uint64 stream_contract_id = 2;
+}
+
+message UpdateStreamRequest {
+  string id = 1;
+  string name = 2;
+  uint64 stream_contract_id = 3;
+  string stream_contract_address = 4;
+  StreamStatus status = 5;
+  InputStatus input_status = 6;
+}
