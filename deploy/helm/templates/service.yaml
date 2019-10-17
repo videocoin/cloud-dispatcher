@@ -29,6 +29,7 @@ metadata:
     heritage: "{{ .Release.Service }}"
 spec:
   type: LoadBalancer
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
   ports:
   - port: {{ .Values.service.externalRpcPort }}
     targetPort: {{ .Values.service.internalRpcPort }}
