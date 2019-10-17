@@ -42,7 +42,7 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: emitterRpcAddr
-            - name: PRIVATE_STREAMS_RPC_ADDR
+            - name: STREAMS_RPC_ADDR
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
