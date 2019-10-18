@@ -6,6 +6,7 @@ import (
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/jinzhu/copier"
 	"github.com/mailru/dbr"
+	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
@@ -136,5 +137,9 @@ func (s *RpcServer) Sync(
 	ctx context.Context,
 	req *syncerv1.SyncRequest,
 ) (*prototypes.Empty, error) {
+	s.logger.WithFields(logrus.Fields{
+		"object_name": req.Path,
+	}).Info("syncing")
+
 	return s.syncer.Sync(ctx, req)
 }
