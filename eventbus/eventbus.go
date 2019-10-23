@@ -138,6 +138,22 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 					return err
 				}
 			}
+
+			if streamResp.Status == streamsv1.StreamStatusCompleted {
+				task, err := e.dm.GetTaskByID(ctx, streamResp.ID)
+				if err != nil {
+					tracerext.SpanLogError(span, err)
+					return err
+				}
+
+				e.logger.Info("marking task as completed")
+
+				err = e.dm.MarkTaskAsCompleted(ctx, task)
+				if err != nil {
+					tracerext.SpanLogError(span, err)
+					return err
+				}
+			}
 		}
 	case pstreamsv1.EventTypeDelete:
 		{
