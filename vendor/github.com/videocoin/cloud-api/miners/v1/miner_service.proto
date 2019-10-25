@@ -43,6 +43,10 @@ service MinersService {
     }
 
     rpc Ping(PingRequest) returns (PingResponse) {}
+
+    rpc AssignTask(AssignTaskRequest) returns (google.protobuf.Empty) {}
+
+    rpc UnassignTask(AssignTaskRequest) returns (google.protobuf.Empty) {}
 }
 
 message MinerRequest {
@@ -63,3 +67,8 @@ message PingRequest {
 }
   
 message PingResponse {}
+
+message AssignTaskRequest {
+    string client_id = 1 [(gogoproto.customname) = "ClientID"];
+    string task_id = 2 [(gogoproto.customname) = "TaskID"];
+}

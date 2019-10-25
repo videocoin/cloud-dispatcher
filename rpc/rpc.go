@@ -43,6 +43,15 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 	v1Task.StreamContractID = uint64(task.StreamContractID.Int64)
 	v1Task.StreamContractAddress = task.StreamContractAddress.String
 
+	atReq := &minersv1.AssignTaskRequest{
+		ClientID: task.ClientID.String,
+		TaskID:   task.ID,
+	}
+	_, err = s.miners.AssignTask(context.Background(), atReq)
+	if err != nil {
+		logFailedTo(s.logger, "assign task to miners service", err)
+	}
+
 	return v1Task, nil
 }
 
@@ -95,6 +104,15 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 
 	v1Task.ClientID = task.ClientID.String
 
+	atReq := &minersv1.AssignTaskRequest{
+		ClientID: task.ClientID.String,
+		TaskID:   task.ID,
+	}
+	_, err = s.miners.UnassignTask(context.Background(), atReq)
+	if err != nil {
+		logFailedTo(s.logger, "unassign task to miners service", err)
+	}
+
 	return v1Task, nil
 }
 
@@ -123,6 +141,15 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 	}
 
 	v1Task.ClientID = task.ClientID.String
+
+	atReq := &minersv1.AssignTaskRequest{
+		ClientID: task.ClientID.String,
+		TaskID:   task.ID,
+	}
+	_, err = s.miners.UnassignTask(context.Background(), atReq)
+	if err != nil {
+		logFailedTo(s.logger, "unassign task to miners service", err)
+	}
 
 	return v1Task, nil
 }
