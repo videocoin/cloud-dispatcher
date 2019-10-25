@@ -62,6 +62,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: syncerRpcAddr
+            - name: MINERS_RPC_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: minersRpcAddr
             - name: BASE_INPUT_URL
               valueFrom:
                 configMapKeyRef:

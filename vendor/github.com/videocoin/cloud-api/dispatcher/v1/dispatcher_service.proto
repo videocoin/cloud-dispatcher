@@ -9,6 +9,7 @@ import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "dispatcher/v1/task.proto";
 import "github.com/videocoin/cloud-api/validator/v1/validator_service.proto";
 import "github.com/videocoin/cloud-api/syncer/v1/syncer_service.proto";
+import "github.com/videocoin/cloud-api/miners/v1/miner_service.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -30,6 +31,7 @@ service DispatcherService {
     rpc MarkTaskAsFailed(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
     rpc ValidateProof(cloud.api.validator.v1.ValidateProofRequest) returns (google.protobuf.Empty) {}
     rpc Sync(cloud.api.syncer.v1.SyncRequest) returns (google.protobuf.Empty) {}
+    rpc Ping(cloud.api.miners.v1.PingRequest) returns (cloud.api.miners.v1.PingResponse) {}
 }
 
 message TaskPendingRequest {

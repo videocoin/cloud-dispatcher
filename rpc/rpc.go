@@ -8,6 +8,7 @@ import (
 	"github.com/mailru/dbr"
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
+	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
@@ -142,4 +143,22 @@ func (s *RpcServer) Sync(
 	}).Info("syncing")
 
 	return s.syncer.Sync(ctx, req)
+}
+
+func (s *RpcServer) Ping(
+	ctx context.Context,
+	req *minersv1.PingRequest,
+) (*minersv1.PingResponse, error) {
+	s.logger.WithFields(logrus.Fields{
+		"client_id": req.ClientID,
+	}).Info("ping")
+
+	go func() {
+		_, err := s.miners.Ping(context.Background(), req)
+		if err != nil {
+			s.logger.Errorf("failed to ping: %s", err)
+		}
+	}()
+
+	return &minersv1.PingResponse{}, nil
 }

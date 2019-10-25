@@ -28,4 +28,5 @@ message SyncRequest {
     bytes data = 1;
     string path = 2;
     string content_type = 3;
+    double duration = 4;
 }

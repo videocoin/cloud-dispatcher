@@ -9,6 +9,7 @@ import (
 	accountsv1 "github.com/videocoin/cloud-api/accounts/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
+	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
@@ -28,6 +29,7 @@ type RpcServerOpts struct {
 	Streams   streamsv1.StreamsServiceClient
 	Validator validatorv1.ValidatorServiceClient
 	Syncer    syncerv1.SyncerServiceClient
+	Miners    minersv1.MinersServiceClient
 }
 
 type RpcServer struct {
@@ -40,6 +42,7 @@ type RpcServer struct {
 	streams   streamsv1.StreamsServiceClient
 	validator validatorv1.ValidatorServiceClient
 	syncer    syncerv1.SyncerServiceClient
+	miners    minersv1.MinersServiceClient
 	v         *requestValidator
 	dm        *datastore.DataManager
 }
@@ -64,6 +67,7 @@ func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 		streams:   opts.Streams,
 		validator: opts.Validator,
 		syncer:    opts.Syncer,
+		miners:    opts.Miners,
 		logger:    opts.Logger.WithField("system", "rpc"),
 		v:         newRequestValidator(),
 		dm:        opts.DM,

@@ -3,6 +3,7 @@ package service
 import (
 	accountsv1 "github.com/videocoin/cloud-api/accounts/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
+	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
@@ -69,6 +70,14 @@ func NewService(cfg *Config) (*Service, error) {
 	}
 	syncer := syncerv1.NewSyncerServiceClient(syncerConn)
 
+	mlogger := cfg.Logger.WithField("system", "minerscli")
+	mGrpcDialOpts := grpcutil.ClientDialOptsWithRetry(mlogger)
+	mConn, err := grpc.Dial(cfg.MinersRPCAddr, mGrpcDialOpts...)
+	if err != nil {
+		return nil, err
+	}
+	miners := minersv1.NewMinersServiceClient(mConn)
+
 	ds, err := datastore.NewDatastore(cfg.DBURI)
 	if err != nil {
 		return nil, err
@@ -91,6 +100,7 @@ func NewService(cfg *Config) (*Service, error) {
 		Streams:   streams,
 		Validator: validator,
 		Syncer:    syncer,
+		Miners:    miners,
 		Logger:    cfg.Logger,
 		DM:        dm,
 	}

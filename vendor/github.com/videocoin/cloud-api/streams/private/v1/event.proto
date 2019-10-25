@@ -4,6 +4,7 @@ package cloud.api.streams.private.v1;
 
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/videocoin/cloud-api/streams/v1/stream.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -20,9 +21,11 @@ enum EventType {
     EVENT_TYPE_CREATE = 1 [(gogoproto.enumvalue_customname) = "EventTypeCreate"];
     EVENT_TYPE_UPDATE = 2 [(gogoproto.enumvalue_customname) = "EventTypeUpdate"];
     EVENT_TYPE_DELETE = 3 [(gogoproto.enumvalue_customname) = "EventTypeDelete"];
+    EVENT_TYPE_UPDATE_STATUS = 4 [(gogoproto.enumvalue_customname) = "EventTypeUpdateStatus"];
 }
 
 message Event {
     EventType type = 1;
     string stream_id = 2 [(gogoproto.customname) = "StreamID"];
+    cloud.api.streams.v1.StreamStatus status = 3;
 }
