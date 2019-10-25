@@ -3,7 +3,6 @@ package datastore
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
@@ -263,18 +262,18 @@ func (ds *TaskDatastore) markTaskStatusAs(
 		return err
 	}
 
-	n, err := r.RowsAffected()
+	_, err = r.RowsAffected()
 	if err != nil {
 		return err
 	}
 
-	if n == 0 {
-		return fmt.Errorf("mark status as %s: no rows affected", status)
-	}
+	// if n == 0 {
+	// 	return fmt.Errorf("mark status as %s: no rows affected", status)
+	// }
 
-	if n > 1 {
-		return fmt.Errorf("mark status as %s: rows affected are %d", status, n)
-	}
+	// if n > 1 {
+	// 	return fmt.Errorf("mark status as %s: rows affected are %d", status, n)
+	// }
 
 	return nil
 }
