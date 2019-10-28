@@ -169,11 +169,20 @@ func (s *RpcServer) Sync(
 	ctx context.Context,
 	req *syncerv1.SyncRequest,
 ) (*prototypes.Empty, error) {
-	s.logger.WithFields(logrus.Fields{
+	logger := s.logger.WithFields(logrus.Fields{
 		"object_name": req.Path,
-	}).Info("syncing")
+	})
 
-	return s.syncer.Sync(ctx, req)
+	logger.Info("syncing")
+
+	go func(logger *logrus.Entry, req *syncerv1.SyncRequest) {
+		_, err := s.syncer.Sync(context.Background(), req)
+		if err != nil {
+			logger.Errorf("failed to sync: %s", err)
+		}
+	}(logger, req)
+
+	return &prototypes.Empty{}, nil
 }
 
 func (s *RpcServer) Ping(
