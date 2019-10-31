@@ -19,7 +19,7 @@ import (
 
 var (
 	ErrClientIDIsEmpty  = errors.New("client id is empty")
-	ErrClientIDNotFounf = errors.New("client id not found")
+	ErrClientIDNotFound = errors.New("client id not found")
 )
 
 func (s *RpcServer) authenticate(ctx context.Context, clientID string) (*minersv1.MinerResponse, error) {
@@ -27,13 +27,13 @@ func (s *RpcServer) authenticate(ctx context.Context, clientID string) (*minersv
 		return nil, ErrClientIDIsEmpty
 	}
 
-	miner, err := s.miners.Get(context.Background(), &minersv1.MinerRequest{Id: clientID})
+	miner, err := s.miners.GetByID(context.Background(), &minersv1.MinerRequest{Id: clientID})
 	if err != nil {
 		return nil, err
 	}
 
 	if miner == nil {
-		return nil, ErrClientIDNotFounf
+		return nil, ErrClientIDNotFound
 	}
 
 	return miner, nil
@@ -274,13 +274,7 @@ func (s *RpcServer) Register(
 
 	logger.Info("registering")
 
-	_, err = s.miners.Ping(context.Background(), &minersv1.PingRequest{ClientID: req.ClientID})
-	if err != nil {
-		s.logger.Errorf("failed to ping registration: %s", err)
-		return nil, rpc.ErrRpcInternal
-	}
-
-	miner, err := s.miners.Get(context.Background(), &minersv1.MinerRequest{Id: req.ClientID})
+	miner, err := s.miners.GetByID(context.Background(), &minersv1.MinerRequest{Id: req.ClientID})
 	if err != nil {
 		s.logger.Warningf("failed to get miner: %s", err)
 		return nil, rpc.ErrRpcNotFound

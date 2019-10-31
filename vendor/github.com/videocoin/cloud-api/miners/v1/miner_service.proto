@@ -36,6 +36,8 @@ service MinersService {
         };
     }
 
+    rpc GetByID(MinerRequest) returns (MinerResponse) {}
+
     rpc List(MinerRequest) returns (MinerListResponse) {
         option (google.api.http) = {
             get: "/api/v1/miners"
