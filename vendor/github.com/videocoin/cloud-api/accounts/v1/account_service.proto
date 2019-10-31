@@ -35,6 +35,8 @@ service AccountService {
     rpc List(google.protobuf.Empty) returns (ListResponse) {}
 
     rpc Key(AccountRequest) returns (AccountKey) {}
+
+    rpc Withdraw(WithdrawRequest) returns (google.protobuf.Empty) {}
 }
 
 message AccountRequest {
@@ -48,6 +50,11 @@ message Address {
 
 message ListResponse {
     repeated AccountProfile items = 1;
+}
+
+message WithdrawRequest {
+    string owner_id = 1;
+    string transfer_id = 2;
 }
 
 

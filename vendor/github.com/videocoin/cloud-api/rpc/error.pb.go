@@ -23,7 +23,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type ValidationError struct {
 	Field                string   `protobuf:"bytes,1,opt,name=field,proto3" json:"field,omitempty"`
@@ -47,7 +47,7 @@ func (m *ValidationError) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_ValidationError.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -105,7 +105,7 @@ func (m *MultiValidationError) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_MultiValidationError.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -164,7 +164,7 @@ var fileDescriptor_c80d403d160b21e3 = []byte{
 func (m *ValidationError) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -172,32 +172,40 @@ func (m *ValidationError) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ValidationError) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ValidationError) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Field) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintError(dAtA, i, uint64(len(m.Field)))
-		i += copy(dAtA[i:], m.Field)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.Message) > 0 {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.Message)
+		copy(dAtA[i:], m.Message)
 		i = encodeVarintError(dAtA, i, uint64(len(m.Message)))
-		i += copy(dAtA[i:], m.Message)
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Field) > 0 {
+		i -= len(m.Field)
+		copy(dAtA[i:], m.Field)
+		i = encodeVarintError(dAtA, i, uint64(len(m.Field)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *MultiValidationError) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -205,36 +213,46 @@ func (m *MultiValidationError) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MultiValidationError) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MultiValidationError) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Errors) > 0 {
-		for _, msg := range m.Errors {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintError(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Errors) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Errors[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintError(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintError(dAtA []byte, offset int, v uint64) int {
+	offset -= sovError(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *ValidationError) Size() (n int) {
 	if m == nil {
@@ -489,6 +507,7 @@ func (m *MultiValidationError) Unmarshal(dAtA []byte) error {
 func skipError(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -520,10 +539,8 @@ func skipError(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -544,55 +561,30 @@ func skipError(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthError
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthError
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowError
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipError(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthError
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupError
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthError
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthError = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowError   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthError        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowError          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupError = fmt.Errorf("proto: unexpected end of group")
 )

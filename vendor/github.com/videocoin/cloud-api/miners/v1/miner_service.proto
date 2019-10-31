@@ -3,7 +3,6 @@ syntax = "proto3";
 package cloud.api.miners.v1;
 
 import "google/protobuf/empty.proto";
-import "google/protobuf/any.proto";
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
@@ -48,6 +47,13 @@ service MinersService {
     rpc AssignTask(AssignTaskRequest) returns (google.protobuf.Empty) {}
 
     rpc UnassignTask(AssignTaskRequest) returns (google.protobuf.Empty) {}
+
+    rpc SetTags(SetTagsRequest) returns (MinerResponse) {
+        option (google.api.http) = {
+            put: "/api/v1/miners/{id}/tags"
+            body: "*"
+        };
+    }
 }
 
 message MinerRequest {
@@ -73,4 +79,14 @@ message PingResponse {}
 message AssignTaskRequest {
     string client_id = 1 [(gogoproto.customname) = "ClientID"];
     string task_id = 2 [(gogoproto.customname) = "TaskID"];
+}
+
+message Tag {
+    string key = 1;
+    string value = 2;
+}
+
+message SetTagsRequest {
+    string id = 1;
+    repeated Tag tags = 2;
 }

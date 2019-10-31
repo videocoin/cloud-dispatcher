@@ -28,7 +28,7 @@ var _ = time.Kitchen
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Account struct {
 	Id                   string     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" gorm:"type:varchar(36);primary_key"`
@@ -56,7 +56,7 @@ func (m *Account) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Account.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -145,7 +145,7 @@ func (m *AccountProfile) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_AccountProfile.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -218,7 +218,7 @@ func (m *AccountKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_AccountKey.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -299,7 +299,7 @@ var fileDescriptor_40efbc523f626b15 = []byte{
 func (m *Account) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -307,60 +307,70 @@ func (m *Account) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Account) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Account) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Id) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(len(m.Id)))
-		i += copy(dAtA[i:], m.Id)
-	}
-	if len(m.UserId) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(len(m.UserId)))
-		i += copy(dAtA[i:], m.UserId)
-	}
-	if len(m.Address) > 0 {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(len(m.Address)))
-		i += copy(dAtA[i:], m.Address)
-	}
-	if len(m.Key) > 0 {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(len(m.Key)))
-		i += copy(dAtA[i:], m.Key)
-	}
-	if m.Balance != 0 {
-		dAtA[i] = 0x29
-		i++
-		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Balance))))
-		i += 8
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.UpdatedAt != nil {
-		dAtA[i] = 0x4a
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt)))
-		n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i:])
+		n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt):])
 		if err1 != nil {
 			return 0, err1
 		}
-		i += n1
+		i -= n1
+		i = encodeVarintAccount(dAtA, i, uint64(n1))
+		i--
+		dAtA[i] = 0x4a
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.Balance != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Balance))))
+		i--
+		dAtA[i] = 0x29
 	}
-	return i, nil
+	if len(m.Key) > 0 {
+		i -= len(m.Key)
+		copy(dAtA[i:], m.Key)
+		i = encodeVarintAccount(dAtA, i, uint64(len(m.Key)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintAccount(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.UserId) > 0 {
+		i -= len(m.UserId)
+		copy(dAtA[i:], m.UserId)
+		i = encodeVarintAccount(dAtA, i, uint64(len(m.UserId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Id) > 0 {
+		i -= len(m.Id)
+		copy(dAtA[i:], m.Id)
+		i = encodeVarintAccount(dAtA, i, uint64(len(m.Id)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *AccountProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -368,48 +378,56 @@ func (m *AccountProfile) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *AccountProfile) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AccountProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Id) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(len(m.Id)))
-		i += copy(dAtA[i:], m.Id)
-	}
-	if len(m.Address) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(len(m.Address)))
-		i += copy(dAtA[i:], m.Address)
-	}
-	if m.Balance != 0 {
-		dAtA[i] = 0x19
-		i++
-		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Balance))))
-		i += 8
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.UpdatedAt != nil {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt)))
-		n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i:])
+		n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt):])
 		if err2 != nil {
 			return 0, err2
 		}
-		i += n2
+		i -= n2
+		i = encodeVarintAccount(dAtA, i, uint64(n2))
+		i--
+		dAtA[i] = 0x22
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.Balance != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Balance))))
+		i--
+		dAtA[i] = 0x19
 	}
-	return i, nil
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintAccount(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Id) > 0 {
+		i -= len(m.Id)
+		copy(dAtA[i:], m.Id)
+		i = encodeVarintAccount(dAtA, i, uint64(len(m.Id)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *AccountKey) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -417,36 +435,46 @@ func (m *AccountKey) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *AccountKey) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AccountKey) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Address) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintAccount(dAtA, i, uint64(len(m.Address)))
-		i += copy(dAtA[i:], m.Address)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.Key) > 0 {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.Key)
+		copy(dAtA[i:], m.Key)
 		i = encodeVarintAccount(dAtA, i, uint64(len(m.Key)))
-		i += copy(dAtA[i:], m.Key)
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintAccount(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintAccount(dAtA []byte, offset int, v uint64) int {
+	offset -= sovAccount(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *Account) Size() (n int) {
 	if m == nil {
@@ -1051,6 +1079,7 @@ func (m *AccountKey) Unmarshal(dAtA []byte) error {
 func skipAccount(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -1082,10 +1111,8 @@ func skipAccount(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -1106,55 +1133,30 @@ func skipAccount(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthAccount
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthAccount
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowAccount
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipAccount(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthAccount
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupAccount
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthAccount
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthAccount = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowAccount   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthAccount        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowAccount          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupAccount = fmt.Errorf("proto: unexpected end of group")
 )
