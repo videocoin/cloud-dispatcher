@@ -2,6 +2,10 @@ package rpc
 
 import (
 	"context"
+	"errors"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/jinzhu/copier"
@@ -14,7 +18,40 @@ import (
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 )
 
+var (
+	ErrClientIDIsEmpty  = errors.New("client id is empty")
+	ErrClientIDNotFounf = errors.New("client id not found")
+)
+
+func (s *RpcServer) authenticate(ctx context.Context, clientID string) (*minersv1.MinerResponse, error) {
+	if clientID == "" {
+		return nil, ErrClientIDIsEmpty
+	}
+
+	miner, err := s.miners.Get(context.Background(), &minersv1.MinerRequest{Id: clientID})
+	if err != nil {
+		return nil, err
+	}
+
+	if miner == nil {
+		return nil, ErrClientIDNotFounf
+	}
+
+	return miner, nil
+}
+
 func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
+	miner, err := s.authenticate(ctx, req.ClientID)
+	if err != nil {
+		s.logger.Warningf("failed to auth: %s", err)
+		return nil, rpc.ErrRpcUnauthenticated
+	}
+
+	if miner.Status != minersv1.MinerStatusOffline {
+		s.logger.Warning("miner is already running")
+		return nil, grpc.Errorf(codes.AlreadyExists, "miner is already running")
+	}
+
 	task, err := s.dm.GetPendingTask(ctx)
 	if err != nil {
 		logFailedTo(s.logger, "get pending task", err)
@@ -56,6 +93,12 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 }
 
 func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+	_, err := s.authenticate(ctx, req.ClientID)
+	if err != nil {
+		s.logger.Warningf("failed to auth: %s", err)
+		return nil, rpc.ErrRpcUnauthenticated
+	}
+
 	task, err := s.dm.GetTaskByID(ctx, req.ID)
 	if err != nil {
 		logFailedTo(s.logger, "get task", err)
@@ -79,6 +122,12 @@ func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task,
 }
 
 func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+	_, err := s.authenticate(ctx, req.ClientID)
+	if err != nil {
+		s.logger.Warningf("failed to auth: %s", err)
+		return nil, rpc.ErrRpcUnauthenticated
+	}
+
 	task, err := s.dm.GetTaskByID(ctx, req.ID)
 	if err != nil {
 		logFailedTo(s.logger, "get task", err)
@@ -119,6 +168,12 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 }
 
 func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+	_, err := s.authenticate(ctx, req.ClientID)
+	if err != nil {
+		s.logger.Warningf("failed to auth: %s", err)
+		return nil, rpc.ErrRpcUnauthenticated
+	}
+
 	task, err := s.dm.GetTaskByID(ctx, req.ID)
 	if err != nil {
 		logFailedTo(s.logger, "get task", err)
@@ -189,6 +244,12 @@ func (s *RpcServer) Ping(
 	ctx context.Context,
 	req *minersv1.PingRequest,
 ) (*minersv1.PingResponse, error) {
+	_, err := s.authenticate(ctx, req.ClientID)
+	if err != nil {
+		s.logger.Warningf("failed to auth: %s", err)
+		return nil, rpc.ErrRpcUnauthenticated
+	}
+
 	s.logger.WithFields(logrus.Fields{
 		"client_id": req.ClientID,
 	}).Info("ping")
