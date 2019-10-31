@@ -4,9 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/jinzhu/copier"
 	"github.com/mailru/dbr"
@@ -41,15 +38,10 @@ func (s *RpcServer) authenticate(ctx context.Context, clientID string) (*minersv
 }
 
 func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
-	miner, err := s.authenticate(ctx, req.ClientID)
+	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
 		return nil, rpc.ErrRpcUnauthenticated
-	}
-
-	if miner.Status != minersv1.MinerStatusOffline {
-		s.logger.Warning("miner is already running")
-		return nil, grpc.Errorf(codes.AlreadyExists, "miner is already running")
 	}
 
 	task, err := s.dm.GetPendingTask(ctx)
