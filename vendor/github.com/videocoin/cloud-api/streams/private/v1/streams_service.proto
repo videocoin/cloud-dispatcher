@@ -6,7 +6,6 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-import "github.com/videocoin/cloud-api/rpc/health.proto";
 import "github.com/videocoin/cloud-api/streams/v1/stream.proto";
 
 option go_package = "v1";
@@ -17,7 +16,6 @@ option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
 service StreamsService {
-  rpc Health(google.protobuf.Empty) returns (cloud.api.rpc.HealthStatus) {}
   rpc Get(StreamRequest) returns (StreamResponse) {}
   rpc Publish(StreamRequest) returns (StreamResponse) {}
   rpc PublishDone(StreamRequest) returns (StreamResponse) {}

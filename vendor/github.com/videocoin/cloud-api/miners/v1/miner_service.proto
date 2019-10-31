@@ -6,7 +6,6 @@ import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
-import "github.com/videocoin/cloud-api/rpc/health.proto";
 import "miners/v1/miner.proto";
 
 option go_package = "v1";
@@ -17,12 +16,6 @@ option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
 service MinersService {
-    rpc Health(google.protobuf.Empty) returns (cloud.api.rpc.HealthStatus) {
-        option (google.api.http) = {
-            get: "/healthz"
-        };
-    }
-
     rpc Create(google.protobuf.Empty) returns (MinerResponse) {
         option (google.api.http) = {
             post: "/api/v1/miners",
