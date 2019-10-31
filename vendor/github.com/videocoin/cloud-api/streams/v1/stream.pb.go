@@ -27,7 +27,7 @@ var _ = time.Kitchen
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type StreamStatus int32
 
@@ -145,7 +145,7 @@ func (m *Stream) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Stream.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -301,7 +301,7 @@ func (m *Streams) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Streams.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -364,7 +364,7 @@ func (m *StreamProfile) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_StreamProfile.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -499,7 +499,7 @@ func (m *StreamProfiles) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_StreamProfiles.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -613,7 +613,7 @@ var fileDescriptor_75b77e6ca64568e5 = []byte{
 func (m *Stream) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -621,143 +621,157 @@ func (m *Stream) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Stream) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Stream) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Id) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.Id)))
-		i += copy(dAtA[i:], m.Id)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if len(m.UserId) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.UserId)))
-		i += copy(dAtA[i:], m.UserId)
+	if len(m.RtmpUrl) > 0 {
+		i -= len(m.RtmpUrl)
+		copy(dAtA[i:], m.RtmpUrl)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.RtmpUrl)))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xa2
 	}
-	if len(m.Name) > 0 {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.Name)))
-		i += copy(dAtA[i:], m.Name)
+	if m.CompletedAt != nil {
+		n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CompletedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CompletedAt):])
+		if err1 != nil {
+			return 0, err1
+		}
+		i -= n1
+		i = encodeVarintStream(dAtA, i, uint64(n1))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x9a
 	}
-	if len(m.ProfileId) > 0 {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.ProfileId)))
-		i += copy(dAtA[i:], m.ProfileId)
+	if m.ReadyAt != nil {
+		n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.ReadyAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.ReadyAt):])
+		if err2 != nil {
+			return 0, err2
+		}
+		i -= n2
+		i = encodeVarintStream(dAtA, i, uint64(n2))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x92
 	}
-	if m.Status != 0 {
-		dAtA[i] = 0x28
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(m.Status))
+	if m.UpdatedAt != nil {
+		n3, err3 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt):])
+		if err3 != nil {
+			return 0, err3
+		}
+		i -= n3
+		i = encodeVarintStream(dAtA, i, uint64(n3))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x8a
 	}
-	if m.InputStatus != 0 {
-		dAtA[i] = 0x30
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(m.InputStatus))
-	}
-	if m.StreamContractId != 0 {
-		dAtA[i] = 0x40
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(m.StreamContractId))
-	}
-	if len(m.StreamContractAddress) > 0 {
-		dAtA[i] = 0x4a
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.StreamContractAddress)))
-		i += copy(dAtA[i:], m.StreamContractAddress)
-	}
-	if len(m.InputUrl) > 0 {
-		dAtA[i] = 0x5a
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.InputUrl)))
-		i += copy(dAtA[i:], m.InputUrl)
-	}
-	if len(m.OutputUrl) > 0 {
-		dAtA[i] = 0x62
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.OutputUrl)))
-		i += copy(dAtA[i:], m.OutputUrl)
+	if m.CreatedAt != nil {
+		n4, err4 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt):])
+		if err4 != nil {
+			return 0, err4
+		}
+		i -= n4
+		i = encodeVarintStream(dAtA, i, uint64(n4))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x82
 	}
 	if m.Refunded {
-		dAtA[i] = 0x68
-		i++
+		i--
 		if m.Refunded {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x68
 	}
-	if m.CreatedAt != nil {
-		dAtA[i] = 0x82
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt)))
-		n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i:])
-		if err1 != nil {
-			return 0, err1
-		}
-		i += n1
+	if len(m.OutputUrl) > 0 {
+		i -= len(m.OutputUrl)
+		copy(dAtA[i:], m.OutputUrl)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.OutputUrl)))
+		i--
+		dAtA[i] = 0x62
 	}
-	if m.UpdatedAt != nil {
-		dAtA[i] = 0x8a
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt)))
-		n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i:])
-		if err2 != nil {
-			return 0, err2
-		}
-		i += n2
+	if len(m.InputUrl) > 0 {
+		i -= len(m.InputUrl)
+		copy(dAtA[i:], m.InputUrl)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.InputUrl)))
+		i--
+		dAtA[i] = 0x5a
 	}
-	if m.ReadyAt != nil {
-		dAtA[i] = 0x92
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.ReadyAt)))
-		n3, err3 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.ReadyAt, dAtA[i:])
-		if err3 != nil {
-			return 0, err3
-		}
-		i += n3
+	if len(m.StreamContractAddress) > 0 {
+		i -= len(m.StreamContractAddress)
+		copy(dAtA[i:], m.StreamContractAddress)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.StreamContractAddress)))
+		i--
+		dAtA[i] = 0x4a
 	}
-	if m.CompletedAt != nil {
-		dAtA[i] = 0x9a
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.CompletedAt)))
-		n4, err4 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CompletedAt, dAtA[i:])
-		if err4 != nil {
-			return 0, err4
-		}
-		i += n4
+	if m.StreamContractId != 0 {
+		i = encodeVarintStream(dAtA, i, uint64(m.StreamContractId))
+		i--
+		dAtA[i] = 0x40
 	}
-	if len(m.RtmpUrl) > 0 {
-		dAtA[i] = 0xa2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.RtmpUrl)))
-		i += copy(dAtA[i:], m.RtmpUrl)
+	if m.InputStatus != 0 {
+		i = encodeVarintStream(dAtA, i, uint64(m.InputStatus))
+		i--
+		dAtA[i] = 0x30
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.Status != 0 {
+		i = encodeVarintStream(dAtA, i, uint64(m.Status))
+		i--
+		dAtA[i] = 0x28
 	}
-	return i, nil
+	if len(m.ProfileId) > 0 {
+		i -= len(m.ProfileId)
+		copy(dAtA[i:], m.ProfileId)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.ProfileId)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.UserId) > 0 {
+		i -= len(m.UserId)
+		copy(dAtA[i:], m.UserId)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.UserId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Id) > 0 {
+		i -= len(m.Id)
+		copy(dAtA[i:], m.Id)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.Id)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *Streams) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -765,32 +779,40 @@ func (m *Streams) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Streams) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Streams) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Items) > 0 {
-		for _, msg := range m.Items {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintStream(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Items) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Items[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintStream(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *StreamProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -798,113 +820,125 @@ func (m *StreamProfile) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *StreamProfile) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *StreamProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Id) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.Id)))
-		i += copy(dAtA[i:], m.Id)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if len(m.Name) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.Name)))
-		i += copy(dAtA[i:], m.Name)
-	}
-	if len(m.InputUrl) > 0 {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.InputUrl)))
-		i += copy(dAtA[i:], m.InputUrl)
-	}
-	if len(m.OutputUrl) > 0 {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.OutputUrl)))
-		i += copy(dAtA[i:], m.OutputUrl)
-	}
-	if m.StreamContractId != 0 {
-		dAtA[i] = 0x38
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(m.StreamContractId))
-	}
-	if len(m.StreamContractAddress) > 0 {
-		dAtA[i] = 0x42
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.StreamContractAddress)))
-		i += copy(dAtA[i:], m.StreamContractAddress)
-	}
-	if m.Status != 0 {
-		dAtA[i] = 0x48
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(m.Status))
-	}
-	if m.InputStatus != 0 {
-		dAtA[i] = 0x50
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(m.InputStatus))
-	}
-	if m.CreatedAt != nil {
-		dAtA[i] = 0x5a
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt)))
-		n5, err5 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i:])
+	if m.UpdatedAt != nil {
+		n5, err5 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt):])
 		if err5 != nil {
 			return 0, err5
 		}
-		i += n5
+		i -= n5
+		i = encodeVarintStream(dAtA, i, uint64(n5))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x8a
 	}
-	if m.ReadyAt != nil {
-		dAtA[i] = 0x62
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.ReadyAt)))
-		n6, err6 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.ReadyAt, dAtA[i:])
+	if len(m.RtmpUrl) > 0 {
+		i -= len(m.RtmpUrl)
+		copy(dAtA[i:], m.RtmpUrl)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.RtmpUrl)))
+		i--
+		dAtA[i] = 0x72
+	}
+	if m.CompletedAt != nil {
+		n6, err6 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CompletedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CompletedAt):])
 		if err6 != nil {
 			return 0, err6
 		}
-		i += n6
-	}
-	if m.CompletedAt != nil {
+		i -= n6
+		i = encodeVarintStream(dAtA, i, uint64(n6))
+		i--
 		dAtA[i] = 0x6a
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.CompletedAt)))
-		n7, err7 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CompletedAt, dAtA[i:])
+	}
+	if m.ReadyAt != nil {
+		n7, err7 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.ReadyAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.ReadyAt):])
 		if err7 != nil {
 			return 0, err7
 		}
-		i += n7
+		i -= n7
+		i = encodeVarintStream(dAtA, i, uint64(n7))
+		i--
+		dAtA[i] = 0x62
 	}
-	if len(m.RtmpUrl) > 0 {
-		dAtA[i] = 0x72
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(len(m.RtmpUrl)))
-		i += copy(dAtA[i:], m.RtmpUrl)
-	}
-	if m.UpdatedAt != nil {
-		dAtA[i] = 0x8a
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintStream(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt)))
-		n8, err8 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i:])
+	if m.CreatedAt != nil {
+		n8, err8 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt):])
 		if err8 != nil {
 			return 0, err8
 		}
-		i += n8
+		i -= n8
+		i = encodeVarintStream(dAtA, i, uint64(n8))
+		i--
+		dAtA[i] = 0x5a
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.InputStatus != 0 {
+		i = encodeVarintStream(dAtA, i, uint64(m.InputStatus))
+		i--
+		dAtA[i] = 0x50
 	}
-	return i, nil
+	if m.Status != 0 {
+		i = encodeVarintStream(dAtA, i, uint64(m.Status))
+		i--
+		dAtA[i] = 0x48
+	}
+	if len(m.StreamContractAddress) > 0 {
+		i -= len(m.StreamContractAddress)
+		copy(dAtA[i:], m.StreamContractAddress)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.StreamContractAddress)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if m.StreamContractId != 0 {
+		i = encodeVarintStream(dAtA, i, uint64(m.StreamContractId))
+		i--
+		dAtA[i] = 0x38
+	}
+	if len(m.OutputUrl) > 0 {
+		i -= len(m.OutputUrl)
+		copy(dAtA[i:], m.OutputUrl)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.OutputUrl)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.InputUrl) > 0 {
+		i -= len(m.InputUrl)
+		copy(dAtA[i:], m.InputUrl)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.InputUrl)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Id) > 0 {
+		i -= len(m.Id)
+		copy(dAtA[i:], m.Id)
+		i = encodeVarintStream(dAtA, i, uint64(len(m.Id)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *StreamProfiles) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -912,36 +946,46 @@ func (m *StreamProfiles) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *StreamProfiles) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *StreamProfiles) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Items) > 0 {
-		for _, msg := range m.Items {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintStream(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Items) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Items[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintStream(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintStream(dAtA []byte, offset int, v uint64) int {
+	offset -= sovStream(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *Stream) Size() (n int) {
 	if m == nil {
@@ -2275,6 +2319,7 @@ func (m *StreamProfiles) Unmarshal(dAtA []byte) error {
 func skipStream(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -2306,10 +2351,8 @@ func skipStream(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -2330,55 +2373,30 @@ func skipStream(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthStream
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthStream
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowStream
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipStream(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthStream
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupStream
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthStream
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthStream = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowStream   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthStream        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowStream          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupStream = fmt.Errorf("proto: unexpected end of group")
 )

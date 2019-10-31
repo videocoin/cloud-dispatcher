@@ -5,7 +5,6 @@ package cloud.api.syncer.v1;
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";;
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-import "github.com/videocoin/cloud-api/rpc/health.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -15,12 +14,6 @@ option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
 service SyncerService {
-    rpc Health(google.protobuf.Empty) returns (cloud.api.rpc.HealthStatus) {
-        option (google.api.http) = {
-            get: "/healthz"
-        };
-    }
-
     rpc Sync(SyncRequest) returns (google.protobuf.Empty) {}
 }
 

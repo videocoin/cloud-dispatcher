@@ -12,7 +12,6 @@ import (
 	proto "github.com/gogo/protobuf/proto"
 	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
-	rpc "github.com/videocoin/cloud-api/rpc"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -31,7 +30,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type SyncRequest struct {
 	Data                 []byte   `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
@@ -57,7 +56,7 @@ func (m *SyncRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return xxx_messageInfo_SyncRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -118,30 +117,25 @@ func init() {
 }
 
 var fileDescriptor_e555e157b8570a45 = []byte{
-	// 358 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x51, 0xc1, 0x4a, 0xeb, 0x40,
-	0x14, 0x7d, 0xd3, 0x57, 0x4a, 0xdf, 0xb4, 0x0f, 0x64, 0x04, 0x09, 0xa9, 0x84, 0xd8, 0x55, 0x37,
-	0x9d, 0xa1, 0xfa, 0x07, 0x05, 0xc1, 0x9d, 0x90, 0xb8, 0x72, 0x53, 0xa6, 0x93, 0x31, 0x09, 0xb4,
-	0x33, 0x63, 0x72, 0x13, 0x88, 0x4b, 0x7f, 0xc1, 0x5f, 0xf0, 0x43, 0x5c, 0x76, 0x29, 0xf8, 0x03,
-	0xd2, 0xfa, 0x21, 0x92, 0x49, 0xb4, 0x5d, 0xe8, 0xee, 0xdc, 0x7b, 0xce, 0x9d, 0x7b, 0xcf, 0x19,
-	0xec, 0xe5, 0x95, 0x12, 0x32, 0x63, 0xe5, 0x8c, 0x35, 0x68, 0x91, 0xcb, 0xac, 0x4c, 0x85, 0xa4,
-	0x26, 0xd3, 0xa0, 0xc9, 0xb1, 0x58, 0xe9, 0x22, 0xa2, 0xdc, 0xa4, 0xb4, 0xe1, 0x69, 0x39, 0x73,
-	0x47, 0xb1, 0xd6, 0xf1, 0x4a, 0x32, 0x2b, 0x59, 0x16, 0x77, 0x4c, 0xae, 0x0d, 0x54, 0xcd, 0x84,
-	0x7b, 0xda, 0x92, 0xdc, 0xa4, 0x8c, 0x2b, 0xa5, 0x81, 0x43, 0xaa, 0x55, 0xde, 0xb2, 0xd3, 0x38,
-	0x85, 0xa4, 0x58, 0x52, 0xa1, 0xd7, 0x2c, 0xd6, 0xb1, 0xde, 0xbf, 0x51, 0x57, 0xb6, 0xb0, 0xa8,
-	0x95, 0xb3, 0x03, 0x79, 0x99, 0x46, 0x52, 0x0b, 0x9d, 0x2a, 0x66, 0x6f, 0x9a, 0xd6, 0x0b, 0x32,
-	0x23, 0x58, 0x22, 0xf9, 0x0a, 0x92, 0x66, 0x60, 0x0c, 0x78, 0x10, 0x56, 0x4a, 0x04, 0xf2, 0xbe,
-	0x90, 0x39, 0x10, 0x82, 0xbb, 0x11, 0x07, 0xee, 0x20, 0x1f, 0x4d, 0x86, 0x81, 0xc5, 0x75, 0xcf,
-	0x70, 0x48, 0x9c, 0x8e, 0x8f, 0x26, 0xff, 0x02, 0x8b, 0xc9, 0x19, 0x1e, 0x0a, 0xad, 0x40, 0x2a,
-	0x58, 0x40, 0x65, 0xa4, 0xf3, 0xd7, 0x72, 0x83, 0xb6, 0x77, 0x53, 0x19, 0x49, 0x5c, 0xdc, 0x8f,
-	0x8a, 0xcc, 0x9a, 0x71, 0xba, 0x3e, 0x9a, 0xa0, 0xe0, 0xbb, 0x3e, 0x7f, 0x46, 0xf8, 0x7f, 0x68,
-	0xe3, 0x09, 0x9b, 0xf4, 0xc8, 0x35, 0xee, 0x5d, 0xd9, 0xbb, 0xc8, 0x09, 0x6d, 0x02, 0xa1, 0x5f,
-	0x4e, 0xe9, 0x65, 0x9d, 0x96, 0x3b, 0xa2, 0xfb, 0x68, 0x33, 0x23, 0x68, 0x23, 0x0f, 0x81, 0x43,
-	0x91, 0x8f, 0x8f, 0x1e, 0xdf, 0x3e, 0x9e, 0x3a, 0x98, 0xf4, 0x5b, 0x77, 0x0f, 0x64, 0x8e, 0xbb,
-	0xf5, 0x06, 0xe2, 0xd3, 0x1f, 0x7e, 0x84, 0x1e, 0x78, 0x76, 0x7f, 0x59, 0x38, 0xfe, 0x33, 0x77,
-	0x36, 0x5b, 0x0f, 0xbd, 0x6e, 0x3d, 0xf4, 0xbe, 0xf5, 0xd0, 0xcb, 0xce, 0x43, 0x9b, 0x9d, 0x87,
-	0x6e, 0x3b, 0xe5, 0x6c, 0xd9, 0xb3, 0xda, 0x8b, 0xcf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xae, 0xfe,
-	0x82, 0x49, 0x0f, 0x02, 0x00, 0x00,
+	// 285 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x50, 0x3d, 0x4e, 0xc3, 0x30,
+	0x18, 0xc5, 0xa5, 0x42, 0xe0, 0x96, 0xc5, 0x48, 0x28, 0x0a, 0xc8, 0x0a, 0x9d, 0xb2, 0x60, 0x2b,
+	0x70, 0x83, 0x4a, 0x5c, 0x20, 0x61, 0x62, 0xa9, 0x1c, 0xc7, 0xa4, 0x91, 0x5a, 0xdb, 0x24, 0x5f,
+	0x22, 0xe5, 0x76, 0x8c, 0x1d, 0x39, 0x02, 0x4a, 0x2f, 0x82, 0x62, 0x87, 0x9f, 0x81, 0xed, 0xfd,
+	0xd9, 0xfa, 0xde, 0xc3, 0xb4, 0xe9, 0xb5, 0x54, 0x35, 0xef, 0x12, 0xee, 0xd1, 0xa6, 0x51, 0x75,
+	0x57, 0x49, 0xc5, 0x6c, 0x6d, 0xc0, 0x90, 0x2b, 0xb9, 0x33, 0x6d, 0xc1, 0x84, 0xad, 0x98, 0xf7,
+	0x59, 0x97, 0x84, 0x37, 0xa5, 0x31, 0xe5, 0x4e, 0x71, 0x17, 0xc9, 0xdb, 0x57, 0xae, 0xf6, 0x16,
+	0x7a, 0xff, 0x22, 0xbc, 0x9d, 0x4c, 0x61, 0x2b, 0x2e, 0xb4, 0x36, 0x20, 0xa0, 0x32, 0xba, 0x99,
+	0xdc, 0xfb, 0xb2, 0x82, 0x6d, 0x9b, 0x33, 0x69, 0xf6, 0xbc, 0x34, 0xa5, 0xf9, 0xfd, 0x63, 0x64,
+	0x8e, 0x38, 0xe4, 0xe3, 0x2b, 0xc0, 0x8b, 0xac, 0xd7, 0x32, 0x55, 0x6f, 0xad, 0x6a, 0x80, 0x10,
+	0x3c, 0x2f, 0x04, 0x88, 0x00, 0x45, 0x28, 0x5e, 0xa6, 0x0e, 0x8f, 0x9a, 0x15, 0xb0, 0x0d, 0x66,
+	0x11, 0x8a, 0x2f, 0x52, 0x87, 0xc9, 0x1d, 0x5e, 0x4a, 0xa3, 0x41, 0x69, 0xd8, 0x40, 0x6f, 0x55,
+	0x70, 0xea, 0xbc, 0xc5, 0xa4, 0x3d, 0xf7, 0x56, 0x91, 0x10, 0x9f, 0x17, 0x6d, 0xed, 0x6e, 0x0b,
+	0xe6, 0x11, 0x8a, 0x51, 0xfa, 0xc3, 0x1f, 0x32, 0x7c, 0x99, 0xb9, 0xb2, 0x99, 0xdf, 0x82, 0xac,
+	0xf1, 0x7c, 0x14, 0x48, 0xc4, 0xfe, 0x99, 0x83, 0xfd, 0xb9, 0x30, 0xbc, 0x66, 0xbe, 0x3e, 0xfb,
+	0xee, 0xc5, 0x9e, 0xc6, 0x6d, 0x56, 0x27, 0xeb, 0xe0, 0x30, 0x50, 0xf4, 0x31, 0x50, 0xf4, 0x39,
+	0x50, 0xf4, 0x7e, 0xa4, 0xe8, 0x70, 0xa4, 0xe8, 0x65, 0xd6, 0x25, 0xf9, 0x99, 0xcb, 0x3e, 0x7e,
+	0x05, 0x00, 0x00, 0xff, 0xff, 0x18, 0x8d, 0xa8, 0x76, 0x8c, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -156,7 +150,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type SyncerServiceClient interface {
-	Health(ctx context.Context, in *types.Empty, opts ...grpc.CallOption) (*rpc.HealthStatus, error)
 	Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*types.Empty, error)
 }
 
@@ -166,15 +159,6 @@ type syncerServiceClient struct {
 
 func NewSyncerServiceClient(cc *grpc.ClientConn) SyncerServiceClient {
 	return &syncerServiceClient{cc}
-}
-
-func (c *syncerServiceClient) Health(ctx context.Context, in *types.Empty, opts ...grpc.CallOption) (*rpc.HealthStatus, error) {
-	out := new(rpc.HealthStatus)
-	err := c.cc.Invoke(ctx, "/cloud.api.syncer.v1.SyncerService/Health", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *syncerServiceClient) Sync(ctx context.Context, in *SyncRequest, opts ...grpc.CallOption) (*types.Empty, error) {
@@ -188,7 +172,6 @@ func (c *syncerServiceClient) Sync(ctx context.Context, in *SyncRequest, opts ..
 
 // SyncerServiceServer is the server API for SyncerService service.
 type SyncerServiceServer interface {
-	Health(context.Context, *types.Empty) (*rpc.HealthStatus, error)
 	Sync(context.Context, *SyncRequest) (*types.Empty, error)
 }
 
@@ -196,33 +179,12 @@ type SyncerServiceServer interface {
 type UnimplementedSyncerServiceServer struct {
 }
 
-func (*UnimplementedSyncerServiceServer) Health(ctx context.Context, req *types.Empty) (*rpc.HealthStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Health not implemented")
-}
 func (*UnimplementedSyncerServiceServer) Sync(ctx context.Context, req *SyncRequest) (*types.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 
 func RegisterSyncerServiceServer(s *grpc.Server, srv SyncerServiceServer) {
 	s.RegisterService(&_SyncerService_serviceDesc, srv)
-}
-
-func _SyncerService_Health_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(types.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SyncerServiceServer).Health(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/cloud.api.syncer.v1.SyncerService/Health",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SyncerServiceServer).Health(ctx, req.(*types.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _SyncerService_Sync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -248,10 +210,6 @@ var _SyncerService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*SyncerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Health",
-			Handler:    _SyncerService_Health_Handler,
-		},
-		{
 			MethodName: "Sync",
 			Handler:    _SyncerService_Sync_Handler,
 		},
@@ -263,7 +221,7 @@ var _SyncerService_serviceDesc = grpc.ServiceDesc{
 func (m *SyncRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -271,48 +229,59 @@ func (m *SyncRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *SyncRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SyncRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Data) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintSyncerService(dAtA, i, uint64(len(m.Data)))
-		i += copy(dAtA[i:], m.Data)
-	}
-	if len(m.Path) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintSyncerService(dAtA, i, uint64(len(m.Path)))
-		i += copy(dAtA[i:], m.Path)
-	}
-	if len(m.ContentType) > 0 {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintSyncerService(dAtA, i, uint64(len(m.ContentType)))
-		i += copy(dAtA[i:], m.ContentType)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.Duration != 0 {
-		dAtA[i] = 0x21
-		i++
+		i -= 8
 		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Duration))))
-		i += 8
+		i--
+		dAtA[i] = 0x21
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.ContentType) > 0 {
+		i -= len(m.ContentType)
+		copy(dAtA[i:], m.ContentType)
+		i = encodeVarintSyncerService(dAtA, i, uint64(len(m.ContentType)))
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	if len(m.Path) > 0 {
+		i -= len(m.Path)
+		copy(dAtA[i:], m.Path)
+		i = encodeVarintSyncerService(dAtA, i, uint64(len(m.Path)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Data) > 0 {
+		i -= len(m.Data)
+		copy(dAtA[i:], m.Data)
+		i = encodeVarintSyncerService(dAtA, i, uint64(len(m.Data)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintSyncerService(dAtA []byte, offset int, v uint64) int {
+	offset -= sovSyncerService(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *SyncRequest) Size() (n int) {
 	if m == nil {
@@ -513,6 +482,7 @@ func (m *SyncRequest) Unmarshal(dAtA []byte) error {
 func skipSyncerService(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -544,10 +514,8 @@ func skipSyncerService(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -568,55 +536,30 @@ func skipSyncerService(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthSyncerService
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthSyncerService
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowSyncerService
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipSyncerService(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthSyncerService
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupSyncerService
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthSyncerService
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthSyncerService = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowSyncerService   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthSyncerService        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowSyncerService          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupSyncerService = fmt.Errorf("proto: unexpected end of group")
 )

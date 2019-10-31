@@ -12,7 +12,6 @@ import (
 	proto "github.com/gogo/protobuf/proto"
 	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
-	rpc "github.com/videocoin/cloud-api/rpc"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -31,7 +30,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Tx struct {
 	Hash                 []byte   `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
@@ -54,7 +53,7 @@ func (m *Tx) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Tx.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +107,7 @@ func (m *InitStreamRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_InitStreamRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -183,7 +182,7 @@ func (m *EndStreamRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_EndStreamRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -257,7 +256,7 @@ func (m *AddInputChunkIdRequest) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_AddInputChunkIdRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -317,40 +316,36 @@ func init() {
 }
 
 var fileDescriptor_595d714f170d55af = []byte{
-	// 524 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x93, 0x31, 0x6f, 0x13, 0x31,
-	0x14, 0xc7, 0x71, 0x1a, 0xb5, 0xc9, 0xa3, 0x94, 0x60, 0x41, 0x1b, 0x12, 0x14, 0x85, 0x93, 0x80,
-	0x0c, 0xad, 0x4f, 0x01, 0x89, 0xbd, 0x94, 0x48, 0xdc, 0x80, 0x2a, 0x5d, 0x58, 0x60, 0x89, 0x2e,
-	0xb6, 0x9b, 0xb3, 0x48, 0xce, 0x87, 0xed, 0x8b, 0x80, 0x91, 0x89, 0x9d, 0x8d, 0x0f, 0xc1, 0x67,
-	0x60, 0xec, 0x88, 0xc4, 0xca, 0x80, 0x52, 0x3e, 0x08, 0x3a, 0xfb, 0x42, 0x20, 0x5c, 0x18, 0xd9,
-	0xec, 0xf7, 0xff, 0xbf, 0xff, 0xbd, 0x27, 0xff, 0x0e, 0xba, 0x7c, 0x26, 0x8c, 0xe1, 0xca, 0x9f,
-	0xf7, 0xfd, 0xe2, 0x38, 0xd2, 0x5c, 0xcd, 0x05, 0xe5, 0x24, 0x55, 0xd2, 0x48, 0x7c, 0x9d, 0x4e,
-	0x65, 0xc6, 0x48, 0x94, 0x0a, 0xa2, 0x8d, 0xe2, 0xd1, 0x4c, 0x93, 0x79, 0xbf, 0xd5, 0x9e, 0x48,
-	0x39, 0x99, 0x72, 0xdf, 0x7a, 0xc6, 0xd9, 0x99, 0xcf, 0x67, 0xa9, 0x79, 0xe3, 0x5a, 0x5a, 0xb7,
-	0x0a, 0x31, 0x4a, 0x85, 0x1f, 0x25, 0x89, 0x34, 0x91, 0x11, 0x32, 0xd1, 0x85, 0x7a, 0x34, 0x11,
-	0x26, 0xce, 0xc6, 0x84, 0xca, 0x99, 0x3f, 0x91, 0x13, 0xb9, 0xca, 0xc8, 0x6f, 0xf6, 0x62, 0x4f,
-	0x85, 0xdd, 0xff, 0xcd, 0x3e, 0x17, 0x8c, 0x4b, 0x2a, 0x45, 0xe2, 0xdb, 0xa1, 0x8e, 0xf2, 0x0f,
-	0xa8, 0x94, 0xfa, 0x31, 0x8f, 0xa6, 0x26, 0x76, 0x0d, 0x5e, 0x13, 0x2a, 0xcf, 0x5e, 0x63, 0x0c,
-	0xd5, 0x38, 0xd2, 0x71, 0x13, 0x75, 0x51, 0x6f, 0x37, 0xb4, 0x67, 0xef, 0x23, 0x82, 0x6b, 0x41,
-	0x22, 0xcc, 0xd0, 0xee, 0x11, 0xf2, 0x57, 0x19, 0xd7, 0x06, 0xb7, 0xa1, 0xee, 0x16, 0x1b, 0x09,
-	0x66, 0xed, 0xf5, 0xb0, 0xe6, 0x0a, 0x01, 0xc3, 0x07, 0xb0, 0x93, 0x69, 0xae, 0x72, 0xa9, 0x62,
-	0xa5, 0xed, 0xfc, 0x1a, 0x30, 0x7c, 0x08, 0xb8, 0xe8, 0xa2, 0x32, 0x31, 0x2a, 0xa2, 0x26, 0xf7,
-	0x6c, 0x75, 0x51, 0xaf, 0x1a, 0x36, 0x9c, 0x72, 0x52, 0x08, 0x01, 0xc3, 0xb7, 0x61, 0x37, 0x55,
-	0xf2, 0x4c, 0x4c, 0xb9, 0x1e, 0x09, 0xa6, 0x9b, 0xd5, 0xee, 0x56, 0xaf, 0x1e, 0x5e, 0x5e, 0xd6,
-	0x02, 0xa6, 0xbd, 0x4f, 0x08, 0x1a, 0x83, 0x84, 0xfd, 0xff, 0xd9, 0x1e, 0xc2, 0xc1, 0xba, 0x3b,
-	0x62, 0x4c, 0x71, 0x9d, 0x8f, 0x99, 0xc7, 0xde, 0xf8, 0xb3, 0xe5, 0xd8, 0x89, 0xde, 0x7b, 0x04,
-	0xfb, 0xc7, 0x8c, 0x05, 0x49, 0x9a, 0x99, 0x93, 0x38, 0x4b, 0x5e, 0x06, 0x6c, 0x39, 0x76, 0xf9,
-	0x00, 0x68, 0xc3, 0x00, 0x37, 0xa1, 0x46, 0xf3, 0xfe, 0xe5, 0x22, 0xd5, 0x70, 0x87, 0xba, 0x3c,
-	0x7c, 0x07, 0xf6, 0x9c, 0xc4, 0x32, 0x65, 0x21, 0xb2, 0x5b, 0xa0, 0xf0, 0x8a, 0xad, 0x3e, 0x2e,
-	0x8a, 0xf7, 0xbf, 0x55, 0x60, 0x6f, 0xe0, 0xe8, 0x1d, 0x3a, 0x78, 0xf1, 0x29, 0x6c, 0x3f, 0xb1,
-	0x54, 0xe0, 0x7d, 0xe2, 0x70, 0x24, 0x4b, 0xce, 0xc8, 0x20, 0x67, 0xb5, 0xd5, 0x26, 0x2b, 0xb2,
-	0x55, 0x4a, 0x89, 0xb3, 0x0f, 0x4d, 0x64, 0x32, 0xed, 0x35, 0xde, 0x7d, 0xfd, 0xf1, 0xa1, 0x02,
-	0xb8, 0x56, 0xb0, 0xf5, 0x16, 0x9f, 0x02, 0xac, 0xd8, 0xc1, 0xf7, 0x48, 0xd9, 0x6f, 0x41, 0xfe,
-	0xa2, 0xab, 0xb5, 0xe1, 0xeb, 0xde, 0x25, 0xfc, 0x14, 0xea, 0xbf, 0xde, 0x1b, 0xdf, 0x2d, 0xcf,
-	0x5b, 0x07, 0xe2, 0x1f, 0x71, 0xcf, 0xe1, 0xea, 0xda, 0x6b, 0xe0, 0xc3, 0xf2, 0xd0, 0xf2, 0x47,
-	0xdb, 0x1c, 0xfd, 0xa8, 0x79, 0xbe, 0xe8, 0xa0, 0x2f, 0x8b, 0x0e, 0xfa, 0xbe, 0xe8, 0xa0, 0xcf,
-	0x17, 0x1d, 0x74, 0x7e, 0xd1, 0x41, 0x2f, 0x2a, 0xf3, 0xfe, 0x78, 0xdb, 0x7a, 0x1f, 0xfc, 0x0c,
-	0x00, 0x00, 0xff, 0xff, 0xed, 0x2e, 0xda, 0x73, 0x47, 0x04, 0x00, 0x00,
+	// 462 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x52, 0x4d, 0x6e, 0x13, 0x31,
+	0x14, 0xc6, 0x69, 0xd4, 0x36, 0x8f, 0x52, 0x8a, 0x05, 0x6d, 0x48, 0xd1, 0x28, 0x8c, 0x04, 0x64,
+	0x51, 0x3c, 0x0a, 0x48, 0xec, 0x4b, 0xc9, 0x62, 0x16, 0x08, 0x69, 0xca, 0x06, 0x36, 0xd1, 0x64,
+	0xec, 0x4e, 0x2c, 0x12, 0x7b, 0xf0, 0x4f, 0x04, 0x37, 0x40, 0xe2, 0x06, 0x1c, 0x82, 0x33, 0xb0,
+	0xec, 0x92, 0x23, 0xa0, 0xf4, 0x22, 0xc8, 0xf6, 0x84, 0x8a, 0x30, 0x65, 0xd9, 0xdd, 0x7b, 0xef,
+	0xfb, 0xde, 0xa7, 0xcf, 0x7e, 0x1f, 0xf4, 0xd9, 0x9c, 0x1b, 0xc3, 0x54, 0xb2, 0x18, 0x26, 0x75,
+	0x39, 0xd6, 0x4c, 0x2d, 0x78, 0xc1, 0x48, 0xa5, 0xa4, 0x91, 0xf8, 0x6e, 0x31, 0x93, 0x96, 0x92,
+	0xbc, 0xe2, 0x44, 0x1b, 0xc5, 0xf2, 0xb9, 0x26, 0x8b, 0x61, 0xef, 0xb0, 0x94, 0xb2, 0x9c, 0xb1,
+	0xc4, 0x73, 0x26, 0xf6, 0x2c, 0x61, 0xf3, 0xca, 0x7c, 0x0e, 0x2b, 0xbd, 0x07, 0x35, 0x98, 0x57,
+	0x3c, 0xc9, 0x85, 0x90, 0x26, 0x37, 0x5c, 0x0a, 0x5d, 0xa3, 0x4f, 0x4b, 0x6e, 0xa6, 0x76, 0x42,
+	0x0a, 0x39, 0x4f, 0x4a, 0x59, 0xca, 0x4b, 0x0d, 0xd7, 0xf9, 0xc6, 0x57, 0x81, 0x1e, 0x77, 0xa1,
+	0xf5, 0xf6, 0x13, 0xc6, 0xd0, 0x9e, 0xe6, 0x7a, 0xda, 0x45, 0x7d, 0x34, 0xd8, 0xc9, 0x7c, 0x1d,
+	0x7f, 0x43, 0x70, 0x27, 0x15, 0xdc, 0x9c, 0x7a, 0x5b, 0x19, 0xfb, 0x68, 0x99, 0x36, 0xf8, 0x10,
+	0x3a, 0xc1, 0xe7, 0x98, 0x53, 0x4f, 0xef, 0x64, 0xdb, 0x61, 0x90, 0x52, 0x7c, 0x00, 0x5b, 0x56,
+	0x33, 0xe5, 0xa0, 0x96, 0x87, 0x36, 0x5d, 0x9b, 0x52, 0x7c, 0x04, 0xb8, 0xde, 0x2a, 0xa4, 0x30,
+	0x2a, 0x2f, 0x8c, 0xe3, 0x6c, 0xf4, 0xd1, 0xa0, 0x9d, 0xed, 0x05, 0xe4, 0xa4, 0x06, 0x52, 0x8a,
+	0x1f, 0xc2, 0x4e, 0xa5, 0xe4, 0x19, 0x9f, 0x31, 0x3d, 0xe6, 0x54, 0x77, 0xdb, 0xfd, 0x8d, 0x41,
+	0x27, 0xbb, 0xb9, 0x9a, 0xa5, 0x54, 0xc7, 0xdf, 0x11, 0xec, 0x8d, 0x04, 0xbd, 0x7e, 0x6f, 0x2f,
+	0xe0, 0x60, 0x9d, 0x9d, 0x53, 0xaa, 0x98, 0x76, 0x36, 0x9d, 0xec, 0xbd, 0xbf, 0x57, 0x8e, 0x03,
+	0x18, 0x7f, 0x41, 0xb0, 0x7f, 0x4c, 0x69, 0x2a, 0x2a, 0x6b, 0x4e, 0xa6, 0x56, 0x7c, 0x48, 0xe9,
+	0xca, 0x76, 0xb3, 0x01, 0x74, 0x85, 0x81, 0xfb, 0xb0, 0x5d, 0xb8, 0xfd, 0xd5, 0x43, 0xda, 0xd9,
+	0x56, 0x11, 0xf4, 0xf0, 0x23, 0xd8, 0x0d, 0x10, 0xb5, 0xca, 0x67, 0xc2, 0xbf, 0x02, 0x65, 0xb7,
+	0xfc, 0xf4, 0x55, 0x3d, 0x7c, 0xf6, 0xb5, 0x05, 0xbb, 0xa3, 0x10, 0xc6, 0xd3, 0x90, 0x45, 0xfc,
+	0x06, 0xe0, 0xf2, 0xd4, 0xf8, 0x09, 0x69, 0x0a, 0x25, 0xf9, 0x27, 0x0c, 0xbd, 0x7d, 0x12, 0xa2,
+	0x48, 0x56, 0x19, 0x23, 0x23, 0x97, 0xd3, 0xf8, 0x06, 0x7e, 0x0d, 0x9d, 0x3f, 0xe7, 0xc1, 0x8f,
+	0x9b, 0xf5, 0xd6, 0xef, 0xf7, 0x1f, 0xb9, 0x77, 0x70, 0x7b, 0xed, 0xf3, 0xf0, 0x51, 0xb3, 0x68,
+	0xf3, 0x1f, 0x5f, 0x2d, 0xfd, 0xb2, 0x7b, 0xbe, 0x8c, 0xd0, 0xcf, 0x65, 0x84, 0x7e, 0x2d, 0x23,
+	0xf4, 0xe3, 0x22, 0x42, 0xe7, 0x17, 0x11, 0x7a, 0xdf, 0x5a, 0x0c, 0x27, 0x9b, 0x9e, 0xfb, 0xfc,
+	0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x8b, 0xbe, 0xc6, 0xf7, 0xc5, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -365,7 +360,6 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type EmitterServiceClient interface {
-	Health(ctx context.Context, in *types.Empty, opts ...grpc.CallOption) (*rpc.HealthStatus, error)
 	InitStream(ctx context.Context, in *InitStreamRequest, opts ...grpc.CallOption) (*types.Empty, error)
 	EndStream(ctx context.Context, in *EndStreamRequest, opts ...grpc.CallOption) (*types.Empty, error)
 	AddInputChunkId(ctx context.Context, in *AddInputChunkIdRequest, opts ...grpc.CallOption) (*types.Empty, error)
@@ -377,15 +371,6 @@ type emitterServiceClient struct {
 
 func NewEmitterServiceClient(cc *grpc.ClientConn) EmitterServiceClient {
 	return &emitterServiceClient{cc}
-}
-
-func (c *emitterServiceClient) Health(ctx context.Context, in *types.Empty, opts ...grpc.CallOption) (*rpc.HealthStatus, error) {
-	out := new(rpc.HealthStatus)
-	err := c.cc.Invoke(ctx, "/cloud.api.streams.v1.EmitterService/Health", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *emitterServiceClient) InitStream(ctx context.Context, in *InitStreamRequest, opts ...grpc.CallOption) (*types.Empty, error) {
@@ -417,7 +402,6 @@ func (c *emitterServiceClient) AddInputChunkId(ctx context.Context, in *AddInput
 
 // EmitterServiceServer is the server API for EmitterService service.
 type EmitterServiceServer interface {
-	Health(context.Context, *types.Empty) (*rpc.HealthStatus, error)
 	InitStream(context.Context, *InitStreamRequest) (*types.Empty, error)
 	EndStream(context.Context, *EndStreamRequest) (*types.Empty, error)
 	AddInputChunkId(context.Context, *AddInputChunkIdRequest) (*types.Empty, error)
@@ -427,9 +411,6 @@ type EmitterServiceServer interface {
 type UnimplementedEmitterServiceServer struct {
 }
 
-func (*UnimplementedEmitterServiceServer) Health(ctx context.Context, req *types.Empty) (*rpc.HealthStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Health not implemented")
-}
 func (*UnimplementedEmitterServiceServer) InitStream(ctx context.Context, req *InitStreamRequest) (*types.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InitStream not implemented")
 }
@@ -442,24 +423,6 @@ func (*UnimplementedEmitterServiceServer) AddInputChunkId(ctx context.Context, r
 
 func RegisterEmitterServiceServer(s *grpc.Server, srv EmitterServiceServer) {
 	s.RegisterService(&_EmitterService_serviceDesc, srv)
-}
-
-func _EmitterService_Health_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(types.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(EmitterServiceServer).Health(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/cloud.api.streams.v1.EmitterService/Health",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(EmitterServiceServer).Health(ctx, req.(*types.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _EmitterService_InitStream_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -521,10 +484,6 @@ var _EmitterService_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*EmitterServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Health",
-			Handler:    _EmitterService_Health_Handler,
-		},
-		{
 			MethodName: "InitStream",
 			Handler:    _EmitterService_InitStream_Handler,
 		},
@@ -544,7 +503,7 @@ var _EmitterService_serviceDesc = grpc.ServiceDesc{
 func (m *Tx) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -552,26 +511,33 @@ func (m *Tx) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Tx) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Tx) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Hash) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.Hash)))
-		i += copy(dAtA[i:], m.Hash)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Hash) > 0 {
+		i -= len(m.Hash)
+		copy(dAtA[i:], m.Hash)
+		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.Hash)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *InitStreamRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -579,52 +545,54 @@ func (m *InitStreamRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InitStreamRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InitStreamRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.StreamId) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.StreamId)))
-		i += copy(dAtA[i:], m.StreamId)
-	}
-	if len(m.UserId) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.UserId)))
-		i += copy(dAtA[i:], m.UserId)
-	}
-	if m.StreamContractId != 0 {
-		dAtA[i] = 0x18
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(m.StreamContractId))
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.ProfilesIds) > 0 {
-		for _, s := range m.ProfilesIds {
+		for iNdEx := len(m.ProfilesIds) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.ProfilesIds[iNdEx])
+			copy(dAtA[i:], m.ProfilesIds[iNdEx])
+			i = encodeVarintEmitterService(dAtA, i, uint64(len(m.ProfilesIds[iNdEx])))
+			i--
 			dAtA[i] = 0x22
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.StreamContractId != 0 {
+		i = encodeVarintEmitterService(dAtA, i, uint64(m.StreamContractId))
+		i--
+		dAtA[i] = 0x18
 	}
-	return i, nil
+	if len(m.UserId) > 0 {
+		i -= len(m.UserId)
+		copy(dAtA[i:], m.UserId)
+		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.UserId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.StreamId) > 0 {
+		i -= len(m.StreamId)
+		copy(dAtA[i:], m.StreamId)
+		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.StreamId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *EndStreamRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -632,43 +600,52 @@ func (m *EndStreamRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *EndStreamRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EndStreamRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.StreamId) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.StreamId)))
-		i += copy(dAtA[i:], m.StreamId)
-	}
-	if len(m.UserId) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.UserId)))
-		i += copy(dAtA[i:], m.UserId)
-	}
-	if m.StreamContractId != 0 {
-		dAtA[i] = 0x18
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(m.StreamContractId))
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.StreamContractAddress) > 0 {
-		dAtA[i] = 0x22
-		i++
+		i -= len(m.StreamContractAddress)
+		copy(dAtA[i:], m.StreamContractAddress)
 		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.StreamContractAddress)))
-		i += copy(dAtA[i:], m.StreamContractAddress)
+		i--
+		dAtA[i] = 0x22
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.StreamContractId != 0 {
+		i = encodeVarintEmitterService(dAtA, i, uint64(m.StreamContractId))
+		i--
+		dAtA[i] = 0x18
 	}
-	return i, nil
+	if len(m.UserId) > 0 {
+		i -= len(m.UserId)
+		copy(dAtA[i:], m.UserId)
+		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.UserId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.StreamId) > 0 {
+		i -= len(m.StreamId)
+		copy(dAtA[i:], m.StreamId)
+		i = encodeVarintEmitterService(dAtA, i, uint64(len(m.StreamId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *AddInputChunkIdRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -676,40 +653,48 @@ func (m *AddInputChunkIdRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *AddInputChunkIdRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AddInputChunkIdRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.StreamContractId != 0 {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(m.StreamContractId))
-	}
-	if m.ChunkId != 0 {
-		dAtA[i] = 0x10
-		i++
-		i = encodeVarintEmitterService(dAtA, i, uint64(m.ChunkId))
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.ChunkDuration != 0 {
-		dAtA[i] = 0x19
-		i++
+		i -= 8
 		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.ChunkDuration))))
-		i += 8
+		i--
+		dAtA[i] = 0x19
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.ChunkId != 0 {
+		i = encodeVarintEmitterService(dAtA, i, uint64(m.ChunkId))
+		i--
+		dAtA[i] = 0x10
 	}
-	return i, nil
+	if m.StreamContractId != 0 {
+		i = encodeVarintEmitterService(dAtA, i, uint64(m.StreamContractId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintEmitterService(dAtA []byte, offset int, v uint64) int {
+	offset -= sovEmitterService(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *Tx) Size() (n int) {
 	if m == nil {
@@ -1342,6 +1327,7 @@ func (m *AddInputChunkIdRequest) Unmarshal(dAtA []byte) error {
 func skipEmitterService(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -1373,10 +1359,8 @@ func skipEmitterService(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -1397,55 +1381,30 @@ func skipEmitterService(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthEmitterService
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthEmitterService
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowEmitterService
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipEmitterService(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthEmitterService
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupEmitterService
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthEmitterService
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthEmitterService = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowEmitterService   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthEmitterService        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowEmitterService          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupEmitterService = fmt.Errorf("proto: unexpected end of group")
 )

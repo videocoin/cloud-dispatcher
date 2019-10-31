@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package cloud.api.dispatcher.v1;
 
-import "github.com/videocoin/cloud-api/rpc/health.proto";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
@@ -19,12 +18,6 @@ option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
 service DispatcherService {
-    rpc Health(google.protobuf.Empty) returns (cloud.api.rpc.HealthStatus) {
-      option (google.api.http) = {
-        get: "/healthz"
-      };
-    }
-
     rpc GetPendingTask(TaskPendingRequest) returns (cloud.api.dispatcher.v1.Task) {}
     rpc GetTask(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
     rpc MarkTaskAsCompleted(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
