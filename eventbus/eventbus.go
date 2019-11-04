@@ -9,6 +9,7 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
+	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
@@ -22,6 +23,7 @@ type Config struct {
 	Name    string
 	DM      *datastore.DataManager
 	Streams pstreamsv1.StreamsServiceClient
+	Miners  minersv1.MinersServiceClient
 }
 
 type EventBus struct {
@@ -29,6 +31,7 @@ type EventBus struct {
 	mq      *mqmux.WorkerMux
 	dm      *datastore.DataManager
 	streams pstreamsv1.StreamsServiceClient
+	miners  minersv1.MinersServiceClient
 }
 
 func New(c *Config) (*EventBus, error) {
@@ -45,6 +48,7 @@ func New(c *Config) (*EventBus, error) {
 		mq:      mq,
 		dm:      c.DM,
 		streams: c.Streams,
+		miners:  c.Miners,
 	}, nil
 }
 
@@ -145,6 +149,18 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 					tracerext.SpanLogError(span, err)
 					return err
 				}
+
+				defer func() {
+					atReq := &minersv1.AssignTaskRequest{
+						ClientID: task.ClientID.String,
+						TaskID:   task.ID,
+					}
+					_, err = e.miners.UnassignTask(context.Background(), atReq)
+					if err != nil {
+						fmtErr := fmt.Errorf("unassign task to miners service: %s", err)
+						tracerext.SpanLogError(span, fmtErr)
+					}
+				}()
 
 				e.logger.Info("marking task as completed")
 

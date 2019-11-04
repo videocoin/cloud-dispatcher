@@ -116,6 +116,7 @@ func NewService(cfg *Config) (*Service, error) {
 		Logger:  cfg.Logger.WithField("system", "eventbus"),
 		DM:      dm,
 		Streams: streams,
+		Miners:  miners,
 	}
 	eb, err := eventbus.New(ebConfig)
 	if err != nil {
