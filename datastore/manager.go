@@ -133,6 +133,26 @@ func (m *DataManager) GetTaskByID(ctx context.Context, id string) (*Task, error)
 	return task, nil
 }
 
+func (m *DataManager) GetPendingTaskByID(ctx context.Context, id string) (*Task, error) {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return nil, failedTo("get task by id", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	task, err := m.ds.Tasks.GetPendingByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
+}
+
 func (m *DataManager) DeleteTask(ctx context.Context, task *Task) error {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
@@ -153,14 +173,14 @@ func (m *DataManager) DeleteTask(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (m *DataManager) GetPendingTask(ctx context.Context) (*Task, error) {
+func (m *DataManager) GetPendingTask(ctx context.Context, excludeIds []string) (*Task, error) {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
 		return nil, failedTo("get pending task", err)
 	}
 	defer tx.RollbackUnlessCommitted()
 
-	task, err := m.ds.Tasks.GetPendingTask(ctx)
+	task, err := m.ds.Tasks.GetPendingTask(ctx, excludeIds)
 	if err != nil {
 		return nil, err
 	}

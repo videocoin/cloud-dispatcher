@@ -142,7 +142,41 @@ func (ds *TaskDatastore) GetByID(ctx context.Context, id string) (*Task, error) 
 	return task, nil
 }
 
-func (ds *TaskDatastore) GetPendingTask(ctx context.Context) (*Task, error) {
+func (ds *TaskDatastore) GetPendingByID(ctx context.Context, id string) (*Task, error) {
+	var sess *dbr.Session
+	var tx *dbr.Tx
+
+	sess, _ = DbSessionFromContext(ctx)
+	if sess == nil {
+		sess = ds.conn.NewSession(nil)
+	}
+
+	tx, _ = DbTxFromContext(ctx)
+	if tx == nil {
+		tx, err := sess.Begin()
+		if err != nil {
+			return nil, err
+		}
+
+		defer func() {
+			tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	task := new(Task)
+	_, err := tx.Select("*").From(ds.table).Where("id = ?", id).Where("status = ?", v1.TaskStatusPending.String()).Load(task)
+	if err != nil {
+		if err == dbr.ErrNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return task, nil
+}
+
+func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds []string) (*Task, error) {
 	var sess *dbr.Session
 	var tx *dbr.Tx
 
@@ -165,11 +199,17 @@ func (ds *TaskDatastore) GetPendingTask(ctx context.Context) (*Task, error) {
 	}
 
 	task := &Task{}
-	err := tx.
+	qs := tx.
 		Select("*").
 		From(ds.table).
 		Where("status = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)]).
-		Where("client_id IS NULL").
+		Where("client_id IS NULL")
+
+	if len(excludeIds) > 0 {
+		qs = qs.Where("ID NOT IN ?", excludeIds)
+	}
+
+	err := qs.
 		Limit(1).
 		LoadStruct(task)
 

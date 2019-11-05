@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/videocoin/cloud-dispatcher/datastore"
+
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/jinzhu/copier"
 	"github.com/mailru/dbr"
@@ -40,16 +42,38 @@ func (s *RpcServer) authenticate(ctx context.Context, clientID string) (*minersv
 }
 
 func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
-	_, err := s.authenticate(ctx, req.ClientID)
+	miner, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
 		return nil, rpc.ErrRpcUnauthenticated
 	}
 
-	task, err := s.dm.GetPendingTask(ctx)
-	if err != nil {
-		logFailedTo(s.logger, "get pending task", err)
-		return nil, rpc.ErrRpcInternal
+	task := &datastore.Task{}
+	task = nil
+
+	if forceTaskID, ok := miner.Tags["force_task_id"]; ok {
+		task, err = s.dm.GetPendingTaskByID(ctx, forceTaskID)
+		if err != nil {
+			logFailedTo(s.logger, "get force task", err)
+			return nil, rpc.ErrRpcInternal
+		}
+		if task.Status != v1.TaskStatusPending {
+			task = nil
+		}
+	}
+
+	if task == nil {
+		ft, err := s.miners.GetForceTaskList(ctx, &prototypes.Empty{})
+		if err != nil {
+			logFailedTo(s.logger, "get force task ids", err)
+			return nil, rpc.ErrRpcNotFound
+		}
+
+		task, err = s.dm.GetPendingTask(ctx, ft.Ids)
+		if err != nil {
+			logFailedTo(s.logger, "get pending task", err)
+			return nil, rpc.ErrRpcInternal
+		}
 	}
 
 	if task == nil {

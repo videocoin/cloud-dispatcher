@@ -49,6 +49,8 @@ service MinersService {
             body: "*"
         };
     }
+
+    rpc GetForceTaskList(google.protobuf.Empty) returns (ForceTaskListResponse) {}
 }
 
 message MinerRequest {
@@ -58,6 +60,7 @@ message MinerRequest {
 message MinerResponse {
     string id = 1;
     MinerStatus status = 2;
+    map<string, string> tags = 3;
 }
 
 message MinerListResponse {
@@ -84,4 +87,8 @@ message Tag {
 message SetTagsRequest {
     string id = 1;
     repeated Tag tags = 2;
+}
+
+message ForceTaskListResponse {
+    repeated string ids = 1;
 }
