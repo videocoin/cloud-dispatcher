@@ -15,8 +15,6 @@ import (
 	"github.com/videocoin/cloud-api/rpc"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 var (
@@ -284,7 +282,7 @@ func (s *RpcServer) Ping(
 
 func (s *RpcServer) Register(
 	ctx context.Context,
-	req *v1.RegistrationRequest,
+	req *minersv1.RegistrationRequest,
 ) (*prototypes.Empty, error) {
 	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
@@ -294,19 +292,14 @@ func (s *RpcServer) Register(
 
 	logger := s.logger.WithFields(logrus.Fields{
 		"client_id": req.ClientID,
+		"address":   req.Address,
 	})
 
 	logger.Info("registering")
 
-	miner, err := s.miners.GetByID(context.Background(), &minersv1.MinerRequest{Id: req.ClientID})
+	_, err = s.miners.Register(ctx, req)
 	if err != nil {
-		s.logger.Warningf("failed to get miner: %s", err)
-		return nil, rpc.ErrRpcNotFound
-	}
-
-	if miner.Status != minersv1.MinerStatusOffline {
-		logger.Warningf("miner is already running")
-		return nil, grpc.Errorf(codes.AlreadyExists, "miner is already running")
+		return nil, err
 	}
 
 	return &prototypes.Empty{}, nil

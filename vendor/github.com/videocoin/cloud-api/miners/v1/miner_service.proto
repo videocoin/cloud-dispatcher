@@ -29,6 +29,8 @@ service MinersService {
         };
     }
 
+    rpc Register(RegistrationRequest) returns (MinerResponse) {}
+
     rpc GetByID(MinerRequest) returns (MinerResponse) {}
 
     rpc List(MinerRequest) returns (MinerListResponse) {
@@ -52,6 +54,11 @@ service MinersService {
 
     rpc GetForceTaskList(google.protobuf.Empty) returns (ForceTaskListResponse) {}
 }
+
+message RegistrationRequest {
+    string client_id = 1 [(gogoproto.customname) = "ClientID"];
+    string address = 2;
+  }
 
 message MinerRequest {
     string id = 1;

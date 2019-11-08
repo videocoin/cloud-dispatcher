@@ -25,7 +25,7 @@ service DispatcherService {
     rpc ValidateProof(cloud.api.validator.v1.ValidateProofRequest) returns (google.protobuf.Empty) {}
     rpc Sync(cloud.api.syncer.v1.SyncRequest) returns (google.protobuf.Empty) {}
     rpc Ping(cloud.api.miners.v1.PingRequest) returns (cloud.api.miners.v1.PingResponse) {}
-    rpc Register(RegistrationRequest) returns (google.protobuf.Empty) {}
+    rpc Register(cloud.api.miners.v1.RegistrationRequest) returns (google.protobuf.Empty) {}
 }
 
 message TaskPendingRequest {
@@ -35,8 +35,4 @@ message TaskPendingRequest {
 message TaskRequest {
   string client_id = 1 [(gogoproto.customname) = "ClientID"];
   string id = 2 [(gogoproto.customname) = "ID"];
-}
-
-message RegistrationRequest {
-  string client_id = 1 [(gogoproto.customname) = "ClientID"];
 }
