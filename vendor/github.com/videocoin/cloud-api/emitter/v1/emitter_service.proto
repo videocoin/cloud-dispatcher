@@ -17,6 +17,8 @@ service EmitterService {
     rpc InitStream(InitStreamRequest) returns (google.protobuf.Empty) {}
     rpc EndStream(EndStreamRequest) returns (google.protobuf.Empty) {}
     rpc AddInputChunkId(AddInputChunkIdRequest) returns (google.protobuf.Empty) {}
+    rpc GetBalance(BalanceRequest) returns (BalanceResponse) {}
+    rpc Deposit(DepositRequest) returns (DepositResponse) {}
 }
 
 message Tx {
@@ -43,4 +45,22 @@ message AddInputChunkIdRequest {
     double chunk_duration = 3;
 }
 
+message BalanceRequest {
+    bytes address = 1;
+}
 
+message BalanceResponse {
+    bytes address = 1;
+    bytes value = 2;
+}
+
+message DepositRequest {
+    string user_id = 1;
+    string stream_id = 2;
+    bytes to = 3;
+    bytes value = 4;
+}
+
+message DepositResponse {
+    bytes tx_id = 1;
+}

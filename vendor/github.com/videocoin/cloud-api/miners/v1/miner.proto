@@ -15,7 +15,8 @@ enum MinerStatus {
     option (gogoproto.goproto_enum_prefix) = false;
     option (gogoproto.enum_customname) = "MinerStatus";
 
-    OFFLINE = 0 [(gogoproto.enumvalue_customname) = "MinerStatusOffline"];
-    IDLE = 1 [(gogoproto.enumvalue_customname) = "MinerStatusIdle"];
-    BUSY = 2 [(gogoproto.enumvalue_customname) = "MinerStatusBusy"];
+    NEW = 0 [(gogoproto.enumvalue_customname) = "MinerStatusNew"];
+    OFFLINE = 1 [(gogoproto.enumvalue_customname) = "MinerStatusOffline"];
+    IDLE = 2 [(gogoproto.enumvalue_customname) = "MinerStatusIdle"];
+    BUSY = 3 [(gogoproto.enumvalue_customname) = "MinerStatusBusy"];
 }

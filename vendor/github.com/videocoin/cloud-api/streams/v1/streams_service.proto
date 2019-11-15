@@ -1,0 +1,248 @@
+syntax = "proto3";
+
+package cloud.api.streams.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+import "streams/v1/stream.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+	info: {
+		title: "Videocoin api";
+		version: "1.0";
+	};
+	schemes: HTTPS;
+	consumes: "application/json";
+	produces: "application/json";
+	security_definitions: {
+		security: {
+			key: "ApiKeyAuth";
+			value: {
+				type: TYPE_API_KEY;
+				in: IN_HEADER;
+				name: "Authorization";
+			}
+		}
+	}
+	security: {
+		security_requirement: {
+			key: "ApiKeyAuth";
+			value: {};
+		}
+	}
+	responses: {
+		key: "401";
+		value: {
+			description: "Returned when the user is not logged in.";
+		}
+	}
+	responses: {
+		key: "403";
+		value: {
+			description: "Returned when the user does not have permission to access the resource.";
+		}
+	}
+	responses: {
+		key: "404";
+		value: {
+			description: "Returned when the resource does not exist.";
+			schema: {
+			    example: {
+                    value: '{ "message": "Not found", "fields": null }'
+                }
+			}
+		}
+	}
+};
+service StreamService {
+    /* This API call creates a new stream with the specified name and output transcoding profile. A stream object is returned from this API call. */
+    rpc Create(CreateStreamRequest) returns (StreamResponse) {
+      option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
+			responses: {
+				key: "400";
+				value: {
+					description: "Stream has been failed to create because a required field is missing.";
+					schema: {
+                        example: {
+                            value: '{ "message": "invalid argument", "fields": { "name": "Name is a required field" }}'
+                        }
+			        }
+				}
+			}
+		};
+
+      option (google.api.http) = {
+        post: "/api/v1/streams"
+        body: "*"
+      };
+    };
+
+    /* This API call gets the details of the stream associated with the ID passed. The stream must belong to the account specified */
+    rpc Get(StreamRequest) returns (StreamResponse) {
+      option (google.api.http) = {
+        get: "/api/v1/streams/{id}"
+      };
+    };
+
+    /* This API call deletes the stream with the specified ID. */
+    rpc Delete(StreamRequest) returns (google.protobuf.Empty) {
+      option (google.api.http) = {
+        delete: "/api/v1/streams/{id}"
+      };
+    };
+
+    /* This API call gets all streams that belongs to a specific account. */
+    rpc List(google.protobuf.Empty) returns (StreamListResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/streams"
+        };
+    }
+
+    /* This API call modify the stream with the specified ID. */
+    rpc Update(UpdateStreamRequest) returns (StreamResponse) {
+      option (google.api.http) = {
+        put: "/api/v1/streams/{id}"
+        body: "*"
+      };
+    };
+
+    rpc UpdateStatus(UpdateStreamRequest) returns (google.protobuf.Empty) {};
+
+    /* This API call transitions a newly created stream to begin preparing input and output destinations. */
+    rpc Run(StreamRequest) returns (StreamResponse) {
+      option (google.api.http) = {
+        post: "/api/v1/streams/{id}/run"
+      };
+    };
+
+    /* This API call stops or cancels a stream based on its input and output destination state. */
+    rpc Stop(StreamRequest) returns (StreamResponse) {
+      option (google.api.http) = {
+        post: "/api/v1/streams/{id}/stop"
+      };
+    };
+}
+
+message CreateStreamRequest {
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+		json_schema: {
+			required: ["name", "profile_id"]
+		}
+	};
+    string name = 1 [
+      (gogoproto.moretags) = "validate:\"required,gt=0,lte=255\"",
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Name of stream being created. Length is between 1 and 255 symbols.", required: ['name']}
+    ];
+
+    string profile_id = 2 [
+      (gogoproto.moretags) = "validate:\"required\"",
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "ID of output transcoding profile that will be used to transcode the incoming stream. Read more under Profiles section.", required: ['profile_id']}
+    ];
+}
+
+message StreamRequest {
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+		json_schema: {
+			required: ["id"]
+		}
+	};
+    string id = 1 [
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Stream ID"}
+     ];
+}
+
+message UpdateStreamRequest {
+  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+		json_schema: {
+			required: ["name"]
+		}
+	};
+  string id = 1 [
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Stream ID"}
+  ];
+  string name = 2 [
+      (gogoproto.moretags) = "validate:\"required,gt=0,lte=255\"",
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Name of stream being created. Length is between 1 and 255 symbols"}
+  ];
+  uint64 stream_contract_id = 3 [
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Stream ID in VideoCoin stream chain"}
+  ];
+  string stream_contract_address = 4 [
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Stream contract address"}
+  ];
+  StreamStatus status = 5 [
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "The status of a stream is affected by API calls made on a stream object"}
+  ];
+  InputStatus input_status = 6 [
+      (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "The status of a stream's ingest is affected by the state of the encoder that's sending video data to the stream"}
+  ];
+}
+
+message StreamResponse {
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+		json_schema: {
+			description: "Streams are representations of video to be worked on by miners on the VideoCoin Network and output consumable video based on the transcoding profile given at creation. Streams currently only support video input over RTMP. Support for input video over RTSP and HLS will be considered in future releases."
+		};
+		example: {
+            value: '{ "id": "4a1c3973-8cf6-49af-4a56-7a1d49c2bac6", "name": "Live", "input_url": "http://rtmp.studio.videocoin.network/hls/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6/index.m3u8", "output_url": "https://streams.videocoin.network/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6/index.m3u8", "stream_contract_id": "2758350251200610030", "stream_contract_address": "", "status": "STREAM_STATUS_NEW", "input_status": "INPUT_STATUS_NONE", "created_at": "2019-11-06T19:31:03.059408235Z", "updated_at": "2019-11-06T19:31:03.059460430Z", "ready_at": null, "completed_at": null, "rtmp_url": "rtmp://rtmp.studio.videocoin.network:1935/live/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6" }'
+        }
+	};
+
+    string id = 1 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "ID that VideoCoin uses to uniquely identify each stream"}];
+    string name = 2 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Name of the stream"}];
+
+    string input_url = 4 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Input URL of transcoded video"}];
+    string output_url = 5 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Unique output URL of transcoded video"}];
+
+    uint64 stream_contract_id = 7 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Stream ID in VideoCoin stream chain"}];
+    string stream_contract_address = 8 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Stream hex address in VideoCoin chain. Empty until stream is in prepared state"}];
+
+    StreamStatus status = 9 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Status of the stream\'s operational state"}];
+    InputStatus input_status = 10 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Status of the stream\'s video ingest"}];
+
+    google.protobuf.Timestamp created_at = 11 [
+        (gogoproto.stdtime) = true,
+        (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Date and time of when stream was initially created"}
+    ];
+
+    google.protobuf.Timestamp updated_at = 17 [
+        (gogoproto.stdtime) = true,
+        (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Date and time of when stream\'s state was last changed"}
+    ];
+
+    google.protobuf.Timestamp ready_at = 12 [
+        (gogoproto.stdtime) = true,
+        (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Date and time of when stream\'s ingest has received and completed processing input video data. This field will be null until stream is in ready state"}
+    ];
+
+    google.protobuf.Timestamp completed_at = 13 [
+        (gogoproto.stdtime) = true,
+        (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Date and time of when stream was called to stop. This field will be null until stream is in completed state"}
+    ];
+
+    string rtmp_url = 14 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Unique ingest RTMP URL for stream to receive video data from encoder. This URL is used for your encoder to send data to"}];
+}
+
+message StreamListResponse {
+    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+		json_schema: {
+			description: "List of streams."
+		};
+		example: {
+            value: '{ "id": "4a1c3973-8cf6-49af-4a56-7a1d49c2bac6", "name": "Live", "input_url": "http://rtmp.studio.videocoin.network/hls/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6/index.m3u8", "output_url": "https://streams.videocoin.network/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6/index.m3u8", "stream_contract_id": "2758350251200610030", "stream_contract_address": "", "status": "STREAM_STATUS_NEW", "input_status": "INPUT_STATUS_NONE", "created_at": "2019-11-06T19:31:03.059408235Z", "updated_at": "2019-11-06T19:31:03.059460430Z", "ready_at": null, "completed_at": null, "rtmp_url": "rtmp://rtmp.studio.videocoin.network:1935/live/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6" }'
+        }
+
+	};
+    repeated StreamResponse items = 1;
+}

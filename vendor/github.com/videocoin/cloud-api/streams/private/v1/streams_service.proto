@@ -19,6 +19,8 @@ service StreamsService {
   rpc Get(StreamRequest) returns (StreamResponse) {}
   rpc Publish(StreamRequest) returns (StreamResponse) {}
   rpc PublishDone(StreamRequest) returns (StreamResponse) {}
+  rpc Run(StreamRequest) returns (StreamResponse) {}
+  rpc Stop(StreamRequest) returns (StreamResponse) {}
 }
 
 message StreamRequest {

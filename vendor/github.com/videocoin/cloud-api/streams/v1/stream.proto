@@ -5,6 +5,7 @@ package cloud.api.streams.v1;
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 import "google/protobuf/timestamp.proto";
+import "protoc-gen-swagger/options/annotations.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -13,29 +14,44 @@ option (gogoproto.sizer_all) = true;
 option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
+// The status of a stream is affected by API calls made on a stream object.
 enum StreamStatus {
     option (gogoproto.goproto_enum_prefix) = false;
     option (gogoproto.enum_customname) = "StreamStatus";
 
+    // Status not set
     STREAM_STATUS_NONE = 0 [ (gogoproto.enumvalue_customname) = "StreamStatusNone" ];
+    // Initially created and no actions have been taken
     STREAM_STATUS_NEW = 1 [ (gogoproto.enumvalue_customname) = "StreamStatusNew" ];
+    // Running and preparing input and output destinations
     STREAM_STATUS_PREPARING = 2 [ (gogoproto.enumvalue_customname) = "StreamStatusPreparing" ];
+    // Preparation is finished and is ready to consume input data
     STREAM_STATUS_PREPARED = 3 [ (gogoproto.enumvalue_customname) = "StreamStatusPrepared" ];
+    // Receiving data and pending on miner to be assigned to stream
     STREAM_STATUS_PENDING = 4 [ (gogoproto.enumvalue_customname) = "StreamStatusPending" ];
+    // Miner has started work on stream, but output is not ready for use
     STREAM_STATUS_PROCESSING = 5 [ (gogoproto.enumvalue_customname) = "StreamStatusProcessing" ];
+    // Output destination is ready to be consumed
     STREAM_STATUS_READY = 6 [ (gogoproto.enumvalue_customname) = "StreamStatusReady" ];
+    // Stream has successfully transcoded video and is now complete
     STREAM_STATUS_COMPLETED = 7 [ (gogoproto.enumvalue_customname) = "StreamStatusCompleted" ];
+    // Stream has not yet received any input data and has been cancelled
     STREAM_STATUS_CANCELLED = 8 [ (gogoproto.enumvalue_customname) = "StreamStatusCancelled" ];
+    // Stream has attempted to transcode video received, but problems with the transcoder or account caused it to fail
     STREAM_STATUS_FAILED = 9 [ (gogoproto.enumvalue_customname) = "StreamStatusFailed" ];
 }
 
+// The status of a stream's ingest is affected by the state of the encoder that's sending video data to the stream.
 enum InputStatus {
     option (gogoproto.goproto_enum_prefix) = false;
     option (gogoproto.enum_customname) = "InputStatus";
-
+    // The stream has been created or has ended and is not receiving any input
     INPUT_STATUS_NONE = 0 [ (gogoproto.enumvalue_customname) = "InputStatusNone" ];
+    // Ingest is awaiting for incoming data
     INPUT_STATUS_PENDING = 1 [ (gogoproto.enumvalue_customname) = "InputStatusPending" ];
+    // Ingest is receiving data
     INPUT_STATUS_ACTIVE = 2 [ (gogoproto.enumvalue_customname) = "InputStatusActive" ];
+    // Ingest has been failed to process incoming data
     INPUT_STATUS_ERROR = 3 [ (gogoproto.enumvalue_customname) = "InputStatusError" ];
 }
 
@@ -77,44 +93,4 @@ message Stream {
     ];
 
     string rtmp_url = 20;
-}
-
-message Streams {
-    repeated Stream items = 1;
-}
-
-message StreamProfile {
-    string id = 1;
-    string name = 2;
-
-    string input_url = 4;
-    string output_url = 5;
-
-    uint64 stream_contract_id = 7;
-    string stream_contract_address = 8;
-
-    StreamStatus status = 9;
-    InputStatus input_status = 10;
-
-    google.protobuf.Timestamp created_at = 11 [
-        (gogoproto.stdtime) = true
-    ];
-
-    google.protobuf.Timestamp updated_at = 17 [
-        (gogoproto.stdtime) = true
-    ];
-
-    google.protobuf.Timestamp ready_at = 12 [
-        (gogoproto.stdtime) = true
-    ];
-
-    google.protobuf.Timestamp completed_at = 13 [
-        (gogoproto.stdtime) = true
-    ];
-
-    string rtmp_url = 14;
-}
-
-message StreamProfiles {
-    repeated StreamProfile items = 1;
 }

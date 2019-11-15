@@ -17,7 +17,8 @@ message Account {
     string user_id = 2;
     string address = 3 [(gogoproto.moretags) = "gorm:\"type:varchar(42)\""];
     string key = 4 [(gogoproto.moretags) = "gorm:\"type:varchar(512)\""];
-    double balance = 5;
+    // double balance = 5;
+    string balance_wei = 6;
 
     google.protobuf.Timestamp updated_at = 9 [
         (gogoproto.stdtime) = true
@@ -25,13 +26,8 @@ message Account {
 }
 
 message AccountProfile {
-    string id = 1;
-    string address = 2;
-    double balance = 3;
-    
-    google.protobuf.Timestamp updated_at = 4 [
-        (gogoproto.stdtime) = true
-    ];
+    string address = 1;
+    string balance = 2;
 }
 
 message AccountKey {

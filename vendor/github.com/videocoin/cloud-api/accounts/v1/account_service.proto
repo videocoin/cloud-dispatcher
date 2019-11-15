@@ -7,6 +7,7 @@ import "accounts/v1/account.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -29,7 +30,9 @@ service AccountService {
 
     rpc Key(AccountRequest) returns (AccountKey) {}
 
-    rpc Withdraw(WithdrawRequest) returns (google.protobuf.Empty) {}
+    rpc CreateTransfer(CreateTransferRequest) returns (TransferResponse) {}
+    rpc GetTransfer(TransferRequest) returns (TransferResponse) {}
+    rpc ExecuteTransfer(ExecuteTransferRequest) returns (google.protobuf.Empty) {}
 }
 
 message AccountRequest {
@@ -45,9 +48,31 @@ message ListResponse {
     repeated AccountProfile items = 1;
 }
 
-message WithdrawRequest {
-    string owner_id = 1;
-    string transfer_id = 2;
+message CreateTransferRequest {
+    string user_id = 1;
+    string to_address = 2;
+    bytes amount = 3;
+}
+
+message TransferRequest {
+    string id = 1;
+}
+
+message TransferResponse {
+    string id = 1;
+    string to_address = 2;
+    string pin = 3;
+    bytes amount = 4;
+
+    google.protobuf.Timestamp expires_at = 5 [
+        (gogoproto.stdtime) = true
+    ];
+}
+
+message ExecuteTransferRequest {
+    string id = 1;
+    string user_id = 2;
+    string user_email = 3;
 }
 
 
