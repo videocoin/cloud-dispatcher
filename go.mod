@@ -16,7 +16,7 @@ require (
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
-	github.com/videocoin/cloud-api v0.2.14
+	github.com/videocoin/cloud-api v0.2.15
 	github.com/videocoin/cloud-pkg v0.0.6
 	github.com/videocoin/cloud-streams v0.0.0-20190909150823-8d31a6477edb // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect

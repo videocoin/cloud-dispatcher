@@ -64,8 +64,10 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 
 service ProfilesService {
+    rpc Get(ProfileRequest) returns (ProfileResponse)  {}
+	
     /* This API call returns a list of supported output transcoding profiles. Most notably, the items in the response list the ID of a profile which is required when creating a new stream object. */
-    rpc List(google.protobuf.Empty) returns (ProfileListItems)  {
+    rpc List(google.protobuf.Empty) returns (ProfileListResponse)  {
         option (google.api.http) = {
             get: "/api/v1/profiles"
         };
@@ -74,22 +76,33 @@ service ProfilesService {
     rpc Render(RenderRequest) returns (RenderResponse) {}
 }
 
-message ProfileListItem {
+message ProfileRequest {
+    string id = 1 [
+		(gogoproto.moretags) = "validate:\"required\""
+	];
+}
+
+message ProfileResponse {
     string id = 1;
     string name = 2;
     string description = 3;
     bool is_enabled = 4;
 }
 
-
-message ProfileListItems {
-    repeated ProfileListItem items = 1;
+message ProfileListResponse {
+    repeated ProfileResponse items = 1;
 }
 
 message RenderRequest {
-    string id = 1;
-    string input = 2;
-    string output = 3;
+    string id = 1 [
+		(gogoproto.moretags) = "validate:\"required\""
+	];
+    string input = 2 [
+		(gogoproto.moretags) = "validate:\"required\""
+	];
+    string output = 3 [
+		(gogoproto.moretags) = "validate:\"required\""
+	];
 }
 
 message RenderResponse {

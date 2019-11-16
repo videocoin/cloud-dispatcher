@@ -109,7 +109,7 @@ github.com/uber/jaeger-client-go/thrift-gen/agent
 github.com/uber/jaeger-client-go/thrift-gen/baggage
 # github.com/uber/jaeger-lib v2.0.0+incompatible
 github.com/uber/jaeger-lib/metrics
-# github.com/videocoin/cloud-api v0.2.14 => ../cloud-api
+# github.com/videocoin/cloud-api v0.2.15 => ../cloud-api
 github.com/videocoin/cloud-api/dispatcher/v1
 github.com/videocoin/cloud-api/profiles/v1
 github.com/videocoin/cloud-api/streams/private/v1
