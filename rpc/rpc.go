@@ -13,6 +13,7 @@ import (
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
+	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 )
@@ -163,6 +164,14 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 		if err != nil {
 			logFailedTo(s.logger, "unassign task to miners service", err)
 		}
+
+		_, err = s.streams.PublishDone(
+			context.Background(),
+			&streamsv1.StreamRequest{Id: task.ID},
+		)
+		if err != nil {
+			logFailedTo(s.logger, "publish done", err)
+		}
 	}()
 
 	err = s.dm.MarkTaskAsCompleted(ctx, task)
@@ -208,6 +217,14 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 		_, err = s.miners.UnassignTask(context.Background(), atReq)
 		if err != nil {
 			logFailedTo(s.logger, "unassign task to miners service", err)
+		}
+
+		_, err = s.streams.PublishDone(
+			context.Background(),
+			&streamsv1.StreamRequest{Id: task.ID},
+		)
+		if err != nil {
+			logFailedTo(s.logger, "publish done", err)
 		}
 	}()
 

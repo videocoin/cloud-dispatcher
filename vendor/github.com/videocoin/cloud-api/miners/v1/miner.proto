@@ -20,3 +20,12 @@ enum MinerStatus {
     IDLE = 2 [(gogoproto.enumvalue_customname) = "MinerStatusIdle"];
     BUSY = 3 [(gogoproto.enumvalue_customname) = "MinerStatusBusy"];
 }
+
+message SystemInfo {
+    double cpu_cores = 1;
+    double cpu_freq = 2;
+    double cpu_usage = 3;
+
+    double mem_usage = 10;
+    double mem_total = 11;
+}
