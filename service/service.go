@@ -10,6 +10,7 @@ import (
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
+	"github.com/videocoin/cloud-dispatcher/metrics"
 	"github.com/videocoin/cloud-dispatcher/rpc"
 	"github.com/videocoin/cloud-pkg/grpcutil"
 	"google.golang.org/grpc"
@@ -19,6 +20,8 @@ type Service struct {
 	cfg *Config
 	rpc *rpc.RpcServer
 	eb  *eventbus.EventBus
+	mc  *metrics.Collector
+	ms  *metrics.HTTPServer
 }
 
 func NewService(cfg *Config) (*Service, error) {
@@ -123,22 +126,44 @@ func NewService(cfg *Config) (*Service, error) {
 		return nil, err
 	}
 
+	mc := metrics.NewCollector(cfg.Name, dm)
+
+	ms, err := metrics.NewHTTPServer(cfg.MetricsAddr, cfg.Logger.WithField("system", "http"))
+	if err != nil {
+		return nil, err
+	}
+
 	svc := &Service{
 		cfg: cfg,
 		rpc: rpc,
 		eb:  eb,
+		mc:  mc,
+		ms:  ms,
 	}
 
 	return svc, nil
 }
 
 func (s *Service) Start() error {
+	s.cfg.Logger.Info("starting rpc server")
 	go s.rpc.Start()
+
+	s.cfg.Logger.Info("starting eventbus")
 	go s.eb.Start()
+
+	s.cfg.Logger.Info("starting metrics collector")
+	go s.mc.Start()
+
+	s.cfg.Logger.Info("starting metrics server")
+	go s.ms.Start()
+
 	return nil
 }
 
 func (s *Service) Stop() error {
 	s.eb.Stop()
+	s.ms.Stop()
+	s.mc.Stop()
+
 	return nil
 }

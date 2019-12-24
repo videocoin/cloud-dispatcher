@@ -94,3 +94,18 @@ message Stream {
 
     string rtmp_url = 20;
 }
+
+enum InputType {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "InputType";
+
+    INPUT_TYPE_RTMP = 0 [ (gogoproto.enumvalue_customname) = "InputTypeRTMP" ];
+    INPUT_TYPE_WEBRTC = 1 [ (gogoproto.enumvalue_customname) = "InputTypeWebRTC" ];
+}
+
+enum OutputType {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "OutputType";
+
+    OUTPUT_TYPE_HLS = 0 [ (gogoproto.enumvalue_customname) = "OutputTypeHLS" ];
+}

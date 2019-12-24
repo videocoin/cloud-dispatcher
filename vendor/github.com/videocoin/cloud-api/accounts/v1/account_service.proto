@@ -29,6 +29,7 @@ service AccountService {
     rpc List(google.protobuf.Empty) returns (ListResponse) {}
 
     rpc Key(AccountRequest) returns (AccountKey) {}
+    rpc Keys(google.protobuf.Empty) returns (AccountKeys) {}
 
     rpc CreateTransfer(CreateTransferRequest) returns (TransferResponse) {}
     rpc GetTransfer(TransferRequest) returns (TransferResponse) {}

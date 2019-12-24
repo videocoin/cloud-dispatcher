@@ -10,16 +10,20 @@ require (
 	github.com/gogo/protobuf v1.3.1
 	github.com/jinzhu/copier v0.0.0-20190625015134-976e0346caa8
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/labstack/echo v3.3.10+incompatible
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/mailru/dbr v3.0.0+incompatible
 	github.com/mailru/go-clickhouse v1.2.0 // indirect
 	github.com/opentracing/opentracing-go v1.1.0
+	github.com/prometheus/client_golang v0.9.4
+	github.com/reality-lab-networks/liveplanet-api v0.0.0-20190906141833-b7fe3c9f4f36
 	github.com/sirupsen/logrus v1.4.2
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
 	github.com/videocoin/cloud-api v0.2.15
 	github.com/videocoin/cloud-pkg v0.0.6
 	github.com/videocoin/cloud-streams v0.0.0-20190909150823-8d31a6477edb // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
+	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
 	google.golang.org/grpc v1.23.0
 	gopkg.in/go-playground/validator.v9 v9.29.1
 )

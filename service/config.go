@@ -16,6 +16,7 @@ type Config struct {
 	ValidatorRPCAddr string `default:"0.0.0.0:5020" envconfig:"VALIDATOR_RPC_ADDR"`
 	SyncerRPCAddr    string `default:"0.0.0.0:5021" envconfig:"SYNCER_RPC_ADDR"`
 	MinersRPCAddr    string `default:"0.0.0.0:5011" envconfig:"MINERS_RPC_ADDR"`
+	MetricsAddr      string `default:"0.0.0.0:15008" envconfig:"METRICS_ADDR"`
 
 	DBURI string `default:"root:@/videocoin?charset=utf8&parseTime=True&loc=Local" envconfig:"DBURI"`
 	MQURI string `default:"amqp://guest:guest@127.0.0.1:5672" envconfig:"MQURI"`

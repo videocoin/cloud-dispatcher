@@ -20,6 +20,8 @@ message Account {
     // double balance = 5;
     string balance_wei = 6;
 
+    bool is_locked = 7;
+
     google.protobuf.Timestamp updated_at = 9 [
         (gogoproto.stdtime) = true
     ];
@@ -28,9 +30,15 @@ message Account {
 message AccountProfile {
     string address = 1;
     string balance = 2;
+    bool is_locked = 3;
 }
 
 message AccountKey {
-    string address = 1;
-    string key = 2;
+    string id = 1;
+    string address = 2;
+    string key = 3;
+}
+
+message AccountKeys {
+    repeated AccountKey items = 1;
 }

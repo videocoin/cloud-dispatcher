@@ -193,6 +193,26 @@ func (m *DataManager) GetPendingTask(ctx context.Context, excludeIds []string) (
 	return task, nil
 }
 
+func (m *DataManager) GetTasks(ctx context.Context) ([]*Task, error) {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return nil, failedTo("get tasks", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	tasks, err := m.ds.Tasks.GetList(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
 func (m *DataManager) MarkTaskAsPending(ctx context.Context, task *Task) error {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
