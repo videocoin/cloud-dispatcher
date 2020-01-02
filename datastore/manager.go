@@ -98,6 +98,8 @@ func (m *DataManager) CreateTaskFromStreamID(ctx context.Context, streamID strin
 		return nil, failedTo("get profile", err)
 	}
 
+	logger.Debugf("profile %+v\n", p)
+
 	task.MachineType = dbr.NewNullString(p.MachineType)
 
 	profileReq := &profilesv1.RenderRequest{
