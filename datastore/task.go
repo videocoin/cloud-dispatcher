@@ -22,6 +22,7 @@ type Task struct {
 	ClientID              dbr.NullString `db:"client_id"`
 	StreamContractID      dbr.NullInt64  `db:"stream_contract_id"`
 	StreamContractAddress dbr.NullString `db:"stream_contract_address"`
+	MachineType           dbr.NullString `db:"machine_type"`
 }
 
 func TaskFromStreamResponse(s *streamsv1.StreamResponse) *Task {

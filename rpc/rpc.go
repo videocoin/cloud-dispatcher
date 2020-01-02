@@ -96,6 +96,7 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 	v1Task.ClientID = task.ClientID.String
 	v1Task.StreamContractID = uint64(task.StreamContractID.Int64)
 	v1Task.StreamContractAddress = task.StreamContractAddress.String
+	v1Task.MachineType = task.MachineType.String
 
 	atReq := &minersv1.AssignTaskRequest{
 		ClientID: task.ClientID.String,
@@ -134,6 +135,7 @@ func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task,
 	}
 
 	v1Task.ClientID = task.ClientID.String
+	v1Task.MachineType = task.MachineType.String
 
 	return v1Task, nil
 }

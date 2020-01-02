@@ -14,10 +14,10 @@ option (gogoproto.messagename_all) = true;
 
 message Profile {
   option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
-		json_schema: {
-			description: "A Profile describes the output transcoding configuration to be associated with a stream object. The configuration of a Profile will be executed by miners on the VideoCoin network. Interacting with the Profile API does not require authorization.pport for MPEG-DASH output will be considered in future releases. Profiles are currently predefined and cannot be created by users. Please contact support@videocoin.io to request support for a different transcoding configuration. Support for custom profiles will be considered in future releases"
+    json_schema: {
+      description: "A Profile describes the output transcoding configuration to be associated with a stream object. The configuration of a Profile will be executed by miners on the VideoCoin network. Interacting with the Profile API does not require authorization.pport for MPEG-DASH output will be considered in future releases. Profiles are currently predefined and cannot be created by users. Please contact support@videocoin.io to request support for a different transcoding configuration. Support for custom profiles will be considered in future releases"
 		}
-   };
+  };
   string id = 1 [
       (gogoproto.moretags) = "gorm:\"type:varchar(36);primary_key\"",
       (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "ID of the Profile. This is to be used when creating a new stream"}
@@ -31,6 +31,7 @@ message Profile {
 message Spec {
   string version = 1;
   repeated Component components = 2;
+  string machine_type = 3;
 }
 
 enum ComponentType {

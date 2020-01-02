@@ -89,6 +89,17 @@ func (m *DataManager) CreateTaskFromStreamID(ctx context.Context, streamID strin
 
 	logger.Debugf("task %+v\n", task)
 
+	getProfileReq := &profilesv1.ProfileRequest{
+		Id: task.ProfileID,
+	}
+
+	p, err := m.profiles.Get(ctx, getProfileReq)
+	if err != nil {
+		return nil, failedTo("get profile", err)
+	}
+
+	task.MachineType = dbr.NewNullString(p.MachineType)
+
 	profileReq := &profilesv1.RenderRequest{
 		Id:     task.ProfileID,
 		Input:  task.Input.GetURI(),
@@ -96,7 +107,7 @@ func (m *DataManager) CreateTaskFromStreamID(ctx context.Context, streamID strin
 	}
 	renderResp, err := m.profiles.Render(ctx, profileReq)
 	if err != nil {
-		return nil, failedTo("get profile", err)
+		return nil, failedTo("render profile", err)
 	}
 	task.Cmdline = renderResp.Render
 

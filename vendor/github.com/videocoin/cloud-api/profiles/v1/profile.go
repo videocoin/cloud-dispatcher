@@ -39,7 +39,8 @@ func (p *Param) Render() string {
 }
 
 func (ct *ComponentType) MarshalJSON() ([]byte, error) {
-	return json.Marshal(ComponentType_name[int32(*ct)])
+	b, err := json.Marshal(ComponentType_name[int32(*ct)])
+	return b, err
 }
 
 func (ct *ComponentType) UnmarshalJSON(b []byte) error {
