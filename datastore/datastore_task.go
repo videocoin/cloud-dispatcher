@@ -64,7 +64,7 @@ func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
 		task.CreatedAt = pointer.ToTime(time.Now())
 	}
 
-	cols := []string{"id", "owner_id", "created_at", "status", "profile_id", "input", "output", "cmdline"}
+	cols := []string{"id", "owner_id", "created_at", "status", "profile_id", "input", "output", "cmdline", "machine_type"}
 	_, err := tx.InsertInto(ds.table).Columns(cols...).Record(task).Exec()
 	if err != nil {
 		return err
