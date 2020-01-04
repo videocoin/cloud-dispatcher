@@ -12,6 +12,7 @@ service:
   type: ClusterIP
   externalRpcPort: 5008
   internalRpcPort: 5008
+  metricsHttpPort: 15008
 
 autoscaler:
   minCount: 1

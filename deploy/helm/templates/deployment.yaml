@@ -16,6 +16,9 @@ spec:
       name: {{ .Release.Name }}
       labels:
         app: {{ .Release.Name }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.service.metricsHttpPort }}"
     spec:
       containers:
         - name: {{ .Release.Name }}
