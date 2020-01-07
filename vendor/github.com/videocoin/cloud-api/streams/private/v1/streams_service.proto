@@ -57,4 +57,6 @@ message StreamResponse {
   google.protobuf.Timestamp completed_at = 13 [
       (gogoproto.stdtime) = true
   ];
+
+  string user_id = 14 [(gogoproto.customname) = "UserID"];
 }

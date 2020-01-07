@@ -55,46 +55,6 @@ enum InputStatus {
     INPUT_STATUS_ERROR = 3 [ (gogoproto.enumvalue_customname) = "InputStatusError" ];
 }
 
-message Stream {
-    string id = 1 [
-        (gogoproto.moretags) = "gorm:\"type:char(36);\""
-    ];
-
-    string user_id = 2;
-    string name = 3;
-
-    string profile_id = 4;
-
-    StreamStatus status = 5;
-    InputStatus input_status = 6;
-
-    uint64 stream_contract_id = 8;
-    string stream_contract_address = 9;
-
-    string input_url = 11;
-    string output_url = 12;
-
-    bool refunded = 13;
-
-    google.protobuf.Timestamp created_at = 16 [
-        (gogoproto.stdtime) = true
-    ];
-
-    google.protobuf.Timestamp updated_at = 17 [
-        (gogoproto.stdtime) = true
-    ];
-
-    google.protobuf.Timestamp ready_at = 18 [
-        (gogoproto.stdtime) = true
-    ];
-
-    google.protobuf.Timestamp completed_at = 19 [
-        (gogoproto.stdtime) = true
-    ];
-
-    string rtmp_url = 20;
-}
-
 enum InputType {
     option (gogoproto.goproto_enum_prefix) = false;
     option (gogoproto.enum_customname) = "InputType";

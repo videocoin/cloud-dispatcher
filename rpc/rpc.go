@@ -3,6 +3,8 @@ package rpc
 import (
 	"context"
 	"errors"
+	"math/rand"
+	"time"
 
 	"github.com/videocoin/cloud-dispatcher/datastore"
 
@@ -322,4 +324,32 @@ func (s *RpcServer) Register(
 	}
 
 	return &prototypes.Empty{}, nil
+}
+
+func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
+	resp := &v1.InternalConfigResponse{}
+
+	clientIds, err := s.consul.GetTranscoderClientIds()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(clientIds) > 0 {
+		rand.Seed(time.Now().Unix())
+		resp.ClientId = clientIds[rand.Intn(len(clientIds))]
+	}
+
+	ksPairs, err := s.consul.GetTranscoderKeyAndSecret()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(ksPairs) > 0 {
+		rand.Seed(time.Now().Unix())
+		ksPair := ksPairs[rand.Intn(len(ksPairs))]
+		resp.Key = string(ksPair.Value)
+		resp.Secret = ksPair.Key
+	}
+
+	return resp, nil
 }

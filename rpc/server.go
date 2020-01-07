@@ -12,11 +12,12 @@ import (
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
+	"github.com/videocoin/cloud-pkg/consul"
 	"github.com/videocoin/cloud-pkg/grpcutil"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 )
 
 type RpcServerOpts struct {
@@ -29,6 +30,7 @@ type RpcServerOpts struct {
 	Validator validatorv1.ValidatorServiceClient
 	Syncer    syncerv1.SyncerServiceClient
 	Miners    minersv1.MinersServiceClient
+	Consul    *consul.Client
 }
 
 type RpcServer struct {
@@ -44,6 +46,7 @@ type RpcServer struct {
 	miners    minersv1.MinersServiceClient
 	v         *requestValidator
 	dm        *datastore.DataManager
+	consul    *consul.Client
 }
 
 func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
@@ -71,6 +74,7 @@ func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 		logger:    opts.Logger.WithField("system", "rpc"),
 		v:         newRequestValidator(),
 		dm:        opts.DM,
+		consul:    opts.Consul,
 	}
 
 	v1.RegisterDispatcherServiceServer(grpcServer, rpcServer)

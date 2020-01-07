@@ -12,21 +12,6 @@ option (gogoproto.sizer_all) = true;
 option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
-message Account {
-    string id = 1 [(gogoproto.moretags) = "gorm:\"type:varchar(36);primary_key\""];
-    string user_id = 2;
-    string address = 3 [(gogoproto.moretags) = "gorm:\"type:varchar(42)\""];
-    string key = 4 [(gogoproto.moretags) = "gorm:\"type:varchar(512)\""];
-    // double balance = 5;
-    string balance_wei = 6;
-
-    bool is_locked = 7;
-
-    google.protobuf.Timestamp updated_at = 9 [
-        (gogoproto.stdtime) = true
-    ];
-}
-
 message AccountProfile {
     string address = 1;
     string balance = 2;

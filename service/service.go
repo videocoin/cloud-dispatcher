@@ -12,6 +12,7 @@ import (
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-dispatcher/metrics"
 	"github.com/videocoin/cloud-dispatcher/rpc"
+	"github.com/videocoin/cloud-pkg/consul"
 	"github.com/videocoin/cloud-pkg/grpcutil"
 	"google.golang.org/grpc"
 )
@@ -81,6 +82,11 @@ func NewService(cfg *Config) (*Service, error) {
 	}
 	miners := minersv1.NewMinersServiceClient(mConn)
 
+	consulCli, err := consul.NewClient(cfg.Env, cfg.ConsulAddr)
+	if err != nil {
+		return nil, err
+	}
+
 	ds, err := datastore.NewDatastore(cfg.DBURI)
 	if err != nil {
 		return nil, err
@@ -106,6 +112,7 @@ func NewService(cfg *Config) (*Service, error) {
 		Miners:    miners,
 		Logger:    cfg.Logger,
 		DM:        dm,
+		Consul:    consulCli,
 	}
 
 	rpc, err := rpc.NewRpcServer(rpcConfig)

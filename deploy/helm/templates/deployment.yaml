@@ -43,6 +43,16 @@ spec:
               value: "6831"
             - name: RPC_ADDR
               value: 0.0.0.0:{{ .Values.service.internalRpcPort }}
+            - name: DISPATCHER_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: env
+            - name: CONSUL_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: consulAddr
             - name: ACCOUNTS_RPC_ADDR
               valueFrom:
                 configMapKeyRef:
