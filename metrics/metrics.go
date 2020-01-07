@@ -82,6 +82,8 @@ func (mc *Collector) collectMetrics() {
 		}
 	}
 
+	mc.metrics.tasksTotalCount.Reset()
+
 	for _, status := range statuses {
 		for _, mt := range mts {
 			k := fmt.Sprintf("%s/%s", status, mt)
