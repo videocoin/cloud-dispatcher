@@ -16,7 +16,6 @@ require (
 	github.com/mailru/go-clickhouse v1.2.0 // indirect
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v0.9.4
-	github.com/reality-lab-networks/liveplanet-api v0.0.0-20190906141833-b7fe3c9f4f36
 	github.com/sirupsen/logrus v1.4.2
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
 	github.com/videocoin/cloud-api v0.2.15

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	v1 "github.com/reality-lab-networks/liveplanet-api/gengo/transcoder/v1"
+	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"golang.org/x/net/context"
 )
@@ -60,12 +60,13 @@ func (mc *Collector) Collect() {
 
 func (mc *Collector) collectMetrics() {
 	statuses := []string{
-		v1.StatusPending.String(),
-		v1.StatusEncoding.String(),
-		v1.StatusCompleted.String(),
-		v1.StatusFailed.String(),
-		v1.StatusCanceled.String(),
-		v1.StatusOnAir.String(),
+		v1.TaskStatusCreated.String(),
+		v1.TaskStatusPending.String(),
+		v1.TaskStatusAssigned.String(),
+		v1.TaskStatusEncoding.String(),
+		v1.TaskStatusFailed.String(),
+		v1.TaskStatusCompleted.String(),
+		v1.TaskStatusCanceled.String(),
 	}
 
 	tasksStat := map[string]float64{}
