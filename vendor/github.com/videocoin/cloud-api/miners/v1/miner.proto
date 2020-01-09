@@ -28,4 +28,13 @@ message SystemInfo {
 
     double mem_usage = 10;
     double mem_total = 11;
+
+    double latitude = 12;
+    double longitude = 13;
+}
+
+message CryptoInfo {
+    string address = 1;
+    string balance = 2;
+    string self_stake = 3;
 }

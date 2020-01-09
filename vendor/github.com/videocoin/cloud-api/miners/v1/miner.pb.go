@@ -63,6 +63,8 @@ type SystemInfo struct {
 	CpuUsage             float64  `protobuf:"fixed64,3,opt,name=cpu_usage,json=cpuUsage,proto3" json:"cpu_usage,omitempty"`
 	MemUsage             float64  `protobuf:"fixed64,10,opt,name=mem_usage,json=memUsage,proto3" json:"mem_usage,omitempty"`
 	MemTotal             float64  `protobuf:"fixed64,11,opt,name=mem_total,json=memTotal,proto3" json:"mem_total,omitempty"`
+	Latitude             float64  `protobuf:"fixed64,12,opt,name=latitude,proto3" json:"latitude,omitempty"`
+	Longitude            float64  `protobuf:"fixed64,13,opt,name=longitude,proto3" json:"longitude,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -136,42 +138,131 @@ func (m *SystemInfo) GetMemTotal() float64 {
 	return 0
 }
 
+func (m *SystemInfo) GetLatitude() float64 {
+	if m != nil {
+		return m.Latitude
+	}
+	return 0
+}
+
+func (m *SystemInfo) GetLongitude() float64 {
+	if m != nil {
+		return m.Longitude
+	}
+	return 0
+}
+
 func (*SystemInfo) XXX_MessageName() string {
 	return "cloud.api.miners.v1.SystemInfo"
+}
+
+type CryptoInfo struct {
+	Address              string   `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Balance              string   `protobuf:"bytes,2,opt,name=balance,proto3" json:"balance,omitempty"`
+	SelfStake            string   `protobuf:"bytes,3,opt,name=self_stake,json=selfStake,proto3" json:"self_stake,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CryptoInfo) Reset()         { *m = CryptoInfo{} }
+func (m *CryptoInfo) String() string { return proto.CompactTextString(m) }
+func (*CryptoInfo) ProtoMessage()    {}
+func (*CryptoInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_a7d99a35436329cc, []int{1}
+}
+func (m *CryptoInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CryptoInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CryptoInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CryptoInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CryptoInfo.Merge(m, src)
+}
+func (m *CryptoInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *CryptoInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_CryptoInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CryptoInfo proto.InternalMessageInfo
+
+func (m *CryptoInfo) GetAddress() string {
+	if m != nil {
+		return m.Address
+	}
+	return ""
+}
+
+func (m *CryptoInfo) GetBalance() string {
+	if m != nil {
+		return m.Balance
+	}
+	return ""
+}
+
+func (m *CryptoInfo) GetSelfStake() string {
+	if m != nil {
+		return m.SelfStake
+	}
+	return ""
+}
+
+func (*CryptoInfo) XXX_MessageName() string {
+	return "cloud.api.miners.v1.CryptoInfo"
 }
 func init() {
 	proto.RegisterEnum("cloud.api.miners.v1.MinerStatus", MinerStatus_name, MinerStatus_value)
 	golang_proto.RegisterEnum("cloud.api.miners.v1.MinerStatus", MinerStatus_name, MinerStatus_value)
 	proto.RegisterType((*SystemInfo)(nil), "cloud.api.miners.v1.SystemInfo")
 	golang_proto.RegisterType((*SystemInfo)(nil), "cloud.api.miners.v1.SystemInfo")
+	proto.RegisterType((*CryptoInfo)(nil), "cloud.api.miners.v1.CryptoInfo")
+	golang_proto.RegisterType((*CryptoInfo)(nil), "cloud.api.miners.v1.CryptoInfo")
 }
 
 func init() { proto.RegisterFile("miners/v1/miner.proto", fileDescriptor_a7d99a35436329cc) }
 func init() { golang_proto.RegisterFile("miners/v1/miner.proto", fileDescriptor_a7d99a35436329cc) }
 
 var fileDescriptor_a7d99a35436329cc = []byte{
-	// 336 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x90, 0xc1, 0x4a, 0xc3, 0x30,
-	0x00, 0x86, 0x97, 0x4d, 0x9c, 0x66, 0xa0, 0x25, 0x43, 0xa9, 0x1d, 0x86, 0xa2, 0x17, 0x11, 0x6c,
-	0x19, 0xbe, 0xc1, 0x74, 0x83, 0xc2, 0xdc, 0xc0, 0x39, 0x44, 0x2f, 0xa3, 0xeb, 0xd2, 0x5a, 0x68,
-	0x96, 0xae, 0x4d, 0x26, 0x7b, 0x03, 0xd9, 0x2b, 0xc8, 0x2e, 0xea, 0x53, 0x78, 0xf2, 0xb8, 0xa3,
-	0x8f, 0x20, 0xdb, 0x8b, 0x48, 0x32, 0x1d, 0x15, 0x6f, 0xff, 0xc7, 0xf7, 0xff, 0x21, 0x09, 0xdc,
-	0xa3, 0xe1, 0x90, 0x24, 0xa9, 0x3d, 0xae, 0xda, 0x2a, 0x59, 0x71, 0xc2, 0x38, 0x43, 0x65, 0x2f,
-	0x62, 0x62, 0x60, 0xb9, 0x71, 0x68, 0xad, 0x0a, 0xd6, 0xb8, 0x6a, 0x9c, 0x05, 0x21, 0x7f, 0x10,
-	0x7d, 0xcb, 0x63, 0xd4, 0x0e, 0x58, 0xc0, 0x6c, 0xd5, 0xed, 0x0b, 0x5f, 0x91, 0x02, 0x95, 0x56,
-	0x67, 0x1c, 0x3d, 0x03, 0x08, 0x3b, 0x93, 0x94, 0x13, 0xea, 0x0c, 0x7d, 0x86, 0x2a, 0x70, 0xdb,
-	0x8b, 0x45, 0xcf, 0x63, 0x09, 0x49, 0x75, 0x60, 0x82, 0x13, 0x70, 0xbd, 0xe5, 0xc5, 0xe2, 0x42,
-	0x32, 0x3a, 0x80, 0x32, 0xf7, 0xfc, 0x84, 0x8c, 0xf4, 0xbc, 0x72, 0x45, 0x2f, 0x16, 0x8d, 0x84,
-	0x8c, 0x7e, 0x77, 0x22, 0x75, 0x03, 0xa2, 0x17, 0xd6, 0xbb, 0xae, 0x64, 0x29, 0x29, 0xa1, 0x3f,
-	0x12, 0xae, 0x24, 0x25, 0xf4, 0x8f, 0xe4, 0x8c, 0xbb, 0x91, 0x5e, 0x5a, 0xcb, 0x1b, 0xc9, 0xa7,
-	0x2f, 0x00, 0x96, 0xae, 0xe4, 0xd3, 0x3a, 0xdc, 0xe5, 0x22, 0x45, 0x15, 0x58, 0x68, 0xd5, 0x6f,
-	0xb5, 0x9c, 0x81, 0xa6, 0x33, 0x73, 0x27, 0x63, 0x5a, 0xe4, 0x11, 0x1d, 0xc3, 0x62, 0xbb, 0xd1,
-	0x68, 0x3a, 0xad, 0xba, 0x06, 0x8c, 0xfd, 0xe9, 0xcc, 0x44, 0x99, 0x42, 0xdb, 0xf7, 0xa3, 0x70,
-	0x48, 0xd0, 0x21, 0xdc, 0x70, 0x2e, 0x9b, 0x75, 0x2d, 0x6f, 0x94, 0xa7, 0x33, 0x73, 0x37, 0xd3,
-	0x70, 0x06, 0x91, 0xd2, 0xb5, 0x6e, 0xe7, 0x4e, 0x2b, 0xfc, 0xd3, 0x35, 0x91, 0x4e, 0x8c, 0xf2,
-	0xd3, 0x2b, 0xce, 0xbd, 0xbf, 0xe1, 0xec, 0xa5, 0x6a, 0xfa, 0x7c, 0x81, 0xc1, 0xe7, 0x02, 0x83,
-	0xaf, 0x05, 0x06, 0x1f, 0x4b, 0x0c, 0xe6, 0x4b, 0x0c, 0xee, 0xf3, 0xe3, 0x6a, 0x7f, 0x53, 0xfd,
-	0xf1, 0xf9, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x87, 0x5e, 0x51, 0xad, 0xc0, 0x01, 0x00, 0x00,
+	// 419 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x91, 0xcf, 0x8a, 0xd3, 0x40,
+	0x1c, 0xc7, 0x77, 0x5a, 0xb1, 0x9b, 0xdf, 0xfa, 0xa7, 0x4c, 0x51, 0x62, 0x56, 0x43, 0x59, 0x2f,
+	0x22, 0x98, 0x52, 0x7c, 0x83, 0xae, 0x2d, 0x14, 0xd6, 0x2e, 0x34, 0x2e, 0xa2, 0x97, 0x30, 0x49,
+	0x26, 0x31, 0x38, 0xc9, 0x64, 0x33, 0x33, 0x95, 0xbe, 0x81, 0xf4, 0x1d, 0x7a, 0x51, 0x9f, 0xc2,
+	0x93, 0xc7, 0x3d, 0x7a, 0xf1, 0x2e, 0xdd, 0x17, 0x91, 0x99, 0x98, 0x1a, 0xd9, 0xdb, 0xef, 0xf3,
+	0xfb, 0x7c, 0x27, 0xc9, 0x37, 0x03, 0x0f, 0xf2, 0xac, 0xa0, 0x95, 0x18, 0xad, 0xc6, 0x23, 0x33,
+	0x79, 0x65, 0xc5, 0x25, 0xc7, 0x83, 0x88, 0x71, 0x15, 0x7b, 0xa4, 0xcc, 0xbc, 0x3a, 0xe0, 0xad,
+	0xc6, 0xce, 0x8b, 0x34, 0x93, 0x1f, 0x54, 0xe8, 0x45, 0x3c, 0x1f, 0xa5, 0x3c, 0xe5, 0x23, 0x93,
+	0x0d, 0x55, 0x62, 0xc8, 0x80, 0x99, 0xea, 0x67, 0x9c, 0xfc, 0x42, 0x00, 0xfe, 0x5a, 0x48, 0x9a,
+	0xcf, 0x8b, 0x84, 0xe3, 0x63, 0xb0, 0xa2, 0x52, 0x05, 0x11, 0xaf, 0xa8, 0xb0, 0xd1, 0x10, 0x3d,
+	0x43, 0xcb, 0xc3, 0xa8, 0x54, 0xa7, 0x9a, 0xf1, 0x23, 0xd0, 0x73, 0x90, 0x54, 0xf4, 0xd2, 0xee,
+	0x18, 0xd7, 0x8b, 0x4a, 0x35, 0xab, 0xe8, 0x65, 0x73, 0x4e, 0x09, 0x92, 0x52, 0xbb, 0xbb, 0x3f,
+	0x77, 0xa1, 0x59, 0xcb, 0x9c, 0xe6, 0x7f, 0x25, 0xd4, 0x32, 0xa7, 0xf9, 0x7f, 0x52, 0x72, 0x49,
+	0x98, 0x7d, 0xb4, 0x97, 0x6f, 0x34, 0x63, 0x07, 0x0e, 0x19, 0x91, 0x99, 0x54, 0x31, 0xb5, 0xef,
+	0xd4, 0xae, 0x61, 0xfc, 0x18, 0x2c, 0xc6, 0x8b, 0xb4, 0x96, 0x77, 0x8d, 0xfc, 0xb7, 0x38, 0x09,
+	0x00, 0x4e, 0xab, 0x75, 0x29, 0xb9, 0xa9, 0x65, 0x43, 0x8f, 0xc4, 0x71, 0x45, 0x45, 0x5d, 0xca,
+	0x5a, 0x36, 0xa8, 0x4d, 0x48, 0x18, 0x29, 0x22, 0x6a, 0x2a, 0x59, 0xcb, 0x06, 0xf1, 0x13, 0x00,
+	0x41, 0x59, 0x12, 0x08, 0x49, 0x3e, 0xd6, 0x9d, 0xac, 0xa5, 0xa5, 0x37, 0xbe, 0x5e, 0x3c, 0xff,
+	0x82, 0xe0, 0xe8, 0xb5, 0xfe, 0xeb, 0xbe, 0x24, 0x52, 0x09, 0x7c, 0x0c, 0xdd, 0xc5, 0xf4, 0x6d,
+	0xff, 0xc0, 0xc1, 0x9b, 0xed, 0xf0, 0x5e, 0xcb, 0x2c, 0xe8, 0x27, 0xfc, 0x14, 0x7a, 0xe7, 0xb3,
+	0xd9, 0xd9, 0x7c, 0x31, 0xed, 0x23, 0xe7, 0xe1, 0x66, 0x3b, 0xc4, 0xad, 0xc0, 0x79, 0x92, 0xb0,
+	0xac, 0xd0, 0x2f, 0xbc, 0x35, 0x7f, 0x75, 0x36, 0xed, 0x77, 0x9c, 0xc1, 0x66, 0x3b, 0xbc, 0xdf,
+	0x4a, 0xcc, 0x63, 0x66, 0xf4, 0xe4, 0xc2, 0x7f, 0xd7, 0xef, 0xde, 0xd0, 0x13, 0x25, 0xd6, 0xce,
+	0xe0, 0xf3, 0x57, 0xf7, 0xe0, 0xfb, 0x37, 0xb7, 0xfd, 0x51, 0x13, 0xfb, 0x6a, 0xe7, 0xa2, 0x9f,
+	0x3b, 0x17, 0xfd, 0xde, 0xb9, 0xe8, 0xc7, 0xb5, 0x8b, 0xae, 0xae, 0x5d, 0xf4, 0xbe, 0xb3, 0x1a,
+	0x87, 0xb7, 0xcd, 0xf5, 0xbf, 0xfc, 0x13, 0x00, 0x00, 0xff, 0xff, 0x7e, 0x20, 0xc4, 0xbd, 0x5b,
+	0x02, 0x00, 0x00,
 }
 
 func (m *SystemInfo) Marshal() (dAtA []byte, err error) {
@@ -197,6 +288,18 @@ func (m *SystemInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.XXX_unrecognized != nil {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if m.Longitude != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Longitude))))
+		i--
+		dAtA[i] = 0x69
+	}
+	if m.Latitude != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Latitude))))
+		i--
+		dAtA[i] = 0x61
 	}
 	if m.MemTotal != 0 {
 		i -= 8
@@ -227,6 +330,54 @@ func (m *SystemInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.CpuCores))))
 		i--
 		dAtA[i] = 0x9
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *CryptoInfo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CryptoInfo) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CryptoInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.SelfStake) > 0 {
+		i -= len(m.SelfStake)
+		copy(dAtA[i:], m.SelfStake)
+		i = encodeVarintMiner(dAtA, i, uint64(len(m.SelfStake)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Balance) > 0 {
+		i -= len(m.Balance)
+		copy(dAtA[i:], m.Balance)
+		i = encodeVarintMiner(dAtA, i, uint64(len(m.Balance)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintMiner(dAtA, i, uint64(len(m.Address)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -262,6 +413,36 @@ func (m *SystemInfo) Size() (n int) {
 	}
 	if m.MemTotal != 0 {
 		n += 9
+	}
+	if m.Latitude != 0 {
+		n += 9
+	}
+	if m.Longitude != 0 {
+		n += 9
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *CryptoInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovMiner(uint64(l))
+	}
+	l = len(m.Balance)
+	if l > 0 {
+		n += 1 + l + sovMiner(uint64(l))
+	}
+	l = len(m.SelfStake)
+	if l > 0 {
+		n += 1 + l + sovMiner(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -359,6 +540,178 @@ func (m *SystemInfo) Unmarshal(dAtA []byte) error {
 			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
 			iNdEx += 8
 			m.MemTotal = float64(math.Float64frombits(v))
+		case 12:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Latitude", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.Latitude = float64(math.Float64frombits(v))
+		case 13:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Longitude", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.Longitude = float64(math.Float64frombits(v))
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMiner(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMiner
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthMiner
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CryptoInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMiner
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CryptoInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CryptoInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMiner
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMiner
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMiner
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Address = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Balance", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMiner
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMiner
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMiner
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Balance = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SelfStake", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMiner
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMiner
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthMiner
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SelfStake = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipMiner(dAtA[iNdEx:])
