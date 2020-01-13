@@ -49,13 +49,15 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 		return nil, rpc.ErrRpcUnauthenticated
 	}
 
+	logger := s.logger.WithField("client_id", req.ClientID)
+
 	task := &datastore.Task{}
 	task = nil
 
 	if forceTaskID, ok := miner.Tags["force_task_id"]; ok {
 		task, err = s.dm.GetPendingTaskByID(ctx, forceTaskID)
 		if err != nil {
-			logFailedTo(s.logger, "get force task", err)
+			logFailedTo(logger, "get force task", err)
 			return nil, rpc.ErrRpcInternal
 		}
 		if task.Status != v1.TaskStatusPending {
@@ -66,7 +68,7 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 	if task == nil {
 		ft, err := s.miners.GetForceTaskList(ctx, &prototypes.Empty{})
 		if err != nil {
-			logFailedTo(s.logger, "get force task ids", err)
+			logFailedTo(logger, "get force task ids", err)
 			return nil, rpc.ErrRpcNotFound
 		}
 
@@ -84,9 +86,11 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 	task.ClientID = dbr.NewNullString(req.ClientID)
 	err = s.dm.MarkTaskAsAssigned(ctx, task)
 	if err != nil {
-		logFailedTo(s.logger, "mark as assigned", err)
+		logFailedTo(logger, "mark as assigned", err)
 		return nil, rpc.ErrRpcInternal
 	}
+
+	logger.WithField("assigned_client_id", task.ClientID.String).Info("task has been assinged")
 
 	v1Task := &v1.Task{}
 	err = copier.Copy(v1Task, task)
@@ -106,7 +110,7 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 	}
 	_, err = s.miners.AssignTask(context.Background(), atReq)
 	if err != nil {
-		logFailedTo(s.logger, "assign task to miners service", err)
+		logFailedTo(logger, "assign task to miners service", err)
 	}
 
 	return v1Task, nil
