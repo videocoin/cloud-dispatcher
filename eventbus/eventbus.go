@@ -155,6 +155,12 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 						ClientID: task.ClientID.String,
 						TaskID:   task.ID,
 					}
+
+					e.logger.WithFields(logrus.Fields{
+						"client_id": atReq.ClientID,
+						"task_id":   atReq.TaskID,
+					}).Info("unassigning task")
+
 					_, err = e.miners.UnassignTask(context.Background(), atReq)
 					if err != nil {
 						fmtErr := fmt.Errorf("unassign task to miners service: %s", err)
