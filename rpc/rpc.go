@@ -6,8 +6,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/videocoin/cloud-dispatcher/datastore"
-
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/jinzhu/copier"
 	"github.com/mailru/dbr"
@@ -18,6 +16,7 @@ import (
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
+	"github.com/videocoin/cloud-dispatcher/datastore"
 )
 
 var (
@@ -330,7 +329,10 @@ func (s *RpcServer) Register(
 	return &prototypes.Empty{}, nil
 }
 
-func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
+func (s *RpcServer) GetInternalConfig(
+	ctx context.Context,
+	req *v1.InternalConfigRequest,
+) (*v1.InternalConfigResponse, error) {
 	resp := &v1.InternalConfigResponse{}
 
 	clientIds, err := s.consul.GetTranscoderClientIds()
@@ -361,7 +363,10 @@ func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfi
 			task, err := s.dm.GetTaskByID(context.Background(), minerResp.TaskId)
 			if err == nil && task == nil {
 				go func() {
-					s.miners.UnassignTask(context.Background(), &minersv1.AssignTaskRequest{TaskID: minerResp.TaskId})
+					s.miners.UnassignTask(
+						context.Background(),
+						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
+					)
 				}()
 
 				continue
@@ -371,14 +376,19 @@ func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfi
 				task.Status == v1.TaskStatusFailed ||
 				task.Status == v1.TaskStatusCanceled {
 				go func() {
-					s.miners.UnassignTask(context.Background(), &minersv1.AssignTaskRequest{TaskID: minerResp.TaskId})
+					s.miners.UnassignTask(
+						context.Background(),
+						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
+					)
 				}()
 
 				continue
 			}
 
-			resp.ClientId = minerResp.Id
-			break
+			if task.Status == v1.TaskStatusPending {
+				resp.ClientId = minerResp.Id
+				break
+			}
 		}
 	}
 
