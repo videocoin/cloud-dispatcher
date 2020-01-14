@@ -44,7 +44,9 @@ func (ct *ComponentType) MarshalJSON() ([]byte, error) {
 }
 
 func (ct *ComponentType) UnmarshalJSON(b []byte) error {
-	value := ComponentType(ComponentType_value[string(b)])
-	ct = &value
+	ctRaw := strings.Trim(string(b), "\"")
+	value := ComponentType(ComponentType_value[ctRaw])
+	*ct = value
+
 	return nil
 }

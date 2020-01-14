@@ -25,6 +25,7 @@ enum ComponentType {
   FILTER = 0 [(gogoproto.enumvalue_customname) = "ComponentTypeFilter"];
   ENCODER = 1 [(gogoproto.enumvalue_customname) = "ComponentTypeEncoder"];
   MUXER = 2 [(gogoproto.enumvalue_customname) = "ComponentTypeMuxer"];
+  DEMUXER = 3 [(gogoproto.enumvalue_customname) = "ComponentTypeDemuxer"];
 }
 
 message Component {

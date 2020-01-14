@@ -117,6 +117,7 @@ service MinersService {
     rpc AssignTask(AssignTaskRequest) returns (google.protobuf.Empty) {}
     rpc UnassignTask(AssignTaskRequest) returns (google.protobuf.Empty) {}
     rpc GetForceTaskList(google.protobuf.Empty) returns (ForceTaskListResponse) {}
+    rpc GetMinersWithForceTask(google.protobuf.Empty) returns (MinersWithForceTaskResponse) {}
 }
 
 message RegistrationRequest {
@@ -171,4 +172,13 @@ message SetTagsRequest {
 
 message ForceTaskListResponse {
     repeated string ids = 1;
+}
+
+message MinerWithForceTaskResponse {
+    string id = 1;
+    string task_id = 2;
+}
+
+message MinersWithForceTaskResponse {
+    repeated MinerWithForceTaskResponse items = 1;
 }

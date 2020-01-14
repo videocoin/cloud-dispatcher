@@ -355,5 +355,32 @@ func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfi
 		resp.Secret = ksPair.Key
 	}
 
+	minersResp, _ := s.miners.GetMinersWithForceTask(context.Background(), &prototypes.Empty{})
+	if minersResp != nil {
+		for _, minerResp := range minersResp.Items {
+			task, err := s.dm.GetTaskByID(context.Background(), minerResp.TaskId)
+			if err == nil && task == nil {
+				go func() {
+					s.miners.UnassignTask(context.Background(), &minersv1.AssignTaskRequest{TaskID: minerResp.TaskId})
+				}()
+
+				continue
+			}
+
+			if task.Status == v1.TaskStatusCompleted ||
+				task.Status == v1.TaskStatusFailed ||
+				task.Status == v1.TaskStatusCanceled {
+				go func() {
+					s.miners.UnassignTask(context.Background(), &minersv1.AssignTaskRequest{TaskID: minerResp.TaskId})
+				}()
+
+				continue
+			}
+
+			resp.ClientId = minerResp.Id
+			break
+		}
+	}
+
 	return resp, nil
 }

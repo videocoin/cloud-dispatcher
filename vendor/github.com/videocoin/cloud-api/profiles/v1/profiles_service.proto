@@ -7,6 +7,8 @@ import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
+import "profiles/v1/profile.proto";
+
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
 option (gogoproto.unmarshaler_all) = true;
@@ -104,6 +106,7 @@ message RenderRequest {
     string output = 3 [
 		(gogoproto.moretags) = "validate:\"required\""
 	];
+	repeated cloud.api.profiles.v1.Component components = 4;
 }
 
 message RenderResponse {
