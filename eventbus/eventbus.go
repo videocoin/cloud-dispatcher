@@ -180,6 +180,22 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	case pstreamsv1.EventTypeDelete:
 		{
 			e.logger.Info("deleting task")
+
+			atReq := &minersv1.AssignTaskRequest{
+				ClientID: "",
+				TaskID:   req.StreamID,
+			}
+
+			e.logger.WithFields(logrus.Fields{
+				"client_id": atReq.ClientID,
+				"task_id":   atReq.TaskID,
+			}).Info("unassigning task")
+
+			_, err = e.miners.UnassignTask(context.Background(), atReq)
+			if err != nil {
+				fmtErr := fmt.Errorf("failed to call unassign task: %s", err)
+				tracerext.SpanLogError(span, fmtErr)
+			}
 		}
 	case pstreamsv1.EventTypeUnknown:
 		e.logger.Error("event type is unknown")
