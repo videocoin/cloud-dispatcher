@@ -61,6 +61,7 @@ enum InputType {
 
     INPUT_TYPE_RTMP = 0 [ (gogoproto.enumvalue_customname) = "InputTypeRTMP" ];
     INPUT_TYPE_WEBRTC = 1 [ (gogoproto.enumvalue_customname) = "InputTypeWebRTC" ];
+    INPUT_TYPE_FILE = 2 [ (gogoproto.enumvalue_customname) = "InputTypeFile" ];
 }
 
 enum OutputType {

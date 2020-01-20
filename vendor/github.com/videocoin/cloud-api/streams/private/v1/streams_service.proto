@@ -21,6 +21,7 @@ service StreamsService {
   rpc PublishDone(StreamRequest) returns (StreamResponse) {}
   rpc Run(StreamRequest) returns (StreamResponse) {}
   rpc Stop(StreamRequest) returns (StreamResponse) {}
+  rpc UpdateStatus(UpdateStatusRequest) returns (StreamResponse) {}
 }
 
 message StreamRequest {
@@ -59,4 +60,11 @@ message StreamResponse {
   ];
 
   string user_id = 14 [(gogoproto.customname) = "UserID"];
+
+  streams.v1.InputType input_type = 15;
+}
+
+message UpdateStatusRequest {
+  string id = 1 [(gogoproto.customname) = "ID"];
+  streams.v1.StreamStatus status = 2;
 }

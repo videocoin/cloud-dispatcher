@@ -21,7 +21,7 @@ func (t *InputType) Scan(src interface{}) error {
 }
 
 func (t OutputType) Value() (driver.Value, error) {
-	return InputType_name[int32(t)], nil
+	return OutputType_name[int32(t)], nil
 }
 
 func (t *OutputType) Scan(src interface{}) error {

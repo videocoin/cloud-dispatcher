@@ -66,7 +66,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 
 service ProfilesService {
-    rpc Get(ProfileRequest) returns (ProfileResponse)  {}
+    rpc Get(ProfileRequest) returns (GetProfileResponse)  {}
 	
     /* This API call returns a list of supported output transcoding profiles. Most notably, the items in the response list the ID of a profile which is required when creating a new stream object. */
     rpc List(google.protobuf.Empty) returns (ProfileListResponse)  {
@@ -85,6 +85,13 @@ message ProfileRequest {
 }
 
 message ProfileResponse {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+	bool is_enabled = 4;
+}
+
+message GetProfileResponse {
     string id = 1;
     string name = 2;
     string description = 3;
