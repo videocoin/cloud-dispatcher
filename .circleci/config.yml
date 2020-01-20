@@ -68,6 +68,7 @@ jobs:
       - run:
           name: deploy binary
           command: |
+            source .circleci/init.sh
             timeout -t 15 bash .circleci/wait-consul.sh
             make deploy
 workflows:
