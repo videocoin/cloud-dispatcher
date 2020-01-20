@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	streamsv1p "github.com/videocoin/cloud-api/streams/v1"
 )
 
 type DataManager struct {
@@ -68,10 +69,8 @@ func (m *DataManager) CreateTask(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (m *DataManager) CreateTaskFromStreamID(ctx context.Context, streamID string) (*Task, error) {
+func (m *DataManager) CreateTasksFromStreamID(ctx context.Context, streamID string) (*Task, error) {
 	logger := m.logger.WithField("stream_id", streamID)
-
-	logger.Info("creating task from stream id")
 
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
@@ -84,6 +83,13 @@ func (m *DataManager) CreateTaskFromStreamID(ctx context.Context, streamID strin
 	if err != nil {
 		return nil, failedTo("get stream", err)
 	}
+
+	if streamResp.InputType == streamsv1p.InputTypeFile {
+		logger.Info("creating tasks from stream id")
+		return nil, nil
+	}
+
+	logger.Info("creating task from stream id")
 
 	task := TaskFromStreamResponse(streamResp)
 
