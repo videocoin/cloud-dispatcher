@@ -12,6 +12,7 @@ import (
 
 type Task struct {
 	ID                    string         `db:"id"`
+	StreamID              string         `db:"stream_id"`
 	OwnerID               int32          `db:"owner_id"`
 	CreatedAt             *time.Time     `db:"created_at"`
 	Status                v1.TaskStatus  `db:"status"`
@@ -30,6 +31,7 @@ func TaskFromStreamResponse(s *streamsv1.StreamResponse) *Task {
 
 	return &Task{
 		ID:        s.ID,
+		StreamID:  s.ID,
 		OwnerID:   0,
 		CreatedAt: pointer.ToTime(time.Now()),
 		ProfileID: s.ProfileID,

@@ -42,7 +42,6 @@ func New(c *Config) (*EventBus, error) {
 	if c.Logger != nil {
 		mq.Logger = c.Logger
 	}
-
 	return &EventBus{
 		logger:  c.Logger,
 		mq:      mq,
@@ -89,7 +88,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	span.SetTag("stream_id", req.StreamID)
 	span.SetTag("event_type", req.Type.String())
 
-	e.logger.Debugf("handling request %+v", req)
+	e.logger.Infof("handling request %+v", req)
 
 	ctx := opentracing.ContextWithSpan(context.Background(), span)
 

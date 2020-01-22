@@ -2,12 +2,21 @@ package datastore
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"strings"
+	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/grafov/m3u8"
 	"github.com/mailru/dbr"
 	"github.com/sirupsen/logrus"
+	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1p "github.com/videocoin/cloud-api/streams/v1"
+	"github.com/videocoin/cloud-pkg/hls"
+	"github.com/videocoin/cloud-pkg/uuid4"
 )
 
 type DataManager struct {
@@ -84,19 +93,8 @@ func (m *DataManager) CreateTasksFromStreamID(ctx context.Context, streamID stri
 		return nil, failedTo("get stream", err)
 	}
 
-	if streamResp.InputType == streamsv1p.InputTypeFile {
-		logger.Info("creating tasks from stream id")
-		return nil, nil
-	}
-
-	logger.Info("creating task from stream id")
-
-	task := TaskFromStreamResponse(streamResp)
-
-	logger.Debugf("task %+v\n", task)
-
 	getProfileReq := &profilesv1.ProfileRequest{
-		Id: task.ProfileID,
+		Id: streamResp.ProfileID,
 	}
 
 	p, err := m.profiles.Get(ctx, getProfileReq)
@@ -105,6 +103,52 @@ func (m *DataManager) CreateTasksFromStreamID(ctx context.Context, streamID stri
 	}
 
 	logger.Debugf("profile %+v\n", p)
+
+	if streamResp.InputType == streamsv1p.InputTypeFile {
+		logger.Info("creating tasks from stream id")
+		logger.Infof("reading hls playlist %s", streamResp.InputURL)
+
+		pl, plType, err := hls.ParseHLSFromURL(streamResp.InputURL)
+		if err != nil {
+			return nil, err
+		}
+
+		if plType != m3u8.MEDIA {
+			return nil, errors.New("playlist type not supported")
+		}
+
+		mediapl := pl.(*m3u8.MediaPlaylist)
+		for _, segment := range mediapl.Segments {
+			taskID, _ := uuid4.New()
+			urlParts := strings.Split(streamResp.InputURL, "/")
+			baseInputURL := strings.Join(urlParts[:len(urlParts)-1], "/")
+			inputURL := fmt.Sprintf("%s/%s", baseInputURL, segment.URI)
+			task := &Task{
+				ID:        taskID,
+				StreamID:  streamResp.ID,
+				OwnerID:   0,
+				CreatedAt: pointer.ToTime(time.Now()),
+				ProfileID: streamResp.ProfileID,
+				Status:    v1.TaskStatusCreated,
+				Input: &v1.TaskInput{
+					URI: inputURL,
+				},
+				Output:                &v1.TaskOutput{Path: fmt.Sprintf("$OUTPUT/%s", taskID)},
+				StreamContractID:      dbr.NewNullInt64(streamResp.StreamContractID),
+				StreamContractAddress: dbr.NewNullString(streamResp.StreamContractAddress),
+			}
+
+			fmt.Printf("task %+v\n", task)
+		}
+
+		return nil, nil
+	}
+
+	logger.Info("creating task from stream id")
+
+	task := TaskFromStreamResponse(streamResp)
+
+	logger.Debugf("task %+v\n", task)
 
 	task.MachineType = dbr.NewNullString(p.MachineType)
 
