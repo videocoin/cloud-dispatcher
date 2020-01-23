@@ -11,6 +11,7 @@ import (
 	"github.com/mailru/dbr"
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
+	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
@@ -82,6 +83,27 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 		return nil, rpc.ErrRpcNotFound
 	}
 
+	if task.IsOutputFile() {
+		logger = logger.WithFields(logrus.Fields{
+			"stream_contract_id": task.StreamContractID.Int64,
+			"chunk_id":           task.Output.Num,
+		})
+
+		achReq := &emitterv1.AddInputChunkIdRequest{
+			StreamContractId: uint64(task.StreamContractID.Int64),
+			ChunkId:          uint64(task.Output.Num),
+			ChunkDuration:    10,
+		}
+
+		logger.Debugf("calling AddInputChunkId")
+
+		_, err = s.emitter.AddInputChunkId(context.Background(), achReq)
+		if err != nil {
+			logger.Errorf("failed to add input chunk: %s", err.Error())
+			return nil, rpc.ErrRpcNotFound
+		}
+	}
+
 	task.ClientID = dbr.NewNullString(req.ClientID)
 	err = s.dm.MarkTaskAsAssigned(ctx, task)
 	if err != nil {
@@ -102,6 +124,7 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 	v1Task.StreamContractID = uint64(task.StreamContractID.Int64)
 	v1Task.StreamContractAddress = task.StreamContractAddress.String
 	v1Task.MachineType = task.MachineType.String
+	v1Task.StreamID = task.StreamID
 
 	atReq := &minersv1.AssignTaskRequest{
 		ClientID: task.ClientID.String,
@@ -141,6 +164,7 @@ func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task,
 
 	v1Task.ClientID = task.ClientID.String
 	v1Task.MachineType = task.MachineType.String
+	v1Task.StreamID = task.StreamID
 
 	return v1Task, nil
 }
@@ -195,6 +219,7 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 	}
 
 	v1Task.ClientID = task.ClientID.String
+	v1Task.StreamID = task.StreamID
 
 	return v1Task, nil
 }
@@ -249,6 +274,7 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 	}
 
 	v1Task.ClientID = task.ClientID.String
+	v1Task.StreamID = task.StreamID
 
 	return v1Task, nil
 }

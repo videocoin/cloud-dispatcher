@@ -13,8 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
-	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
-	streamsv1p "github.com/videocoin/cloud-api/streams/v1"
+	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	"github.com/videocoin/cloud-pkg/hls"
 	"github.com/videocoin/cloud-pkg/uuid4"
 )
@@ -22,13 +22,13 @@ import (
 type DataManager struct {
 	logger   *logrus.Entry
 	ds       *Datastore
-	streams  streamsv1.StreamsServiceClient
+	streams  pstreamsv1.StreamsServiceClient
 	profiles profilesv1.ProfilesServiceClient
 }
 
 func NewDataManager(
 	ds *Datastore,
-	streams streamsv1.StreamsServiceClient,
+	streams pstreamsv1.StreamsServiceClient,
 	profiles profilesv1.ProfilesServiceClient,
 	logger *logrus.Entry,
 ) (*DataManager, error) {
@@ -78,8 +78,12 @@ func (m *DataManager) CreateTask(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (m *DataManager) CreateTasksFromStreamID(ctx context.Context, streamID string) (*Task, error) {
-	logger := m.logger.WithField("stream_id", streamID)
+func (m *DataManager) CreateTasksFromStreamResponse(
+	ctx context.Context,
+	stream *pstreamsv1.StreamResponse,
+) ([]*Task, error) {
+	logger := m.logger.WithField("stream_id", stream.ID)
+	logger = logger.WithField("input_type", stream.InputType.String())
 
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
@@ -87,14 +91,10 @@ func (m *DataManager) CreateTasksFromStreamID(ctx context.Context, streamID stri
 	}
 	defer tx.RollbackUnlessCommitted()
 
-	streamReq := &streamsv1.StreamRequest{Id: streamID}
-	streamResp, err := m.streams.Get(ctx, streamReq)
-	if err != nil {
-		return nil, failedTo("get stream", err)
-	}
+	tasks := []*Task{}
 
 	getProfileReq := &profilesv1.ProfileRequest{
-		Id: streamResp.ProfileID,
+		Id: stream.ProfileID,
 	}
 
 	p, err := m.profiles.Get(ctx, getProfileReq)
@@ -104,11 +104,12 @@ func (m *DataManager) CreateTasksFromStreamID(ctx context.Context, streamID stri
 
 	logger.Debugf("profile %+v\n", p)
 
-	if streamResp.InputType == streamsv1p.InputTypeFile {
-		logger.Info("creating tasks from stream id")
-		logger.Infof("reading hls playlist %s", streamResp.InputURL)
+	// File
+	if stream.InputType == streamsv1.InputTypeFile {
+		logger.Info("creating tasks from stream")
+		logger.Infof("reading hls playlist %s", stream.InputURL)
 
-		pl, plType, err := hls.ParseHLSFromURL(streamResp.InputURL)
+		pl, plType, err := hls.ParseHLSFromURL(stream.InputURL)
 		if err != nil {
 			return nil, err
 		}
@@ -119,43 +120,91 @@ func (m *DataManager) CreateTasksFromStreamID(ctx context.Context, streamID stri
 
 		mediapl := pl.(*m3u8.MediaPlaylist)
 		for _, segment := range mediapl.Segments {
+			if segment == nil {
+				continue
+			}
 			taskID, _ := uuid4.New()
-			urlParts := strings.Split(streamResp.InputURL, "/")
+			urlParts := strings.Split(stream.InputURL, "/")
 			baseInputURL := strings.Join(urlParts[:len(urlParts)-1], "/")
 			inputURL := fmt.Sprintf("%s/%s", baseInputURL, segment.URI)
-			task := &Task{
-				ID:        taskID,
-				StreamID:  streamResp.ID,
-				OwnerID:   0,
-				CreatedAt: pointer.ToTime(time.Now()),
-				ProfileID: streamResp.ProfileID,
-				Status:    v1.TaskStatusCreated,
-				Input: &v1.TaskInput{
-					URI: inputURL,
-				},
-				Output:                &v1.TaskOutput{Path: fmt.Sprintf("$OUTPUT/%s", taskID)},
-				StreamContractID:      dbr.NewNullInt64(streamResp.StreamContractID),
-				StreamContractAddress: dbr.NewNullString(streamResp.StreamContractAddress),
+			outputPath := fmt.Sprintf("$OUTPUT/%s", stream.ID)
+
+			components := []*profilesv1.Component{}
+			for _, component := range p.Components {
+				if component.Type == profilesv1.ComponentTypeEncoder {
+					components = append(components, component)
+				}
+			}
+			if len(components) > 0 {
+				muxer := &profilesv1.Component{
+					Type: profilesv1.ComponentTypeMuxer,
+					Params: []*profilesv1.Param{
+						{Key: "-f", Value: "mpegts"},
+					},
+				}
+				components = append(components, muxer)
 			}
 
-			fmt.Printf("task %+v\n", task)
+			profileReq := &profilesv1.RenderRequest{
+				Id:         stream.ProfileID,
+				Input:      inputURL,
+				Output:     fmt.Sprintf("%s/%s", outputPath, segment.URI),
+				Components: components,
+			}
+			renderResp, err := m.profiles.Render(ctx, profileReq)
+			if err != nil {
+				return nil, failedTo("render profile", err)
+			}
+
+			task := &Task{
+				ID:        taskID,
+				StreamID:  stream.ID,
+				OwnerID:   0,
+				CreatedAt: pointer.ToTime(time.Now()),
+				ProfileID: stream.ProfileID,
+				Status:    v1.TaskStatusCreated,
+				Input:     &v1.TaskInput{URI: inputURL},
+				Output: &v1.TaskOutput{
+					Path: outputPath,
+					Name: segment.URI,
+					Num:  extractNumFromSegmentName(segment.URI) + 1,
+				},
+				StreamContractID:      dbr.NewNullInt64(stream.StreamContractID),
+				StreamContractAddress: dbr.NewNullString(stream.StreamContractAddress),
+				MachineType:           dbr.NewNullString(p.MachineType),
+				Cmdline:               renderResp.Render,
+			}
+
+			err = m.ds.Tasks.Create(ctx, task)
+			if err != nil {
+				return nil, failedTo("create task", err)
+			}
+
+			tasks = append(tasks, task)
 		}
 
-		return nil, nil
+		err = tx.Commit()
+		if err != nil {
+			return nil, err
+		}
+
+		return tasks, nil
 	}
 
-	logger.Info("creating task from stream id")
+	// RTMP, WebRTC
 
-	task := TaskFromStreamResponse(streamResp)
+	logger.Info("creating task from stream")
+
+	task := TaskFromStreamResponse(stream)
+	task.MachineType = dbr.NewNullString(p.MachineType)
+	task.Status = v1.TaskStatusPending
 
 	logger.Debugf("task %+v\n", task)
-
-	task.MachineType = dbr.NewNullString(p.MachineType)
 
 	profileReq := &profilesv1.RenderRequest{
 		Id:     task.ProfileID,
 		Input:  task.Input.GetURI(),
-		Output: task.Output.GetPath(),
+		Output: fmt.Sprintf("%s/%s", task.Output.GetPath(), "index.m3u8"),
 	}
 	renderResp, err := m.profiles.Render(ctx, profileReq)
 	if err != nil {
@@ -173,7 +222,7 @@ func (m *DataManager) CreateTasksFromStreamID(ctx context.Context, streamID stri
 		return nil, err
 	}
 
-	return task, nil
+	return tasks, nil
 }
 
 func (m *DataManager) GetTaskByID(ctx context.Context, id string) (*Task, error) {

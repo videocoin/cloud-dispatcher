@@ -64,7 +64,9 @@ func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
 		task.CreatedAt = pointer.ToTime(time.Now())
 	}
 
-	cols := []string{"id", "owner_id", "created_at", "status", "profile_id", "input", "output", "cmdline", "machine_type"}
+	cols := []string{
+		"id", "stream_id", "owner_id", "created_at", "status", "profile_id", "input", "output", "cmdline",
+		"machine_type", "stream_contract_id", "stream_contract_address"}
 	_, err := tx.InsertInto(ds.table).Columns(cols...).Record(task).Exec()
 	if err != nil {
 		return err
@@ -233,7 +235,7 @@ func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds []string
 
 	task := &Task{}
 	qs := tx.
-		Select("*").
+		Select("*", "JSON_EXTRACT(output, \"$.num\") AS num").
 		From(ds.table).
 		Where("status = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)]).
 		Where("client_id IS NULL")
@@ -243,6 +245,8 @@ func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds []string
 	}
 
 	err := qs.
+		OrderDir("created_at", true).
+		OrderDir("num", true).
 		Limit(1).
 		LoadStruct(task)
 

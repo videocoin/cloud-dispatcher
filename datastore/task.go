@@ -2,12 +2,13 @@ package datastore
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/mailru/dbr"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
-	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 )
 
 type Task struct {
@@ -26,7 +27,7 @@ type Task struct {
 	MachineType           dbr.NullString `db:"machine_type"`
 }
 
-func TaskFromStreamResponse(s *streamsv1.StreamResponse) *Task {
+func TaskFromStreamResponse(s *pstreamsv1.StreamResponse) *Task {
 	out := &v1.TaskOutput{Path: fmt.Sprintf("$OUTPUT/%s", s.ID)}
 
 	return &Task{
@@ -43,4 +44,12 @@ func TaskFromStreamResponse(s *streamsv1.StreamResponse) *Task {
 		StreamContractID:      dbr.NewNullInt64(s.StreamContractID),
 		StreamContractAddress: dbr.NewNullString(s.StreamContractAddress),
 	}
+}
+
+func (s *Task) IsOutputHLS() bool {
+	return strings.HasSuffix(s.Cmdline, ".m3u8")
+}
+
+func (s *Task) IsOutputFile() bool {
+	return strings.HasSuffix(s.Cmdline, ".ts")
 }

@@ -88,99 +88,43 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	span.SetTag("stream_id", req.StreamID)
 	span.SetTag("event_type", req.Type.String())
 
-	e.logger.Infof("handling request %+v", req)
+	logger := e.logger.WithFields(logrus.Fields{
+		"stream_id":  req.StreamID,
+		"event_type": req.Type.String(),
+	})
+	logger.Debugf("handling request %+v", req)
 
 	ctx := opentracing.ContextWithSpan(context.Background(), span)
 
 	switch req.Type {
-	case pstreamsv1.EventTypeCreate:
-		{
-			e.logger.Info("creating tasks")
-			_, err := e.dm.CreateTasksFromStreamID(ctx, req.StreamID)
-			if err != nil {
-				tracerext.SpanLogError(span, err)
-				return err
-			}
-		}
 	case pstreamsv1.EventTypeUpdate:
 		{
+			logger.Info("getting stream")
+
 			streamReq := &pstreamsv1.StreamRequest{Id: req.StreamID}
 			streamResp, err := e.streams.Get(ctx, streamReq)
 			if err != nil {
 				tracerext.SpanLogError(span, err)
-				return fmt.Errorf("failed to get stream: %s", err)
+				fmtErr := fmt.Errorf("failed to get stream: %s", err)
+				logger.Error(fmtErr)
+				return fmtErr
 			}
 
-			if streamResp.InputType != streamsv1.InputTypeFile {
-				e.logger.Info("updating task")
-
-				if streamResp.Status == streamsv1.StreamStatusPending {
-					task, err := e.dm.GetTaskByID(ctx, streamResp.ID)
-					if err != nil {
-						tracerext.SpanLogError(span, err)
-						return err
-					}
-
-					e.logger.Info("updating task stream contract")
-
-					err = e.dm.UpdateTaskStreamContract(
-						ctx,
-						task,
-						int64(streamResp.StreamContractID),
-						streamResp.StreamContractAddress,
-					)
-					if err != nil {
-						tracerext.SpanLogError(span, err)
-						return err
-					}
-
-					e.logger.Info("marking task as pending")
-
-					err = e.dm.MarkTaskAsPending(ctx, task)
-					if err != nil {
-						tracerext.SpanLogError(span, err)
-						return err
-					}
+			switch streamResp.Status {
+			case streamsv1.StreamStatusPending:
+				{
+					logger.Info("stream is pending")
+					return e.onStreamStatusPending(ctx, streamResp)
 				}
-
-				if streamResp.Status == streamsv1.StreamStatusCompleted {
-					task, err := e.dm.GetTaskByID(ctx, streamResp.ID)
-					if err != nil {
-						tracerext.SpanLogError(span, err)
-						return err
-					}
-
-					defer func() {
-						atReq := &minersv1.AssignTaskRequest{
-							ClientID: task.ClientID.String,
-							TaskID:   task.ID,
-						}
-
-						e.logger.WithFields(logrus.Fields{
-							"client_id": atReq.ClientID,
-							"task_id":   atReq.TaskID,
-						}).Info("unassigning task")
-
-						_, err = e.miners.UnassignTask(context.Background(), atReq)
-						if err != nil {
-							fmtErr := fmt.Errorf("unassign task to miners service: %s", err)
-							tracerext.SpanLogError(span, fmtErr)
-						}
-					}()
-
-					e.logger.Info("marking task as completed")
-
-					err = e.dm.MarkTaskAsCompleted(ctx, task)
-					if err != nil {
-						tracerext.SpanLogError(span, err)
-						return err
-					}
+			case streamsv1.StreamStatusCompleted:
+				{
+					logger.Info("stream is completed")
+					return e.onStreamStatusCompleted(ctx, streamResp)
 				}
 			}
 		}
 	case pstreamsv1.EventTypeDelete:
 		{
-
 			streamReq := &pstreamsv1.StreamRequest{Id: req.StreamID}
 			streamResp, err := e.streams.Get(ctx, streamReq)
 			if err != nil {
@@ -210,6 +154,74 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 		}
 	case pstreamsv1.EventTypeUnknown:
 		e.logger.Error("event type is unknown")
+	}
+
+	return nil
+}
+
+func (e *EventBus) onStreamStatusPending(
+	ctx context.Context,
+	stream *pstreamsv1.StreamResponse,
+) error {
+	span, spanCtx := opentracing.StartSpanFromContext(ctx, "onStreamStatusPending")
+	defer span.Finish()
+
+	logger := e.logger.WithField("stream_id", stream.ID)
+
+	logger.Info("creating tasks")
+	_, err := e.dm.CreateTasksFromStreamResponse(spanCtx, stream)
+	if err != nil {
+		fmtErr := fmt.Errorf("failed to creating tasks: %s", err)
+		tracerext.SpanLogError(span, fmtErr)
+		logger.Error(fmtErr)
+		return err
+	}
+
+	return nil
+}
+
+func (e *EventBus) onStreamStatusCompleted(
+	ctx context.Context,
+	stream *pstreamsv1.StreamResponse,
+) error {
+	span, spanCtx := opentracing.StartSpanFromContext(ctx, "onStreamStatusCompleted")
+	defer span.Finish()
+
+	logger := e.logger.WithField("stream_id", stream.ID)
+
+	task, err := e.dm.GetTaskByID(spanCtx, stream.ID)
+	if err != nil {
+		tracerext.SpanLogError(span, err)
+		return err
+	}
+
+	defer func() {
+		atReq := &minersv1.AssignTaskRequest{
+			ClientID: task.ClientID.String,
+			TaskID:   task.ID,
+		}
+
+		logger.WithFields(logrus.Fields{
+			"client_id": atReq.ClientID,
+			"task_id":   atReq.TaskID,
+		}).Info("unassigning task")
+
+		_, err = e.miners.UnassignTask(context.Background(), atReq)
+		if err != nil {
+			fmtErr := fmt.Errorf("unassign task to miners service: %s", err)
+			tracerext.SpanLogError(span, fmtErr)
+			logger.Error(fmtErr)
+		}
+	}()
+
+	logger.Info("marking task as completed")
+
+	err = e.dm.MarkTaskAsCompleted(ctx, task)
+	if err != nil {
+		fmtErr := fmt.Errorf("failed to mark task as completed: %s", err)
+		tracerext.SpanLogError(span, fmtErr)
+		logger.Error(fmtErr)
+		return fmtErr
 	}
 
 	return nil

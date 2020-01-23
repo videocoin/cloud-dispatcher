@@ -3,6 +3,7 @@ package v1
 import (
 	"database/sql/driver"
 	"errors"
+	"strings"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 )
@@ -58,4 +59,12 @@ func (s *TaskStatus) Scan(src interface{}) error {
 	*s = TaskStatus(TaskStatus_value[string(sID)])
 
 	return nil
+}
+
+func (s *Task) IsOutputHLS() bool {
+	return strings.HasSuffix(s.Cmdline, ".m3u8")
+}
+
+func (s *Task) IsOutputFile() bool {
+	return strings.HasSuffix(s.Cmdline, ".ts")
 }
