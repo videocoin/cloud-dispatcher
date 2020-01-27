@@ -221,6 +221,44 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 	v1Task.ClientID = task.ClientID.String
 	v1Task.StreamID = task.StreamID
 
+	go func() {
+		if task.ID != task.StreamID {
+			logger := s.logger.
+				WithField("id", task.ID).
+				WithField("stream_id", task.StreamID)
+			logger.Info("getting tasks by stream")
+			relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
+			if err != nil {
+				logFailedTo(s.logger, "get tasks by stream", err)
+				return
+			}
+
+			relTasksCount := len(relTasks)
+			relCompletedTasksCount := 0
+
+			logger.Infof("relation tasks count - %d", relTasksCount)
+
+			for _, t := range relTasks {
+				if t.Status == v1.TaskStatusCompleted {
+					relCompletedTasksCount++
+				}
+			}
+
+			logger.Infof("relation completed tasks count - %d", relCompletedTasksCount)
+
+			if relTasksCount == relCompletedTasksCount {
+				logger.Infof("publish done")
+
+				_, err := s.streams.PublishDone(context.Background(), &streamsv1.StreamRequest{Id: task.StreamID})
+				if err != nil {
+					logFailedTo(s.logger, "publish done", err)
+					return
+				}
+			}
+		}
+
+	}()
+
 	return v1Task, nil
 }
 

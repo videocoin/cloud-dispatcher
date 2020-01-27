@@ -325,6 +325,26 @@ func (m *DataManager) GetTasks(ctx context.Context) ([]*Task, error) {
 	return tasks, nil
 }
 
+func (m *DataManager) GetTasksByStreamID(ctx context.Context, streamID string) ([]*Task, error) {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return nil, failedTo("get tasks", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	tasks, err := m.ds.Tasks.GetListByStreamID(ctx, streamID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
 func (m *DataManager) MarkTaskAsPending(ctx context.Context, task *Task) error {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {

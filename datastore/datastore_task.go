@@ -143,6 +143,39 @@ func (ds *TaskDatastore) GetList(ctx context.Context) ([]*Task, error) {
 	return tasks, nil
 }
 
+func (ds *TaskDatastore) GetListByStreamID(ctx context.Context, streamID string) ([]*Task, error) {
+	var sess *dbr.Session
+	var tx *dbr.Tx
+
+	sess, _ = DbSessionFromContext(ctx)
+	if sess == nil {
+		sess = ds.conn.NewSession(nil)
+	}
+
+	tx, _ = DbTxFromContext(ctx)
+	if tx == nil {
+		tx, err := sess.Begin()
+		if err != nil {
+			return nil, err
+		}
+
+		defer func() {
+			tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	tasks := []*Task{}
+
+	sb := tx.Select("*").From(ds.table).Where("stream_id = ?", streamID)
+	_, err := sb.LoadStructs(&tasks)
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
 func (ds *TaskDatastore) GetByID(ctx context.Context, id string) (*Task, error) {
 	var sess *dbr.Session
 	var tx *dbr.Tx
