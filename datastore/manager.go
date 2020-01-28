@@ -145,10 +145,13 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				components = append(components, muxer)
 			}
 
+			segmentNum := extractNumFromSegmentName(segment.URI)
+			newSegmentNum := segmentNum + 1
+			newSegmentURI := fmt.Sprintf("%d.ts", newSegmentNum)
 			profileReq := &profilesv1.RenderRequest{
 				Id:         stream.ProfileID,
 				Input:      inputURL,
-				Output:     fmt.Sprintf("%s/%s", outputPath, segment.URI),
+				Output:     fmt.Sprintf("%s/%s", outputPath, newSegmentURI),
 				Components: components,
 			}
 			renderResp, err := m.profiles.Render(ctx, profileReq)
@@ -166,8 +169,8 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				Input:     &v1.TaskInput{URI: inputURL},
 				Output: &v1.TaskOutput{
 					Path: outputPath,
-					Name: segment.URI,
-					Num:  extractNumFromSegmentName(segment.URI) + 1,
+					Name: newSegmentURI,
+					Num:  newSegmentNum,
 				},
 				StreamContractID:      dbr.NewNullInt64(stream.StreamContractID),
 				StreamContractAddress: dbr.NewNullString(stream.StreamContractAddress),
