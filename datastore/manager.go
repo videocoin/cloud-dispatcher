@@ -162,7 +162,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				OwnerID:   0,
 				CreatedAt: pointer.ToTime(time.Now()),
 				ProfileID: stream.ProfileID,
-				Status:    v1.TaskStatusCreated,
+				Status:    v1.TaskStatusPending,
 				Input:     &v1.TaskInput{URI: inputURL},
 				Output: &v1.TaskOutput{
 					Path: outputPath,
