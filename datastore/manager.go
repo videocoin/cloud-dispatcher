@@ -168,9 +168,10 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				Status:    v1.TaskStatusPending,
 				Input:     &v1.TaskInput{URI: inputURL},
 				Output: &v1.TaskOutput{
-					Path: outputPath,
-					Name: newSegmentURI,
-					Num:  newSegmentNum,
+					Path:     outputPath,
+					Name:     newSegmentURI,
+					Num:      newSegmentNum,
+					Duration: segment.Duration,
 				},
 				StreamContractID:      dbr.NewNullInt64(stream.StreamContractID),
 				StreamContractAddress: dbr.NewNullString(stream.StreamContractAddress),

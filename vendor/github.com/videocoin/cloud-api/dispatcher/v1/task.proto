@@ -34,6 +34,7 @@ message TaskOutput {
     string path = 1;
     string name = 2;
     int64 num = 3;
+    double duration = 4;
 }
 
 message Task {
