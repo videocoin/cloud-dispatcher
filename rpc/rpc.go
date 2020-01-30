@@ -198,7 +198,7 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 
 		_, err = s.streams.PublishDone(
 			context.Background(),
-			&streamsv1.StreamRequest{Id: task.ID},
+			&streamsv1.StreamRequest{Id: task.StreamID},
 		)
 		if err != nil {
 			logFailedTo(s.logger, "publish done", err)
