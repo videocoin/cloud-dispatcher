@@ -144,24 +144,25 @@ func (*TaskRequest) XXX_MessageName() string {
 	return "cloud.api.dispatcher.v1.TaskRequest"
 }
 
-type InternalConfigRequest struct {
+type ConfigRequest struct {
+	ClientID             string   `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *InternalConfigRequest) Reset()         { *m = InternalConfigRequest{} }
-func (m *InternalConfigRequest) String() string { return proto.CompactTextString(m) }
-func (*InternalConfigRequest) ProtoMessage()    {}
-func (*InternalConfigRequest) Descriptor() ([]byte, []int) {
+func (m *ConfigRequest) Reset()         { *m = ConfigRequest{} }
+func (m *ConfigRequest) String() string { return proto.CompactTextString(m) }
+func (*ConfigRequest) ProtoMessage()    {}
+func (*ConfigRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_008866cbcf1626a3, []int{2}
 }
-func (m *InternalConfigRequest) XXX_Unmarshal(b []byte) error {
+func (m *ConfigRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *InternalConfigRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *ConfigRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_InternalConfigRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_ConfigRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -171,26 +172,85 @@ func (m *InternalConfigRequest) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *InternalConfigRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_InternalConfigRequest.Merge(m, src)
+func (m *ConfigRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConfigRequest.Merge(m, src)
 }
-func (m *InternalConfigRequest) XXX_Size() int {
+func (m *ConfigRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *InternalConfigRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_InternalConfigRequest.DiscardUnknown(m)
+func (m *ConfigRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConfigRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_InternalConfigRequest proto.InternalMessageInfo
+var xxx_messageInfo_ConfigRequest proto.InternalMessageInfo
 
-func (*InternalConfigRequest) XXX_MessageName() string {
-	return "cloud.api.dispatcher.v1.InternalConfigRequest"
+func (m *ConfigRequest) GetClientID() string {
+	if m != nil {
+		return m.ClientID
+	}
+	return ""
+}
+
+func (*ConfigRequest) XXX_MessageName() string {
+	return "cloud.api.dispatcher.v1.ConfigRequest"
+}
+
+type ConfigResponse struct {
+	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ConfigResponse) Reset()         { *m = ConfigResponse{} }
+func (m *ConfigResponse) String() string { return proto.CompactTextString(m) }
+func (*ConfigResponse) ProtoMessage()    {}
+func (*ConfigResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_008866cbcf1626a3, []int{3}
+}
+func (m *ConfigResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ConfigResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ConfigResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ConfigResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ConfigResponse.Merge(m, src)
+}
+func (m *ConfigResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *ConfigResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ConfigResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ConfigResponse proto.InternalMessageInfo
+
+func (m *ConfigResponse) GetKey() string {
+	if m != nil {
+		return m.Key
+	}
+	return ""
+}
+
+func (*ConfigResponse) XXX_MessageName() string {
+	return "cloud.api.dispatcher.v1.ConfigResponse"
 }
 
 type InternalConfigResponse struct {
 	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	Secret               string   `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`
 	ClientId             string   `protobuf:"bytes,3,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	AccessKey            string   `protobuf:"bytes,4,opt,name=access_key,json=accessKey,proto3" json:"access_key,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -200,7 +260,7 @@ func (m *InternalConfigResponse) Reset()         { *m = InternalConfigResponse{}
 func (m *InternalConfigResponse) String() string { return proto.CompactTextString(m) }
 func (*InternalConfigResponse) ProtoMessage()    {}
 func (*InternalConfigResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_008866cbcf1626a3, []int{3}
+	return fileDescriptor_008866cbcf1626a3, []int{4}
 }
 func (m *InternalConfigResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -250,6 +310,13 @@ func (m *InternalConfigResponse) GetClientId() string {
 	return ""
 }
 
+func (m *InternalConfigResponse) GetAccessKey() string {
+	if m != nil {
+		return m.AccessKey
+	}
+	return ""
+}
+
 func (*InternalConfigResponse) XXX_MessageName() string {
 	return "cloud.api.dispatcher.v1.InternalConfigResponse"
 }
@@ -258,8 +325,10 @@ func init() {
 	golang_proto.RegisterType((*TaskPendingRequest)(nil), "cloud.api.dispatcher.v1.TaskPendingRequest")
 	proto.RegisterType((*TaskRequest)(nil), "cloud.api.dispatcher.v1.TaskRequest")
 	golang_proto.RegisterType((*TaskRequest)(nil), "cloud.api.dispatcher.v1.TaskRequest")
-	proto.RegisterType((*InternalConfigRequest)(nil), "cloud.api.dispatcher.v1.InternalConfigRequest")
-	golang_proto.RegisterType((*InternalConfigRequest)(nil), "cloud.api.dispatcher.v1.InternalConfigRequest")
+	proto.RegisterType((*ConfigRequest)(nil), "cloud.api.dispatcher.v1.ConfigRequest")
+	golang_proto.RegisterType((*ConfigRequest)(nil), "cloud.api.dispatcher.v1.ConfigRequest")
+	proto.RegisterType((*ConfigResponse)(nil), "cloud.api.dispatcher.v1.ConfigResponse")
+	golang_proto.RegisterType((*ConfigResponse)(nil), "cloud.api.dispatcher.v1.ConfigResponse")
 	proto.RegisterType((*InternalConfigResponse)(nil), "cloud.api.dispatcher.v1.InternalConfigResponse")
 	golang_proto.RegisterType((*InternalConfigResponse)(nil), "cloud.api.dispatcher.v1.InternalConfigResponse")
 }
@@ -272,44 +341,47 @@ func init() {
 }
 
 var fileDescriptor_008866cbcf1626a3 = []byte{
-	// 582 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0xdd, 0x6e, 0xd3, 0x3e,
-	0x14, 0x5f, 0xba, 0xa9, 0xff, 0xcd, 0x7f, 0x40, 0x9b, 0x11, 0x5d, 0xd5, 0x41, 0x37, 0x22, 0x84,
-	0x86, 0x60, 0x89, 0x06, 0xb7, 0x20, 0xc4, 0x3a, 0xa8, 0x7a, 0x31, 0x14, 0x65, 0x08, 0x04, 0x42,
-	0x54, 0x6e, 0x72, 0x9a, 0x59, 0x4d, 0xed, 0x10, 0xbb, 0x91, 0xfa, 0x5a, 0x3c, 0x01, 0x97, 0xbb,
-	0xe4, 0x09, 0x26, 0xd4, 0xbd, 0x08, 0xb2, 0x9d, 0x7e, 0x64, 0x6c, 0xed, 0x90, 0x76, 0xe7, 0x93,
-	0xdf, 0xc7, 0x39, 0x3e, 0xc9, 0x2f, 0xe8, 0x71, 0x48, 0x45, 0x42, 0x64, 0x70, 0x02, 0xa9, 0x9b,
-	0xed, 0xbb, 0xd3, 0xaa, 0x2d, 0x20, 0xcd, 0x68, 0x00, 0x4e, 0x92, 0x72, 0xc9, 0xf1, 0x66, 0x10,
-	0xf3, 0x41, 0xe8, 0x90, 0x84, 0x3a, 0x53, 0x8e, 0x93, 0xed, 0xd7, 0xb6, 0x22, 0xce, 0xa3, 0x18,
-	0x5c, 0x4d, 0xeb, 0x0c, 0xba, 0x2e, 0xf4, 0x13, 0x39, 0x34, 0xaa, 0xda, 0xfd, 0x1c, 0x24, 0x09,
-	0x75, 0x09, 0x63, 0x5c, 0x12, 0x49, 0x39, 0x13, 0x39, 0xba, 0x17, 0x51, 0x79, 0x32, 0xe8, 0x38,
-	0x01, 0xef, 0xbb, 0x11, 0x8f, 0xf8, 0xd4, 0x43, 0x55, 0xba, 0xd0, 0xa7, 0x9c, 0x5e, 0x2d, 0x8e,
-	0x2a, 0x89, 0xe8, 0xe5, 0x48, 0x63, 0xc6, 0x28, 0xa3, 0x21, 0xf0, 0x80, 0x53, 0xe6, 0xea, 0x89,
-	0xf7, 0x54, 0xeb, 0x8c, 0xc4, 0x34, 0x24, 0x92, 0x6b, 0xdd, 0xa4, 0x28, 0xde, 0xb0, 0xf6, 0x6a,
-	0x81, 0x89, 0x18, 0xb2, 0xc0, 0x74, 0x36, 0xa7, 0x0b, 0xf2, 0x97, 0x0b, 0xe4, 0x7d, 0xca, 0x20,
-	0x15, 0x4a, 0xae, 0x4f, 0x45, 0xb5, 0xfd, 0x1a, 0xe1, 0x0f, 0x44, 0xf4, 0x3c, 0x60, 0x21, 0x65,
-	0x91, 0x0f, 0xdf, 0x07, 0x20, 0x24, 0x7e, 0x82, 0xd6, 0x82, 0x98, 0x02, 0x93, 0x6d, 0x1a, 0x56,
-	0xad, 0x1d, 0x6b, 0x77, 0xed, 0xe0, 0xd6, 0xe8, 0x6c, 0x7b, 0xb5, 0xa1, 0x1f, 0xb6, 0x0e, 0xfd,
-	0x55, 0x03, 0xb7, 0x42, 0xdb, 0x43, 0xff, 0x2b, 0x83, 0x7f, 0x57, 0xe2, 0x0a, 0x2a, 0xd1, 0xb0,
-	0x5a, 0xd2, 0x9c, 0xf2, 0xe8, 0x6c, 0xbb, 0xd4, 0x3a, 0xf4, 0x4b, 0x34, 0xb4, 0x37, 0xd1, 0xbd,
-	0x16, 0x93, 0x90, 0x32, 0x12, 0x37, 0x38, 0xeb, 0xd2, 0xf1, 0x54, 0x76, 0x1b, 0x55, 0x2e, 0x02,
-	0x22, 0xe1, 0x4c, 0x00, 0x5e, 0x47, 0xcb, 0x3d, 0x18, 0x9a, 0x7e, 0xbe, 0x3a, 0xe2, 0x0a, 0x2a,
-	0x0b, 0x08, 0x52, 0x90, 0xa6, 0x81, 0x9f, 0x57, 0x78, 0x6b, 0x76, 0xbe, 0x65, 0x0d, 0x4d, 0x26,
-	0x7a, 0xfe, 0xa3, 0x8c, 0x36, 0x0e, 0x27, 0xef, 0xfa, 0xd8, 0x2c, 0x0a, 0x7f, 0x43, 0x77, 0x9a,
-	0x20, 0xf3, 0x0d, 0xa9, 0xbb, 0xe2, 0xa7, 0xce, 0x15, 0x1f, 0xa5, 0xf3, 0xf7, 0x2e, 0x6b, 0x0f,
-	0xe6, 0x92, 0xed, 0x25, 0xec, 0xa1, 0xff, 0x9a, 0x20, 0xb5, 0xf1, 0xa3, 0xb9, 0xdc, 0x6b, 0x3b,
-	0x7e, 0x45, 0x77, 0x8f, 0x48, 0xda, 0x53, 0xd5, 0x1b, 0xd1, 0xe0, 0xfd, 0x24, 0x06, 0x09, 0xe1,
-	0x4d, 0xb9, 0x7f, 0x46, 0xeb, 0x53, 0xf7, 0x77, 0x84, 0xc6, 0x37, 0x67, 0xfd, 0x09, 0xdd, 0xfe,
-	0x68, 0x52, 0x02, 0x5e, 0xca, 0x79, 0x17, 0x3f, 0x9b, 0x51, 0x4c, 0xf2, 0xa3, 0x04, 0x05, 0xda,
-	0xd8, 0xbf, 0xe2, 0x98, 0xd8, 0x3b, 0xe3, 0x3c, 0x3b, 0x6f, 0xd5, 0x3f, 0xc1, 0x5e, 0xc2, 0x07,
-	0x68, 0xe5, 0x78, 0xc8, 0x02, 0xbc, 0x33, 0xe3, 0x67, 0xd2, 0xa4, 0xcc, 0x14, 0xb4, 0xd8, 0xe3,
-	0x08, 0xad, 0x78, 0x94, 0x45, 0x05, 0x0f, 0x13, 0x2e, 0xe5, 0xe1, 0xcd, 0xbc, 0xf2, 0x87, 0x73,
-	0x18, 0xe6, 0x8b, 0xb5, 0x97, 0xf0, 0x7b, 0xb4, 0xea, 0x43, 0x44, 0x85, 0x84, 0x14, 0xef, 0x5e,
-	0x2a, 0x30, 0x70, 0xaa, 0x7f, 0x5d, 0x8b, 0xc7, 0xcb, 0xd0, 0x46, 0x13, 0x64, 0x31, 0x20, 0xd8,
-	0xb9, 0x72, 0xe3, 0x97, 0x46, 0xac, 0xe6, 0x5e, 0x9b, 0x3f, 0xbe, 0xc7, 0x41, 0xf5, 0x74, 0x54,
-	0xb7, 0x7e, 0x8d, 0xea, 0xd6, 0xef, 0x51, 0xdd, 0xfa, 0x79, 0x5e, 0xb7, 0x4e, 0xcf, 0xeb, 0xd6,
-	0x97, 0x52, 0xb6, 0xdf, 0x29, 0xeb, 0x19, 0x5f, 0xfc, 0x09, 0x00, 0x00, 0xff, 0xff, 0x89, 0x96,
-	0x52, 0xc2, 0xeb, 0x05, 0x00, 0x00,
+	// 625 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0xd1, 0x6e, 0xd3, 0x3e,
+	0x14, 0xc6, 0x9b, 0x6e, 0xea, 0x7f, 0xf5, 0x9f, 0x4d, 0x9b, 0x91, 0x4a, 0xd5, 0xb1, 0x6e, 0x44,
+	0x68, 0x0c, 0xc1, 0x12, 0x0d, 0xee, 0x10, 0x08, 0xb1, 0x0e, 0xaa, 0x0a, 0x0d, 0x55, 0x1d, 0x02,
+	0x81, 0xd0, 0x26, 0x2f, 0x39, 0xcb, 0xac, 0xa6, 0x76, 0x88, 0xdd, 0x48, 0xbd, 0xe1, 0xd9, 0xb8,
+	0xdc, 0x25, 0x4f, 0x30, 0xa1, 0xee, 0x2d, 0xb8, 0x42, 0xb6, 0xb3, 0xb6, 0x81, 0xb5, 0x01, 0xb4,
+	0x3b, 0x9f, 0x9c, 0xef, 0xfb, 0xe5, 0x24, 0xf6, 0x67, 0xb4, 0xe9, 0x53, 0x11, 0x11, 0xe9, 0x9d,
+	0x42, 0xec, 0x26, 0x3b, 0xee, 0xb8, 0x3a, 0x12, 0x10, 0x27, 0xd4, 0x03, 0x27, 0x8a, 0xb9, 0xe4,
+	0xf8, 0x96, 0x17, 0xf2, 0xbe, 0xef, 0x90, 0x88, 0x3a, 0x63, 0x8d, 0x93, 0xec, 0xd4, 0x56, 0x03,
+	0xce, 0x83, 0x10, 0x5c, 0x2d, 0x3b, 0xee, 0x9f, 0xb8, 0xd0, 0x8b, 0xe4, 0xc0, 0xb8, 0x6a, 0xb7,
+	0xd3, 0x26, 0x89, 0xa8, 0x4b, 0x18, 0xe3, 0x92, 0x48, 0xca, 0x99, 0x48, 0xbb, 0xdb, 0x01, 0x95,
+	0xa7, 0xfd, 0x63, 0xc7, 0xe3, 0x3d, 0x37, 0xe0, 0x01, 0x1f, 0x33, 0x54, 0xa5, 0x0b, 0xbd, 0x4a,
+	0xe5, 0xd5, 0xec, 0xa8, 0x92, 0x88, 0x6e, 0xda, 0x69, 0x4c, 0x80, 0x12, 0xea, 0x03, 0xf7, 0x38,
+	0x65, 0xae, 0x9e, 0x78, 0x5b, 0xbd, 0x3a, 0x21, 0x21, 0xf5, 0x89, 0xe4, 0xda, 0x37, 0x2a, 0xb2,
+	0x5f, 0x58, 0x7b, 0x96, 0x03, 0x11, 0x03, 0xe6, 0x99, 0x37, 0x9b, 0xd5, 0x2f, 0xf6, 0xa7, 0x39,
+	0xf6, 0x1e, 0x65, 0x10, 0x0b, 0x65, 0xd7, 0xab, 0xac, 0xdb, 0x7e, 0x8e, 0xf0, 0x5b, 0x22, 0xba,
+	0x6d, 0x60, 0x3e, 0x65, 0x41, 0x07, 0x3e, 0xf7, 0x41, 0x48, 0x7c, 0x1f, 0x95, 0xbd, 0x90, 0x02,
+	0x93, 0x47, 0xd4, 0xaf, 0x5a, 0x1b, 0xd6, 0x56, 0x79, 0xf7, 0xc6, 0xf0, 0x7c, 0x7d, 0xa1, 0xa1,
+	0x1f, 0xb6, 0xf6, 0x3a, 0x0b, 0xa6, 0xdd, 0xf2, 0xed, 0x36, 0xfa, 0x5f, 0x01, 0xfe, 0xde, 0x89,
+	0x2b, 0xa8, 0x48, 0xfd, 0x6a, 0x51, 0x6b, 0x4a, 0xc3, 0xf3, 0xf5, 0x62, 0x6b, 0xaf, 0x53, 0xa4,
+	0xbe, 0xfd, 0x04, 0x2d, 0x36, 0x38, 0x3b, 0xa1, 0xff, 0x32, 0x8d, 0x8d, 0x96, 0x2e, 0xbd, 0x22,
+	0xe2, 0x4c, 0x00, 0x5e, 0x46, 0x73, 0x5d, 0x18, 0x18, 0x5b, 0x47, 0x2d, 0xed, 0x2f, 0xa8, 0xd2,
+	0x62, 0x12, 0x62, 0x46, 0xc2, 0x3c, 0x2d, 0xae, 0xa0, 0x92, 0x00, 0x2f, 0x06, 0x69, 0xe6, 0xec,
+	0xa4, 0x15, 0x5e, 0x9d, 0x1c, 0x69, 0x4e, 0xb7, 0xc6, 0x1f, 0xb6, 0x86, 0x10, 0xf1, 0x3c, 0x10,
+	0xe2, 0x48, 0xd1, 0xe6, 0x75, 0xb7, 0x6c, 0x9e, 0xbc, 0x86, 0xc1, 0xa3, 0x1f, 0x25, 0xb4, 0xb2,
+	0x37, 0x3a, 0x51, 0x07, 0x66, 0x3b, 0xf0, 0x21, 0x5a, 0x6a, 0x82, 0x4c, 0xf7, 0x41, 0xfd, 0x51,
+	0xfc, 0xc0, 0x99, 0x72, 0xf4, 0x9d, 0xdf, 0x77, 0xac, 0xb6, 0x36, 0x53, 0x6c, 0x17, 0x70, 0x1b,
+	0xfd, 0xd7, 0x04, 0xa9, 0xc1, 0x77, 0x67, 0x6a, 0xff, 0x98, 0xf8, 0x09, 0xdd, 0xdc, 0x27, 0x71,
+	0x57, 0x55, 0x2f, 0x44, 0x83, 0xf7, 0xa2, 0x10, 0x24, 0xf8, 0xd7, 0x45, 0xff, 0x80, 0x96, 0xc7,
+	0xf4, 0x57, 0x84, 0x86, 0xd7, 0x87, 0x7e, 0x8f, 0x16, 0xdf, 0x99, 0x2c, 0x42, 0x3b, 0xe6, 0xfc,
+	0x04, 0x3f, 0x9c, 0x70, 0x8c, 0x52, 0xaa, 0x0c, 0x19, 0xd9, 0x25, 0xbf, 0xe2, 0x98, 0xcb, 0xc5,
+	0xb9, 0xbc, 0x35, 0x9c, 0x97, 0xea, 0xe6, 0xb1, 0x0b, 0x78, 0x17, 0xcd, 0x1f, 0x0c, 0x98, 0x87,
+	0x37, 0x26, 0x78, 0x26, 0xb3, 0x0a, 0xa6, 0x5a, 0xf9, 0x8c, 0x7d, 0x34, 0xdf, 0xa6, 0x2c, 0xc8,
+	0x30, 0x4c, 0x84, 0x15, 0xa3, 0x3d, 0xb1, 0xe5, 0x77, 0x66, 0x28, 0xcc, 0x81, 0xb6, 0x0b, 0xf8,
+	0x0d, 0x5a, 0xe8, 0x40, 0x40, 0x85, 0x84, 0x18, 0x6f, 0x5d, 0x69, 0x30, 0xed, 0x58, 0x5f, 0x90,
+	0xf9, 0xe3, 0x1d, 0xa2, 0x72, 0x13, 0xa4, 0xc9, 0x0d, 0xde, 0x9c, 0xfa, 0xa7, 0x33, 0x01, 0xae,
+	0xdd, 0xcb, 0xd5, 0x8d, 0xe6, 0x3d, 0x44, 0x2b, 0x4d, 0x90, 0xd9, 0x7c, 0xe2, 0x29, 0xe3, 0xd4,
+	0xdc, 0xa9, 0xdc, 0xab, 0x03, 0x6e, 0x17, 0x76, 0xab, 0x67, 0xc3, 0xba, 0xf5, 0x6d, 0x58, 0xb7,
+	0xbe, 0x0f, 0xeb, 0xd6, 0xd7, 0x8b, 0xba, 0x75, 0x76, 0x51, 0xb7, 0x3e, 0x16, 0x93, 0x9d, 0xe3,
+	0x92, 0x86, 0x3f, 0xfe, 0x19, 0x00, 0x00, 0xff, 0xff, 0x12, 0x62, 0x91, 0xed, 0x99, 0x06, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -332,7 +404,8 @@ type DispatcherServiceClient interface {
 	Sync(ctx context.Context, in *v11.SyncRequest, opts ...grpc.CallOption) (*types.Empty, error)
 	Ping(ctx context.Context, in *v12.PingRequest, opts ...grpc.CallOption) (*v12.PingResponse, error)
 	Register(ctx context.Context, in *v12.RegistrationRequest, opts ...grpc.CallOption) (*types.Empty, error)
-	GetInternalConfig(ctx context.Context, in *InternalConfigRequest, opts ...grpc.CallOption) (*InternalConfigResponse, error)
+	GetConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error)
+	GetInternalConfig(ctx context.Context, in *types.Empty, opts ...grpc.CallOption) (*InternalConfigResponse, error)
 }
 
 type dispatcherServiceClient struct {
@@ -415,7 +488,16 @@ func (c *dispatcherServiceClient) Register(ctx context.Context, in *v12.Registra
 	return out, nil
 }
 
-func (c *dispatcherServiceClient) GetInternalConfig(ctx context.Context, in *InternalConfigRequest, opts ...grpc.CallOption) (*InternalConfigResponse, error) {
+func (c *dispatcherServiceClient) GetConfig(ctx context.Context, in *ConfigRequest, opts ...grpc.CallOption) (*ConfigResponse, error) {
+	out := new(ConfigResponse)
+	err := c.cc.Invoke(ctx, "/cloud.api.dispatcher.v1.DispatcherService/GetConfig", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dispatcherServiceClient) GetInternalConfig(ctx context.Context, in *types.Empty, opts ...grpc.CallOption) (*InternalConfigResponse, error) {
 	out := new(InternalConfigResponse)
 	err := c.cc.Invoke(ctx, "/cloud.api.dispatcher.v1.DispatcherService/GetInternalConfig", in, out, opts...)
 	if err != nil {
@@ -434,7 +516,8 @@ type DispatcherServiceServer interface {
 	Sync(context.Context, *v11.SyncRequest) (*types.Empty, error)
 	Ping(context.Context, *v12.PingRequest) (*v12.PingResponse, error)
 	Register(context.Context, *v12.RegistrationRequest) (*types.Empty, error)
-	GetInternalConfig(context.Context, *InternalConfigRequest) (*InternalConfigResponse, error)
+	GetConfig(context.Context, *ConfigRequest) (*ConfigResponse, error)
+	GetInternalConfig(context.Context, *types.Empty) (*InternalConfigResponse, error)
 }
 
 // UnimplementedDispatcherServiceServer can be embedded to have forward compatible implementations.
@@ -465,7 +548,10 @@ func (*UnimplementedDispatcherServiceServer) Ping(ctx context.Context, req *v12.
 func (*UnimplementedDispatcherServiceServer) Register(ctx context.Context, req *v12.RegistrationRequest) (*types.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
 }
-func (*UnimplementedDispatcherServiceServer) GetInternalConfig(ctx context.Context, req *InternalConfigRequest) (*InternalConfigResponse, error) {
+func (*UnimplementedDispatcherServiceServer) GetConfig(ctx context.Context, req *ConfigRequest) (*ConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetConfig not implemented")
+}
+func (*UnimplementedDispatcherServiceServer) GetInternalConfig(ctx context.Context, req *types.Empty) (*InternalConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInternalConfig not implemented")
 }
 
@@ -617,8 +703,26 @@ func _DispatcherService_Register_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DispatcherService_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DispatcherServiceServer).GetConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cloud.api.dispatcher.v1.DispatcherService/GetConfig",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DispatcherServiceServer).GetConfig(ctx, req.(*ConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _DispatcherService_GetInternalConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(InternalConfigRequest)
+	in := new(types.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -630,7 +734,7 @@ func _DispatcherService_GetInternalConfig_Handler(srv interface{}, ctx context.C
 		FullMethod: "/cloud.api.dispatcher.v1.DispatcherService/GetInternalConfig",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DispatcherServiceServer).GetInternalConfig(ctx, req.(*InternalConfigRequest))
+		return srv.(DispatcherServiceServer).GetInternalConfig(ctx, req.(*types.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -670,6 +774,10 @@ var _DispatcherService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Register",
 			Handler:    _DispatcherService_Register_Handler,
+		},
+		{
+			MethodName: "GetConfig",
+			Handler:    _DispatcherService_GetConfig_Handler,
 		},
 		{
 			MethodName: "GetInternalConfig",
@@ -755,7 +863,7 @@ func (m *TaskRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *InternalConfigRequest) Marshal() (dAtA []byte, err error) {
+func (m *ConfigRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -765,12 +873,12 @@ func (m *InternalConfigRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *InternalConfigRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *ConfigRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *InternalConfigRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *ConfigRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -778,6 +886,47 @@ func (m *InternalConfigRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.XXX_unrecognized != nil {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.ClientID) > 0 {
+		i -= len(m.ClientID)
+		copy(dAtA[i:], m.ClientID)
+		i = encodeVarintDispatcherService(dAtA, i, uint64(len(m.ClientID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ConfigResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ConfigResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ConfigResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.Key) > 0 {
+		i -= len(m.Key)
+		copy(dAtA[i:], m.Key)
+		i = encodeVarintDispatcherService(dAtA, i, uint64(len(m.Key)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -805,6 +954,13 @@ func (m *InternalConfigResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	if m.XXX_unrecognized != nil {
 		i -= len(m.XXX_unrecognized)
 		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.AccessKey) > 0 {
+		i -= len(m.AccessKey)
+		copy(dAtA[i:], m.AccessKey)
+		i = encodeVarintDispatcherService(dAtA, i, uint64(len(m.AccessKey)))
+		i--
+		dAtA[i] = 0x22
 	}
 	if len(m.ClientId) > 0 {
 		i -= len(m.ClientId)
@@ -877,12 +1033,32 @@ func (m *TaskRequest) Size() (n int) {
 	return n
 }
 
-func (m *InternalConfigRequest) Size() (n int) {
+func (m *ConfigRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
+	l = len(m.ClientID)
+	if l > 0 {
+		n += 1 + l + sovDispatcherService(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ConfigResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Key)
+	if l > 0 {
+		n += 1 + l + sovDispatcherService(uint64(l))
+	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -904,6 +1080,10 @@ func (m *InternalConfigResponse) Size() (n int) {
 		n += 1 + l + sovDispatcherService(uint64(l))
 	}
 	l = len(m.ClientId)
+	if l > 0 {
+		n += 1 + l + sovDispatcherService(uint64(l))
+	}
+	l = len(m.AccessKey)
 	if l > 0 {
 		n += 1 + l + sovDispatcherService(uint64(l))
 	}
@@ -1123,7 +1303,7 @@ func (m *TaskRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *InternalConfigRequest) Unmarshal(dAtA []byte) error {
+func (m *ConfigRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1146,12 +1326,130 @@ func (m *InternalConfigRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: InternalConfigRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: ConfigRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: InternalConfigRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ConfigRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ClientID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDispatcherService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthDispatcherService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthDispatcherService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ClientID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipDispatcherService(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthDispatcherService
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthDispatcherService
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ConfigResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowDispatcherService
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ConfigResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ConfigResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDispatcherService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthDispatcherService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthDispatcherService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Key = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipDispatcherService(dAtA[iNdEx:])
@@ -1301,6 +1599,38 @@ func (m *InternalConfigResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.ClientId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AccessKey", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowDispatcherService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthDispatcherService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthDispatcherService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.AccessKey = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

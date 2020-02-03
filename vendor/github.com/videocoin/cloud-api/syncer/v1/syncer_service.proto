@@ -3,7 +3,6 @@ syntax = "proto3";
 package cloud.api.syncer.v1;
 
 import "google/protobuf/empty.proto";
-import "google/api/annotations.proto";;
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 option go_package = "v1";
@@ -13,9 +12,7 @@ option (gogoproto.sizer_all) = true;
 option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
-service SyncerService {
-    rpc Sync(SyncRequest) returns (google.protobuf.Empty) {}
-}
+service SyncerService {}
 
 message SyncRequest {
     bytes data = 1;

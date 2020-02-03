@@ -113,6 +113,7 @@ service MinersService {
 
     rpc Register(RegistrationRequest) returns (MinerResponse) {}
     rpc GetByID(MinerRequest) returns (MinerResponse) {}
+    rpc GetKey(KeyRequest) returns (KeyResponse) {}
     rpc Ping(PingRequest) returns (PingResponse) {}
     rpc AssignTask(AssignTaskRequest) returns (google.protobuf.Empty) {}
     rpc UnassignTask(AssignTaskRequest) returns (google.protobuf.Empty) {}
@@ -154,6 +155,14 @@ message PingRequest {
 }
   
 message PingResponse {}
+
+message KeyRequest {
+    string client_id = 1 [(gogoproto.customname) = "ClientID"];
+}
+
+message KeyResponse {
+    string key = 1;
+}
 
 message AssignTaskRequest {
     string client_id = 1 [(gogoproto.customname) = "ClientID"];
