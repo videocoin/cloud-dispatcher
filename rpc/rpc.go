@@ -393,15 +393,32 @@ func (s *RpcServer) Register(
 	return &prototypes.Empty{}, nil
 }
 
+func (s *RpcServer) GetConfig(
+	ctx context.Context,
+	req *v1.ConfigRequest,
+) (*v1.ConfigResponse, error) {
+	miner, err := s.miners.GetKey(ctx, &minersv1.KeyRequest{
+		ClientID: req.ClientID,
+	})
+	if err != nil {
+		s.logger.WithError(err).Error("failed to get miner key")
+		return nil, rpc.ErrRpcInternal
+	}
+
+	return &v1.ConfigResponse{
+		Key: miner.Key,
+	}, nil
+}
+
 func (s *RpcServer) GetInternalConfig(
 	ctx context.Context,
-	req *v1.InternalConfigRequest,
+	req *prototypes.Empty,
 ) (*v1.InternalConfigResponse, error) {
 	resp := &v1.InternalConfigResponse{}
 
 	clientIds, err := s.consul.GetTranscoderClientIds()
 	if err != nil {
-		return nil, err
+		return nil, rpc.ErrRpcInternal
 	}
 
 	if len(clientIds) > 0 {
@@ -411,7 +428,7 @@ func (s *RpcServer) GetInternalConfig(
 
 	ksPairs, err := s.consul.GetTranscoderKeyAndSecret()
 	if err != nil {
-		return nil, err
+		return nil, rpc.ErrRpcInternal
 	}
 
 	if len(ksPairs) > 0 {
