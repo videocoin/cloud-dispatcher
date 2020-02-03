@@ -448,3 +448,23 @@ func (m *DataManager) UpdateTaskStreamContract(ctx context.Context, task *Task, 
 
 	return nil
 }
+
+func (m *DataManager) LogTask(ctx context.Context, minerID, taskID string) error {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("update task stream contract", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.TasksHistory.Log(ctx, minerID, taskID)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
