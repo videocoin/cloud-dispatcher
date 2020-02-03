@@ -135,6 +135,11 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 		logFailedTo(logger, "assign task to miners service", err)
 	}
 
+	err = s.dm.LogTask(ctx, miner.Id, task.ID)
+	if err != nil {
+		logger.Errorf("failed to log task: %s", err)
+	}
+
 	return v1Task, nil
 }
 

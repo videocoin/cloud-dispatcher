@@ -8,7 +8,8 @@ import (
 type Datastore struct {
 	conn *dbr.Connection
 
-	Tasks *TaskDatastore
+	Tasks        *TaskDatastore
+	TasksHistory *TasksHistoryDatastore
 }
 
 func NewDatastore(uri string) (*Datastore, error) {
