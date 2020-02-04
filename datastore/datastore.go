@@ -34,5 +34,12 @@ func NewDatastore(uri string) (*Datastore, error) {
 
 	ds.Tasks = tasksDs
 
+	thDs, err := NewTasksHistoryDatastore(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	ds.TasksHistory = thDs
+
 	return ds, nil
 }
