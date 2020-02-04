@@ -329,6 +329,15 @@ func (ds *TaskDatastore) MarkTaskAsFailed(ctx context.Context, task *Task) error
 	return nil
 }
 
+func (ds *TaskDatastore) MarkTaskAsCanceled(ctx context.Context, task *Task) error {
+	err := ds.markTaskStatusAs(ctx, task, v1.TaskStatusCanceled)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (ds *TaskDatastore) markTaskStatusAs(
 	ctx context.Context,
 	task *Task,
