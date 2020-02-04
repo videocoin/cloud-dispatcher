@@ -14,7 +14,8 @@ import (
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
-	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
+	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
@@ -203,7 +204,7 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 
 		_, err = s.streams.PublishDone(
 			context.Background(),
-			&streamsv1.StreamRequest{Id: task.StreamID},
+			&pstreamsv1.StreamRequest{Id: task.StreamID},
 		)
 		if err != nil {
 			logFailedTo(s.logger, "publish done", err)
@@ -254,7 +255,7 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 			if relTasksCount == relCompletedTasksCount {
 				logger.Infof("publish done")
 
-				_, err := s.streams.PublishDone(context.Background(), &streamsv1.StreamRequest{Id: task.StreamID})
+				_, err := s.streams.PublishDone(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
 				if err != nil {
 					logFailedTo(s.logger, "file publish done", err)
 					return
@@ -296,7 +297,7 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 
 		_, err = s.streams.PublishDone(
 			context.Background(),
-			&streamsv1.StreamRequest{Id: task.StreamID},
+			&pstreamsv1.StreamRequest{Id: task.StreamID},
 		)
 		if err != nil {
 			logFailedTo(s.logger, "publish done", err)
@@ -343,6 +344,15 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 					}
 				}
 			}
+		}
+
+		_, err = s.streams.UpdateStatus(
+			context.Background(),
+			&pstreamsv1.UpdateStatusRequest{ID: task.StreamID, Status: streamsv1.StreamStatusFailed},
+		)
+		if err != nil {
+			logFailedTo(s.logger, "update stream status", err)
+			return
 		}
 
 	}()
