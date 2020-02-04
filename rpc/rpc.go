@@ -319,6 +319,34 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 	v1Task.ClientID = task.ClientID.String
 	v1Task.StreamID = task.StreamID
 
+	go func() {
+		if task.ID != task.StreamID {
+			logger := s.logger.
+				WithField("id", task.ID).
+				WithField("stream_id", task.StreamID)
+			logger.Info("getting tasks by stream")
+			relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
+			if err != nil {
+				logFailedTo(s.logger, "get tasks by stream", err)
+				return
+			}
+
+			for _, relTask := range relTasks {
+				if relTask.ID != v1Task.ID {
+					if relTask.Status == v1.TaskStatusAssigned || relTask.Status == v1.TaskStatusPending ||
+						relTask.Status == v1.TaskStatusCreated || relTask.Status == v1.TaskStatusEncoding {
+						err := s.dm.MarkTaskAsCanceled(ctx, relTask)
+						if err != nil {
+							logFailedTo(s.logger, "mark task as canceled", err)
+							return
+						}
+					}
+				}
+			}
+		}
+
+	}()
+
 	return v1Task, nil
 }
 
