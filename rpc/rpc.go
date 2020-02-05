@@ -285,6 +285,22 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 		return nil, rpc.ErrRpcNotFound
 	}
 
+	isPending := false
+	taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
+	if err == nil {
+		taskLogCount := len(taskLog)
+		if taskLogCount < 2 {
+			err := s.dm.MarkTaskAsPending(ctx, task)
+			if err != nil {
+				logFailedTo(s.logger, "mark task as pending (failed)", err)
+				isPending = false
+			} else {
+				isPending = true
+			}
+
+		}
+	}
+
 	defer func() {
 		atReq := &minersv1.AssignTaskRequest{
 			ClientID: task.ClientID.String,
@@ -295,19 +311,23 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 			logFailedTo(s.logger, "unassign task to miners service", err)
 		}
 
-		_, err = s.streams.PublishDone(
-			context.Background(),
-			&pstreamsv1.StreamRequest{Id: task.StreamID},
-		)
-		if err != nil {
-			logFailedTo(s.logger, "publish done", err)
+		if !isPending {
+			_, err = s.streams.PublishDone(
+				context.Background(),
+				&pstreamsv1.StreamRequest{Id: task.StreamID},
+			)
+			if err != nil {
+				logFailedTo(s.logger, "publish done", err)
+			}
 		}
 	}()
 
-	err = s.dm.MarkTaskAsFailed(ctx, task)
-	if err != nil {
-		logFailedTo(s.logger, "mark task as failed", err)
-		return nil, rpc.ErrRpcInternal
+	if !isPending {
+		err = s.dm.MarkTaskAsFailed(ctx, task)
+		if err != nil {
+			logFailedTo(s.logger, "mark task as failed", err)
+			return nil, rpc.ErrRpcInternal
+		}
 	}
 
 	v1Task := &v1.Task{}
@@ -321,7 +341,7 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 	v1Task.StreamID = task.StreamID
 
 	go func() {
-		if task.ID != task.StreamID {
+		if task.ID != task.StreamID && !isPending {
 			logger := s.logger.
 				WithField("id", task.ID).
 				WithField("stream_id", task.StreamID)
