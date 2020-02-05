@@ -61,3 +61,35 @@ func (ds *TasksHistoryDatastore) Log(ctx context.Context, minerID, taskID string
 
 	return nil
 }
+
+func (ds *TasksHistoryDatastore) GetLogByTaskID(ctx context.Context, taskID string) ([]*TaskHistoryItem, error) {
+	var items []*TaskHistoryItem
+	var sess *dbr.Session
+	var tx *dbr.Tx
+
+	sess, _ = DbSessionFromContext(ctx)
+	if sess == nil {
+		sess = ds.conn.NewSession(nil)
+	}
+
+	tx, _ = DbTxFromContext(ctx)
+	if tx == nil {
+		tx, err := sess.Begin()
+		if err != nil {
+			return nil, err
+		}
+
+		defer func() {
+			tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	sb := tx.Select("*").From(ds.table).Where("task_id = ?", taskID)
+	_, err := sb.LoadStructs(&items)
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}
