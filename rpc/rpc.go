@@ -78,6 +78,25 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 			logFailedTo(s.logger, "get pending task", err)
 			return nil, rpc.ErrRpcInternal
 		}
+
+		taskLogFound := false
+		taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
+		if err == nil {
+			for _, taskLogItem := range taskLog {
+				if taskLogItem.ID == task.ID {
+					taskLogFound = true
+				}
+			}
+		}
+
+		if taskLogFound {
+			ft.Ids = append(ft.Ids, task.ID)
+			task, err = s.dm.GetPendingTask(ctx, ft.Ids)
+			if err != nil {
+				logFailedTo(s.logger, "get pending task (retry)", err)
+				return nil, rpc.ErrRpcInternal
+			}
+		}
 	}
 
 	if task == nil {
