@@ -2,46 +2,19 @@ package rpc
 
 import (
 	"context"
-	"errors"
 	"math/rand"
 	"time"
 
 	prototypes "github.com/gogo/protobuf/types"
-	"github.com/jinzhu/copier"
-	"github.com/mailru/dbr"
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
-	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
-	"github.com/videocoin/cloud-dispatcher/datastore"
 )
-
-var (
-	ErrClientIDIsEmpty  = errors.New("client id is empty")
-	ErrClientIDNotFound = errors.New("client id not found")
-)
-
-func (s *RpcServer) authenticate(ctx context.Context, clientID string) (*minersv1.MinerResponse, error) {
-	if clientID == "" {
-		return nil, ErrClientIDIsEmpty
-	}
-
-	miner, err := s.miners.GetByID(context.Background(), &minersv1.MinerRequest{Id: clientID})
-	if err != nil {
-		return nil, err
-	}
-
-	if miner == nil {
-		return nil, ErrClientIDNotFound
-	}
-
-	return miner, nil
-}
 
 func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
 	miner, err := s.authenticate(ctx, req.ClientID)
@@ -52,55 +25,9 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 
 	logger := s.logger.WithField("client_id", req.ClientID)
 
-	task := &datastore.Task{}
-	task = nil
-
-	if forceTaskID, ok := miner.Tags["force_task_id"]; ok {
-		task, err = s.dm.GetPendingTaskByID(ctx, forceTaskID)
-		if err != nil {
-			logFailedTo(logger, "get force task", err)
-			return nil, rpc.ErrRpcInternal
-		}
-		if task.Status != v1.TaskStatusPending {
-			task = nil
-		}
-	}
-
-	if task == nil {
-		ft, err := s.miners.GetForceTaskList(ctx, &prototypes.Empty{})
-		if err != nil {
-			logFailedTo(logger, "get force task ids", err)
-			return nil, rpc.ErrRpcNotFound
-		}
-
-		task, err = s.dm.GetPendingTask(ctx, ft.Ids)
-		if err != nil {
-			logFailedTo(s.logger, "get pending task", err)
-			return nil, rpc.ErrRpcInternal
-		}
-
-		taskLogFound := false
-		taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
-		if err == nil {
-			for _, taskLogItem := range taskLog {
-				if taskLogItem.ID == task.ID {
-					taskLogFound = true
-				}
-			}
-		}
-
-		if taskLogFound {
-			ft.Ids = append(ft.Ids, task.ID)
-			task, err = s.dm.GetPendingTask(ctx, ft.Ids)
-			if err != nil {
-				logFailedTo(s.logger, "get pending task (retry)", err)
-				return nil, rpc.ErrRpcInternal
-			}
-		}
-	}
-
-	if task == nil {
-		return nil, rpc.ErrRpcNotFound
+	task, err := s.getPendingTask(miner)
+	if err != nil {
+		return nil, err
 	}
 
 	if task.IsOutputFile() {
@@ -124,43 +51,12 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 		}
 	}
 
-	task.ClientID = dbr.NewNullString(req.ClientID)
-	err = s.dm.MarkTaskAsAssigned(ctx, task)
+	err = s.assignTask(task, miner)
 	if err != nil {
-		logFailedTo(logger, "mark as assigned", err)
-		return nil, rpc.ErrRpcInternal
+		return nil, err
 	}
 
-	logger.WithField("assigned_client_id", task.ClientID.String).Info("task has been assinged")
-
-	v1Task := &v1.Task{}
-	err = copier.Copy(v1Task, task)
-	if err != nil {
-		logFailedTo(s.logger, "copy task", err)
-		return nil, rpc.ErrRpcInternal
-	}
-
-	v1Task.ClientID = task.ClientID.String
-	v1Task.StreamContractID = uint64(task.StreamContractID.Int64)
-	v1Task.StreamContractAddress = task.StreamContractAddress.String
-	v1Task.MachineType = task.MachineType.String
-	v1Task.StreamID = task.StreamID
-
-	atReq := &minersv1.AssignTaskRequest{
-		ClientID: task.ClientID.String,
-		TaskID:   task.ID,
-	}
-	_, err = s.miners.AssignTask(context.Background(), atReq)
-	if err != nil {
-		logFailedTo(logger, "assign task to miners service", err)
-	}
-
-	err = s.dm.LogTask(ctx, miner.Id, task.ID)
-	if err != nil {
-		logFailedTo(logger, "failed to log task", err)
-	}
-
-	return v1Task, nil
+	return toTaskResponse(task), nil
 }
 
 func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
@@ -170,28 +66,12 @@ func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task,
 		return nil, rpc.ErrRpcUnauthenticated
 	}
 
-	task, err := s.dm.GetTaskByID(ctx, req.ID)
+	task, err := s.getTask(req.ID)
 	if err != nil {
-		logFailedTo(s.logger, "get task", err)
-		return nil, rpc.ErrRpcInternal
+		return nil, err
 	}
 
-	if task == nil {
-		return nil, rpc.ErrRpcNotFound
-	}
-
-	v1Task := &v1.Task{}
-	err = copier.Copy(v1Task, task)
-	if err != nil {
-		logFailedTo(s.logger, "copy task", err)
-		return nil, rpc.ErrRpcInternal
-	}
-
-	v1Task.ClientID = task.ClientID.String
-	v1Task.MachineType = task.MachineType.String
-	v1Task.StreamID = task.StreamID
-
-	return v1Task, nil
+	return toTaskResponse(task), nil
 }
 
 func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
@@ -201,14 +81,9 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 		return nil, rpc.ErrRpcUnauthenticated
 	}
 
-	task, err := s.dm.GetTaskByID(ctx, req.ID)
+	task, err := s.getTask(req.ID)
 	if err != nil {
-		logFailedTo(s.logger, "get task", err)
-		return nil, rpc.ErrRpcInternal
-	}
-
-	if task == nil {
-		return nil, rpc.ErrRpcNotFound
+		return nil, err
 	}
 
 	defer func() {
@@ -236,55 +111,9 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 		return nil, rpc.ErrRpcInternal
 	}
 
-	v1Task := &v1.Task{}
-	err = copier.Copy(v1Task, task)
-	if err != nil {
-		logFailedTo(s.logger, "copy task", err)
-		return nil, rpc.ErrRpcInternal
-	}
+	go s.markStreamAsCompletedIfNeeded(task)
 
-	v1Task.ClientID = task.ClientID.String
-	v1Task.StreamID = task.StreamID
-
-	go func() {
-		if task.ID != task.StreamID {
-			logger := s.logger.
-				WithField("id", task.ID).
-				WithField("stream_id", task.StreamID)
-			logger.Info("getting tasks by stream")
-			relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
-			if err != nil {
-				logFailedTo(s.logger, "get tasks by stream", err)
-				return
-			}
-
-			relTasksCount := len(relTasks)
-			relCompletedTasksCount := 0
-
-			logger.Infof("relation tasks count - %d", relTasksCount)
-
-			for _, t := range relTasks {
-				if t.Status == v1.TaskStatusCompleted {
-					relCompletedTasksCount++
-				}
-			}
-
-			logger.Infof("relation completed tasks count - %d", relCompletedTasksCount)
-
-			if relTasksCount == relCompletedTasksCount {
-				logger.Infof("publish done")
-
-				_, err := s.streams.PublishDone(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
-				if err != nil {
-					logFailedTo(s.logger, "file publish done", err)
-					return
-				}
-			}
-		}
-
-	}()
-
-	return v1Task, nil
+	return toTaskResponse(task), nil
 }
 
 func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
@@ -294,31 +123,12 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 		return nil, rpc.ErrRpcUnauthenticated
 	}
 
-	task, err := s.dm.GetTaskByID(ctx, req.ID)
+	task, err := s.getTask(req.ID)
 	if err != nil {
-		logFailedTo(s.logger, "get task", err)
-		return nil, rpc.ErrRpcInternal
+		return nil, err
 	}
 
-	if task == nil {
-		return nil, rpc.ErrRpcNotFound
-	}
-
-	isPending := false
-	taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
-	if err == nil {
-		taskLogCount := len(taskLog)
-		if taskLogCount < 2 {
-			err := s.dm.MarkTaskAsPending(ctx, task)
-			if err != nil {
-				logFailedTo(s.logger, "mark task as pending (failed)", err)
-				isPending = false
-			} else {
-				isPending = true
-			}
-
-		}
-	}
+	isRetryable := s.markTaskAsRetryable(task)
 
 	defer func() {
 		atReq := &minersv1.AssignTaskRequest{
@@ -330,7 +140,7 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 			logFailedTo(s.logger, "unassign task to miners service", err)
 		}
 
-		if !isPending {
+		if !isRetryable {
 			_, err = s.streams.PublishDone(
 				context.Background(),
 				&pstreamsv1.StreamRequest{Id: task.StreamID},
@@ -341,75 +151,24 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 		}
 	}()
 
-	if !isPending {
+	if !isRetryable {
 		err = s.dm.MarkTaskAsFailed(ctx, task)
 		if err != nil {
 			logFailedTo(s.logger, "mark task as failed", err)
 			return nil, rpc.ErrRpcInternal
 		}
+
+		go s.markStreamAsFailedIfNeeded(task)
 	}
 
-	v1Task := &v1.Task{}
-	err = copier.Copy(v1Task, task)
-	if err != nil {
-		logFailedTo(s.logger, "copy task", err)
-		return nil, rpc.ErrRpcInternal
-	}
-
-	v1Task.ClientID = task.ClientID.String
-	v1Task.StreamID = task.StreamID
-
-	go func() {
-		if task.ID != task.StreamID && !isPending {
-			logger := s.logger.
-				WithField("id", task.ID).
-				WithField("stream_id", task.StreamID)
-			logger.Info("getting tasks by stream")
-			relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
-			if err != nil {
-				logFailedTo(s.logger, "get tasks by stream", err)
-				return
-			}
-
-			for _, relTask := range relTasks {
-				if relTask.ID != v1Task.ID {
-					if relTask.Status == v1.TaskStatusAssigned || relTask.Status == v1.TaskStatusPending ||
-						relTask.Status == v1.TaskStatusCreated || relTask.Status == v1.TaskStatusEncoding {
-						err := s.dm.MarkTaskAsCanceled(ctx, relTask)
-						if err != nil {
-							logFailedTo(s.logger, "mark task as canceled", err)
-							return
-						}
-					}
-				}
-			}
-		}
-
-		_, err = s.streams.UpdateStatus(
-			context.Background(),
-			&pstreamsv1.UpdateStatusRequest{ID: task.StreamID, Status: streamsv1.StreamStatusFailed},
-		)
-		if err != nil {
-			logFailedTo(s.logger, "update stream status", err)
-			return
-		}
-
-	}()
-
-	return v1Task, nil
+	return toTaskResponse(task), nil
 }
 
-func (s *RpcServer) ValidateProof(
-	ctx context.Context,
-	req *validatorv1.ValidateProofRequest,
-) (*prototypes.Empty, error) {
+func (s *RpcServer) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*prototypes.Empty, error) {
 	return s.validator.ValidateProof(ctx, req)
 }
 
-func (s *RpcServer) Sync(
-	ctx context.Context,
-	req *syncerv1.SyncRequest,
-) (*prototypes.Empty, error) {
+func (s *RpcServer) Sync(ctx context.Context, req *syncerv1.SyncRequest) (*prototypes.Empty, error) {
 	logger := s.logger.WithFields(logrus.Fields{
 		"object_name": req.Path,
 	})
@@ -426,10 +185,7 @@ func (s *RpcServer) Sync(
 	return &prototypes.Empty{}, nil
 }
 
-func (s *RpcServer) Ping(
-	ctx context.Context,
-	req *minersv1.PingRequest,
-) (*minersv1.PingResponse, error) {
+func (s *RpcServer) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1.PingResponse, error) {
 	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
@@ -450,10 +206,7 @@ func (s *RpcServer) Ping(
 	return &minersv1.PingResponse{}, nil
 }
 
-func (s *RpcServer) Register(
-	ctx context.Context,
-	req *minersv1.RegistrationRequest,
-) (*prototypes.Empty, error) {
+func (s *RpcServer) Register(ctx context.Context, req *minersv1.RegistrationRequest) (*prototypes.Empty, error) {
 	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
@@ -475,10 +228,7 @@ func (s *RpcServer) Register(
 	return &prototypes.Empty{}, nil
 }
 
-func (s *RpcServer) GetInternalConfig(
-	ctx context.Context,
-	req *v1.InternalConfigRequest,
-) (*v1.InternalConfigResponse, error) {
+func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
 	resp := &v1.InternalConfigResponse{}
 
 	clientIds, err := s.consul.GetTranscoderClientIds()
