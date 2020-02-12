@@ -12,7 +12,6 @@ import (
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
-	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 )
 
@@ -166,23 +165,6 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 
 func (s *RpcServer) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*prototypes.Empty, error) {
 	return s.validator.ValidateProof(ctx, req)
-}
-
-func (s *RpcServer) Sync(ctx context.Context, req *syncerv1.SyncRequest) (*prototypes.Empty, error) {
-	logger := s.logger.WithFields(logrus.Fields{
-		"object_name": req.Path,
-	})
-
-	logger.Info("syncing")
-
-	go func(logger *logrus.Entry, req *syncerv1.SyncRequest) {
-		_, err := s.syncer.Sync(context.Background(), req)
-		if err != nil {
-			logger.Errorf("failed to sync: %s", err)
-		}
-	}(logger, req)
-
-	return &prototypes.Empty{}, nil
 }
 
 func (s *RpcServer) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1.PingResponse, error) {
