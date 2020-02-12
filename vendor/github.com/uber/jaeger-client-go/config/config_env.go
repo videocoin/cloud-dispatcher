@@ -52,11 +52,7 @@ const (
 // FromEnv uses environment variables to set the tracer's Configuration
 func FromEnv() (*Configuration, error) {
 	c := &Configuration{}
-	return c.FromEnv()
-}
 
-// FromEnv uses environment variables and overrides existing tracer's Configuration
-func (c *Configuration) FromEnv() (*Configuration, error) {
 	if e := os.Getenv(envServiceName); e != "" {
 		c.ServiceName = e
 	}
@@ -81,21 +77,13 @@ func (c *Configuration) FromEnv() (*Configuration, error) {
 		c.Tags = parseTags(e)
 	}
 
-	if c.Sampler == nil {
-		c.Sampler = &SamplerConfig{}
-	}
-
-	if s, err := c.Sampler.samplerConfigFromEnv(); err == nil {
+	if s, err := samplerConfigFromEnv(); err == nil {
 		c.Sampler = s
 	} else {
 		return nil, errors.Wrap(err, "cannot obtain sampler config from env")
 	}
 
-	if c.Reporter == nil {
-		c.Reporter = &ReporterConfig{}
-	}
-
-	if r, err := c.Reporter.reporterConfigFromEnv(); err == nil {
+	if r, err := reporterConfigFromEnv(); err == nil {
 		c.Reporter = r
 	} else {
 		return nil, errors.Wrap(err, "cannot obtain reporter config from env")
@@ -105,7 +93,9 @@ func (c *Configuration) FromEnv() (*Configuration, error) {
 }
 
 // samplerConfigFromEnv creates a new SamplerConfig based on the environment variables
-func (sc *SamplerConfig) samplerConfigFromEnv() (*SamplerConfig, error) {
+func samplerConfigFromEnv() (*SamplerConfig, error) {
+	sc := &SamplerConfig{}
+
 	if e := os.Getenv(envSamplerType); e != "" {
 		sc.Type = e
 	}
@@ -120,9 +110,6 @@ func (sc *SamplerConfig) samplerConfigFromEnv() (*SamplerConfig, error) {
 
 	if e := os.Getenv(envSamplerManagerHostPort); e != "" {
 		sc.SamplingServerURL = e
-	} else if e := os.Getenv(envAgentHost); e != "" {
-		// Fallback if we know the agent host - try the sampling endpoint there
-		sc.SamplingServerURL = fmt.Sprintf("http://%s:%d/sampling", e, jaeger.DefaultSamplingServerPort)
 	}
 
 	if e := os.Getenv(envSamplerMaxOperations); e != "" {
@@ -145,7 +132,9 @@ func (sc *SamplerConfig) samplerConfigFromEnv() (*SamplerConfig, error) {
 }
 
 // reporterConfigFromEnv creates a new ReporterConfig based on the environment variables
-func (rc *ReporterConfig) reporterConfigFromEnv() (*ReporterConfig, error) {
+func reporterConfigFromEnv() (*ReporterConfig, error) {
+	rc := &ReporterConfig{}
+
 	if e := os.Getenv(envReporterMaxQueueSize); e != "" {
 		if value, err := strconv.ParseInt(e, 10, 0); err == nil {
 			rc.QueueSize = int(value)
