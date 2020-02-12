@@ -4,7 +4,7 @@ CREATE TABLE tasks_history (
     `id`         VARCHAR(255) PRIMARY KEY NOT NULL,
     `miner_id`   VARCHAR(255) NOT NULL,
     `task_id`    VARCHAR(255) NOT NULL,
-    `created_at` TIMESTAMP DEFAULT NOW(),
+    `created_at` TIMESTAMP DEFAULT NOW()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
