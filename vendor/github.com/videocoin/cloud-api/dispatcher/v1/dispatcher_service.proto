@@ -23,7 +23,6 @@ service DispatcherService {
     rpc MarkTaskAsCompleted(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
     rpc MarkTaskAsFailed(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
     rpc ValidateProof(cloud.api.validator.v1.ValidateProofRequest) returns (google.protobuf.Empty) {}
-    rpc Sync(cloud.api.syncer.v1.SyncRequest) returns (google.protobuf.Empty) {}
     rpc Ping(cloud.api.miners.v1.PingRequest) returns (cloud.api.miners.v1.PingResponse) {}
     rpc Register(cloud.api.miners.v1.RegistrationRequest) returns (google.protobuf.Empty) {}
     rpc GetInternalConfig(InternalConfigRequest) returns (InternalConfigResponse) {}
