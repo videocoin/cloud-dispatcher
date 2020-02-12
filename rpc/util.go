@@ -86,6 +86,10 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 			return nil, rpc.ErrRpcInternal
 		}
 
+		if task == nil {
+			return nil, rpc.ErrRpcNotFound
+		}
+
 		taskLogFound := false
 		taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
 		if err == nil {
@@ -104,10 +108,6 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 				return nil, rpc.ErrRpcInternal
 			}
 		}
-	}
-
-	if task == nil {
-		return nil, rpc.ErrRpcNotFound
 	}
 
 	return task, nil
