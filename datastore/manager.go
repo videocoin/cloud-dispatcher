@@ -429,6 +429,26 @@ func (m *DataManager) MarkTaskAsFailed(ctx context.Context, task *Task) error {
 	return nil
 }
 
+func (m *DataManager) MarkTaskAsCanceled(ctx context.Context, task *Task) error {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("mark task as failed", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.Tasks.MarkTaskAsCanceled(ctx, task)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *DataManager) UpdateTaskStreamContract(ctx context.Context, task *Task, id int64, address string) error {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
@@ -447,4 +467,44 @@ func (m *DataManager) UpdateTaskStreamContract(ctx context.Context, task *Task, 
 	}
 
 	return nil
+}
+
+func (m *DataManager) LogTask(ctx context.Context, minerID, taskID string) error {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("update task stream contract", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.TasksHistory.Log(ctx, minerID, taskID)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DataManager) GetTaskLog(ctx context.Context, taskID string) ([]*TaskHistoryItem, error) {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return nil, failedTo("update task stream contract", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	items, err := m.ds.TasksHistory.GetLogByTaskID(ctx, taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
 }
