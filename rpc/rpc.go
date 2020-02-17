@@ -94,14 +94,6 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 		if err != nil {
 			logFailedTo(s.logger, "unassign task to miners service", err)
 		}
-
-		_, err = s.streams.PublishDone(
-			context.Background(),
-			&pstreamsv1.StreamRequest{Id: task.StreamID},
-		)
-		if err != nil {
-			logFailedTo(s.logger, "publish done", err)
-		}
 	}()
 
 	err = s.dm.MarkTaskAsCompleted(ctx, task)
@@ -109,8 +101,6 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 		logFailedTo(s.logger, "mark task as completed", err)
 		return nil, rpc.ErrRpcInternal
 	}
-
-	go s.markStreamAsCompletedIfNeeded(task)
 
 	return toTaskResponse(task), nil
 }
