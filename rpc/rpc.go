@@ -154,6 +154,33 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 }
 
 func (s *RpcServer) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*prototypes.Empty, error) {
+	logger := s.logger.WithField("stream_id", req.StreamId)
+
+	relTasks, err := s.dm.GetTasksByStreamID(ctx, req.StreamId)
+	if err != nil {
+		logFailedTo(s.logger, "get tasks by stream", err)
+		return nil, err
+	}
+
+	relTasksCount := len(relTasks)
+	relCompletedTasksCount := 0
+
+	logger.Infof("relation tasks count - %d", relTasksCount)
+
+	if relTasksCount > 1 {
+		for _, t := range relTasks {
+			if t.Status == v1.TaskStatusCompleted {
+				relCompletedTasksCount++
+			}
+		}
+
+		logger.Infof("relation completed tasks count - %d", relCompletedTasksCount)
+
+		if relTasksCount == relCompletedTasksCount+1 {
+			req.IsLast = true
+		}
+	}
+
 	return s.validator.ValidateProof(ctx, req)
 }
 
