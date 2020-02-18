@@ -62,7 +62,9 @@ function get_vars() {
     readonly BASE_INPUT_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/baseInputUrl`
     readonly BASE_OUTPUT_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/baseOutputUrl`
     readonly LB_IP=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/loadBalancerIP`
+    readonly SYNCER_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/syncerHttpUrl`
 
+    readonly BLOCKCHAIN_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/blockchainUrl`
     readonly DB_URI=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/dbUri`
     readonly MQ_URI=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/mqUri`
     readonly AUTH_TOKEN_SECRET=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/authTokenSecret`
@@ -88,6 +90,8 @@ function deploy() {
         --set config.baseInputUrl="${BASE_INPUT_URL}" \
         --set config.baseOutputUrl="${BASE_OUTPUT_URL}" \
         --set service.loadBalancerIP="${LB_IP}" \
+        --set config.syncerUrl="${SYNCER_URL}" \
+        --set secrets.blockchainUrl="${BLOCKCHAIN_URL}" \
         --set secrets.dbUri="${DB_URI}" \
         --set secrets.mqUri="${MQ_URI}" \
         --set secrets.authTokenSecret="${AUTH_TOKEN_SECRET}" \

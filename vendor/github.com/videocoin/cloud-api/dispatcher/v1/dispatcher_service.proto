@@ -7,7 +7,6 @@ import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "dispatcher/v1/task.proto";
 import "github.com/videocoin/cloud-api/validator/v1/validator_service.proto";
-import "github.com/videocoin/cloud-api/syncer/v1/syncer_service.proto";
 import "github.com/videocoin/cloud-api/miners/v1/miner_service.proto";
 
 option go_package = "v1";
@@ -26,6 +25,7 @@ service DispatcherService {
     rpc Ping(cloud.api.miners.v1.PingRequest) returns (cloud.api.miners.v1.PingResponse) {}
     rpc Register(cloud.api.miners.v1.RegistrationRequest) returns (google.protobuf.Empty) {}
     rpc GetInternalConfig(InternalConfigRequest) returns (InternalConfigResponse) {}
+    rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
 }
 
 message TaskPendingRequest {
@@ -37,12 +37,17 @@ message TaskRequest {
   string id = 2 [(gogoproto.customname) = "ID"];
 }
 
-message InternalConfigRequest {
-
-}
+message InternalConfigRequest {}
 
 message InternalConfigResponse {
   string key = 1;
   string secret = 2;
   string client_id = 3;
+}
+
+message ConfigRequest {}
+
+message ConfigResponse {
+    string rpc_node_url = 1 [(gogoproto.customname) = "RPCNodeURL"];
+    string syncer_url = 2 [(gogoproto.customname) = "SyncerURL"];
 }

@@ -289,3 +289,10 @@ func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfi
 
 	return resp, nil
 }
+
+func (s *RpcServer) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.ConfigResponse, error) {
+	return &v1.ConfigResponse{
+		RPCNodeURL: s.rpcNodeURL,
+		SyncerURL:  s.syncerURL,
+	}, nil
+}

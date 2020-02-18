@@ -98,6 +98,16 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: baseOutputUrl
+            - name: SYNCER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: syncerUrl
+            - name: BLOCKCHAIN_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: blockchainUrl
             - name: DBURI
               valueFrom:
                 secretKeyRef:

@@ -9,20 +9,21 @@ type Config struct {
 	Version string        `envconfig:"-"`
 	Logger  *logrus.Entry `envconfig:"-"`
 
-	RPCAddr          string `default:"0.0.0.0:5008" envconfig:"RPC_ADDR"`
-	AccountsRPCAddr  string `default:"0.0.0.0:5001" envconfig:"ACCOUNTS_RPC_ADDR"`
-	StreamsRPCAddr   string `default:"0.0.0.0:5102" envconfig:"STREAMS_RPC_ADDR"`
-	EmitterRPCAddr   string `default:"0.0.0.0:5003" envconfig:"EMITTER_RPC_ADDR"`
-	ProfilesRPCAddr  string `default:"0.0.0.0:5004" envconfig:"PROFILES_RPC_ADDR"`
-	ValidatorRPCAddr string `default:"0.0.0.0:5020" envconfig:"VALIDATOR_RPC_ADDR"`
-	SyncerRPCAddr    string `default:"0.0.0.0:5021" envconfig:"SYNCER_RPC_ADDR"`
-	MinersRPCAddr    string `default:"0.0.0.0:5011" envconfig:"MINERS_RPC_ADDR"`
-	MetricsAddr      string `default:"0.0.0.0:15008" envconfig:"METRICS_ADDR"`
-	ConsulAddr       string `default:"127.0.0.1:8500" envconfig:"CONSUL_ADDR"`
+	RPCAddr          string `envconfig:"RPC_ADDR" default:"0.0.0.0:5008"`
+	AccountsRPCAddr  string `envconfig:"ACCOUNTS_RPC_ADDR" default:"0.0.0.0:5001"`
+	StreamsRPCAddr   string `envconfig:"STREAMS_RPC_ADDR" default:"0.0.0.0:5102"`
+	EmitterRPCAddr   string `envconfig:"EMITTER_RPC_ADDR" default:"0.0.0.0:5003"`
+	ProfilesRPCAddr  string `envconfig:"PROFILES_RPC_ADDR" default:"0.0.0.0:5004"`
+	ValidatorRPCAddr string `envconfig:"VALIDATOR_RPC_ADDR" default:"0.0.0.0:5020"`
+	MinersRPCAddr    string `envconfig:"MINERS_RPC_ADDR" default:"0.0.0.0:5011"`
+	MetricsAddr      string `envconfig:"METRICS_ADDR" default:"0.0.0.0:15008"`
+	ConsulAddr       string `envconfig:"CONSUL_ADDR" default:"127.0.0.1:8500"`
 	Env              string `default:"dev"`
-	BaseInputURL     string `default:"" envconfig:"BASE_INPUT_URL"`
-	BaseOutputURL    string `default:"" envconfig:"BASE_OUTPUT_URL"`
-	DBURI            string `default:"root:@/videocoin?charset=utf8&parseTime=True&loc=Local" envconfig:"DBURI"`
-	MQURI            string `default:"amqp://guest:guest@127.0.0.1:5672" envconfig:"MQURI"`
-	AuthTokenSecret  string `default:"" envconfig:"AUTH_TOKEN_SECRET"`
+	BaseInputURL     string `envconfig:"BASE_INPUT_URL" default:""`
+	BaseOutputURL    string `envconfig:"BASE_OUTPUT_URL" default:""`
+	DBURI            string `envconfig:"DBURI" default:"root:@/videocoin?charset=utf8&parseTime=True&loc=Local"`
+	MQURI            string `envconfig:"MQURI" default:"amqp://guest:guest@127.0.0.1:5672"`
+	AuthTokenSecret  string `envconfig:"AUTH_TOKEN_SECRET" default:""`
+	RPCNodeURL       string `envconfig:"RPC_NODE_URL" default:"https://dev1:D6msEL93LJT5RaPk@rpc.dev.kili.videocoin.network"`
+	SyncerURL        string `envconfig:"SYNCER_URL" default:"https://dev.videocoin.network/api/v1/sync"`
 }

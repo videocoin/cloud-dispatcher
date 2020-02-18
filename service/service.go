@@ -6,7 +6,6 @@ import (
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
-	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
@@ -66,14 +65,6 @@ func NewService(cfg *Config) (*Service, error) {
 	}
 	validator := validatorv1.NewValidatorServiceClient(validatorConn)
 
-	synclogger := cfg.Logger.WithField("system", "syncercli")
-	syncGrpcDialOpts := grpcutil.ClientDialOptsWithRetry(synclogger)
-	syncerConn, err := grpc.Dial(cfg.SyncerRPCAddr, syncGrpcDialOpts...)
-	if err != nil {
-		return nil, err
-	}
-	syncer := syncerv1.NewSyncerServiceClient(syncerConn)
-
 	mlogger := cfg.Logger.WithField("system", "minerscli")
 	mGrpcDialOpts := grpcutil.ClientDialOptsWithRetry(mlogger)
 	mConn, err := grpc.Dial(cfg.MinersRPCAddr, mGrpcDialOpts...)
@@ -108,7 +99,6 @@ func NewService(cfg *Config) (*Service, error) {
 		Emitter:   emitter,
 		Streams:   streams,
 		Validator: validator,
-		Syncer:    syncer,
 		Miners:    miners,
 		Logger:    cfg.Logger,
 		DM:        dm,

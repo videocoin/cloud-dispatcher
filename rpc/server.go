@@ -9,7 +9,6 @@ import (
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
-	syncerv1 "github.com/videocoin/cloud-api/syncer/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-pkg/consul"
@@ -21,32 +20,34 @@ import (
 )
 
 type RpcServerOpts struct {
-	Logger    *logrus.Entry
-	Addr      string
-	DM        *datastore.DataManager
-	Accounts  accountsv1.AccountServiceClient
-	Emitter   emitterv1.EmitterServiceClient
-	Streams   streamsv1.StreamsServiceClient
-	Validator validatorv1.ValidatorServiceClient
-	Syncer    syncerv1.SyncerServiceClient
-	Miners    minersv1.MinersServiceClient
-	Consul    *consul.Client
+	Logger     *logrus.Entry
+	Addr       string
+	DM         *datastore.DataManager
+	Accounts   accountsv1.AccountServiceClient
+	Emitter    emitterv1.EmitterServiceClient
+	Streams    streamsv1.StreamsServiceClient
+	Validator  validatorv1.ValidatorServiceClient
+	Miners     minersv1.MinersServiceClient
+	Consul     *consul.Client
+	SyncerURL  string
+	RPCNodeURL string
 }
 
 type RpcServer struct {
-	logger    *logrus.Entry
-	addr      string
-	grpc      *grpc.Server
-	listen    net.Listener
-	accounts  accountsv1.AccountServiceClient
-	emitter   emitterv1.EmitterServiceClient
-	streams   streamsv1.StreamsServiceClient
-	validator validatorv1.ValidatorServiceClient
-	syncer    syncerv1.SyncerServiceClient
-	miners    minersv1.MinersServiceClient
-	v         *requestValidator
-	dm        *datastore.DataManager
-	consul    *consul.Client
+	logger     *logrus.Entry
+	addr       string
+	grpc       *grpc.Server
+	listen     net.Listener
+	accounts   accountsv1.AccountServiceClient
+	emitter    emitterv1.EmitterServiceClient
+	streams    streamsv1.StreamsServiceClient
+	validator  validatorv1.ValidatorServiceClient
+	miners     minersv1.MinersServiceClient
+	v          *requestValidator
+	dm         *datastore.DataManager
+	consul     *consul.Client
+	syncerURL  string
+	rpcNodeURL string
 }
 
 func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
@@ -62,19 +63,20 @@ func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 	}
 
 	rpcServer := &RpcServer{
-		addr:      opts.Addr,
-		grpc:      grpcServer,
-		listen:    listen,
-		accounts:  opts.Accounts,
-		emitter:   opts.Emitter,
-		streams:   opts.Streams,
-		validator: opts.Validator,
-		syncer:    opts.Syncer,
-		miners:    opts.Miners,
-		logger:    opts.Logger.WithField("system", "rpc"),
-		v:         newRequestValidator(),
-		dm:        opts.DM,
-		consul:    opts.Consul,
+		addr:       opts.Addr,
+		grpc:       grpcServer,
+		listen:     listen,
+		accounts:   opts.Accounts,
+		emitter:    opts.Emitter,
+		streams:    opts.Streams,
+		validator:  opts.Validator,
+		miners:     opts.Miners,
+		logger:     opts.Logger.WithField("system", "rpc"),
+		v:          newRequestValidator(),
+		dm:         opts.DM,
+		consul:     opts.Consul,
+		syncerURL:  opts.SyncerURL,
+		rpcNodeURL: opts.RPCNodeURL,
 	}
 
 	v1.RegisterDispatcherServiceServer(grpcServer, rpcServer)

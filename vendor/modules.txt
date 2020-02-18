@@ -151,7 +151,6 @@ github.com/videocoin/cloud-api/profiles/v1
 github.com/videocoin/cloud-api/rpc
 github.com/videocoin/cloud-api/streams/private/v1
 github.com/videocoin/cloud-api/streams/v1
-github.com/videocoin/cloud-api/syncer/v1
 github.com/videocoin/cloud-api/validator/v1
 # github.com/videocoin/cloud-pkg v0.0.6 => ../cloud-pkg
 github.com/videocoin/cloud-pkg/consul
