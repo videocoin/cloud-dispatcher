@@ -94,15 +94,17 @@ func NewService(cfg *Config) (*Service, error) {
 	}
 
 	rpcConfig := &rpc.RpcServerOpts{
-		Addr:      cfg.RPCAddr,
-		Accounts:  accounts,
-		Emitter:   emitter,
-		Streams:   streams,
-		Validator: validator,
-		Miners:    miners,
-		Logger:    cfg.Logger,
-		DM:        dm,
-		Consul:    consulCli,
+		Addr:       cfg.RPCAddr,
+		Accounts:   accounts,
+		Emitter:    emitter,
+		Streams:    streams,
+		Validator:  validator,
+		Miners:     miners,
+		Logger:     cfg.Logger,
+		DM:         dm,
+		Consul:     consulCli,
+		RPCNodeURL: cfg.RPCNodeURL,
+		SyncerURL:  cfg.SyncerURL,
 	}
 
 	rpc, err := rpc.NewRpcServer(rpcConfig)
