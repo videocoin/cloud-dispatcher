@@ -103,7 +103,7 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: syncerUrl
-            - name: BLOCKCHAIN_URL
+            - name: RPC_NODE_URL
               valueFrom:
                 secretKeyRef:
                   name: {{ .Chart.Name }}
