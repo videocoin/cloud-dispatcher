@@ -102,6 +102,8 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 		return nil, rpc.ErrRpcInternal
 	}
 
+	go s.markStreamAsCompletedIfNeeded(task)
+
 	return toTaskResponse(task), nil
 }
 

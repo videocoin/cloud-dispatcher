@@ -143,9 +143,9 @@ func (s *RpcServer) markStreamAsCompletedIfNeeded(task *datastore.Task) error {
 		logger.Infof("relation completed tasks count - %d", relCompletedTasksCount)
 
 		if relTasksCount == relCompletedTasksCount {
-			logger.Infof("publish done")
+			logger.Infof("complete stream")
 
-			_, err := s.streams.PublishDone(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
+			_, err := s.streams.Complete(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
 			if err != nil {
 				logFailedTo(s.logger, "file publish done", err)
 				return err
