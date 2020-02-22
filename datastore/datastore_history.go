@@ -51,6 +51,8 @@ func (ds *TasksHistoryDatastore) Log(ctx context.Context, minerID, taskID string
 	th := &TaskHistoryItem{
 		ID:        id,
 		CreatedAt: pointer.ToTime(time.Now()),
+		MinerID:   minerID,
+		TaskID:    taskID,
 	}
 
 	cols := []string{"id", "miner_id", "task_id", "created_at"}
