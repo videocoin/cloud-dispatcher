@@ -121,6 +121,9 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 					logger.Info("stream is completed")
 					return e.onStreamStatusCompleted(ctx, streamResp)
 				}
+			case streamsv1.StreamStatusCancelled:
+				logger.Info("stream was cancelled")
+				return e.onStreamStatusCancelled(ctx, streamResp)
 			}
 		}
 	case pstreamsv1.EventTypeDelete:
@@ -175,6 +178,56 @@ func (e *EventBus) onStreamStatusPending(
 		tracerext.SpanLogError(span, fmtErr)
 		logger.Error(fmtErr)
 		return err
+	}
+
+	return nil
+}
+
+func (e *EventBus) onStreamStatusCancelled(
+	ctx context.Context,
+	stream *pstreamsv1.StreamResponse,
+) error {
+	span, spanCtx := opentracing.StartSpanFromContext(ctx, "onStreamStatusCancelled")
+	defer span.Finish()
+
+	logger := e.logger.WithField("stream_id", stream.ID)
+
+	tasks, err := e.dm.GetTasksByStreamID(spanCtx, stream.ID)
+	if err != nil {
+		tracerext.SpanLogError(span, err)
+		return err
+	}
+
+	defer func() {
+		for _, task := range tasks {
+			atReq := &minersv1.AssignTaskRequest{
+				ClientID: task.ClientID.String,
+				TaskID:   task.ID,
+			}
+
+			logger.WithFields(logrus.Fields{
+				"client_id": atReq.ClientID,
+				"task_id":   atReq.TaskID,
+			}).Info("unassigning task")
+
+			_, err = e.miners.UnassignTask(context.Background(), atReq)
+			if err != nil {
+				fmtErr := fmt.Errorf("unassign task to miners service: %s", err)
+				tracerext.SpanLogError(span, fmtErr)
+				logger.Error(fmtErr)
+			}
+		}
+	}()
+
+	logger.Info("cancelling tasks")
+	for _, task := range tasks {
+		err = e.dm.MarkTaskAsCanceled(ctx, task)
+		if err != nil {
+			fmtErr := fmt.Errorf("failed to mark task as cancelled: %s", err)
+			tracerext.SpanLogError(span, fmtErr)
+			logger.Error(fmtErr)
+			return fmtErr
+		}
 	}
 
 	return nil
