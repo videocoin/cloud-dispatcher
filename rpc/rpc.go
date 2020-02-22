@@ -96,13 +96,15 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 		}
 	}()
 
-	err = s.dm.MarkTaskAsCompleted(ctx, task)
-	if err != nil {
-		logFailedTo(s.logger, "mark task as completed", err)
-		return nil, rpc.ErrRpcInternal
-	}
+	if task.Status < v1.TaskStatusCompleted {
+		err = s.dm.MarkTaskAsCompleted(ctx, task)
+		if err != nil {
+			logFailedTo(s.logger, "mark task as completed", err)
+			return nil, rpc.ErrRpcInternal
+		}
 
-	go s.markStreamAsCompletedIfNeeded(task)
+		go s.markStreamAsCompletedIfNeeded(task)
+	}
 
 	return toTaskResponse(task), nil
 }
@@ -119,37 +121,39 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 		return nil, err
 	}
 
-	isRetryable := s.markTaskAsRetryable(task)
+	if task.Status < v1.TaskStatusCompleted {
+		isRetryable := s.markTaskAsRetryable(task)
 
-	defer func() {
-		atReq := &minersv1.AssignTaskRequest{
-			ClientID: task.ClientID.String,
-			TaskID:   task.ID,
-		}
-		_, err = s.miners.UnassignTask(context.Background(), atReq)
-		if err != nil {
-			logFailedTo(s.logger, "unassign task to miners service", err)
-		}
+		defer func() {
+			atReq := &minersv1.AssignTaskRequest{
+				ClientID: task.ClientID.String,
+				TaskID:   task.ID,
+			}
+			_, err = s.miners.UnassignTask(context.Background(), atReq)
+			if err != nil {
+				logFailedTo(s.logger, "unassign task to miners service", err)
+			}
+
+			if !isRetryable {
+				_, err = s.streams.PublishDone(
+					context.Background(),
+					&pstreamsv1.StreamRequest{Id: task.StreamID},
+				)
+				if err != nil {
+					logFailedTo(s.logger, "publish done", err)
+				}
+			}
+		}()
 
 		if !isRetryable {
-			_, err = s.streams.PublishDone(
-				context.Background(),
-				&pstreamsv1.StreamRequest{Id: task.StreamID},
-			)
+			err = s.dm.MarkTaskAsFailed(ctx, task)
 			if err != nil {
-				logFailedTo(s.logger, "publish done", err)
+				logFailedTo(s.logger, "mark task as failed", err)
+				return nil, rpc.ErrRpcInternal
 			}
-		}
-	}()
 
-	if !isRetryable {
-		err = s.dm.MarkTaskAsFailed(ctx, task)
-		if err != nil {
-			logFailedTo(s.logger, "mark task as failed", err)
-			return nil, rpc.ErrRpcInternal
+			go s.markStreamAsFailedIfNeeded(task)
 		}
-
-		go s.markStreamAsFailedIfNeeded(task)
 	}
 
 	return toTaskResponse(task), nil
