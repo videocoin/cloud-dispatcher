@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/mailru/dbr"
 
@@ -62,6 +63,8 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 
 	logger := s.logger.WithField("client_id", miner.Id)
 
+	logger.Infof("tags %+v", miner.Tags)
+
 	if forceTaskID, ok := miner.Tags["force_task_id"]; ok {
 		task, err = s.dm.GetPendingTaskByID(ctx, forceTaskID)
 		if err != nil {
@@ -73,39 +76,66 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 		}
 	}
 
+	if task != nil {
+		return task, nil
+	}
+
+	ft, err := s.miners.GetForceTaskList(ctx, &prototypes.Empty{})
+	if err != nil {
+		logFailedTo(logger, "get force task ids", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false)
+	if err != nil {
+		logFailedTo(s.logger, "get pending task", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
 	if task == nil {
-		ft, err := s.miners.GetForceTaskList(ctx, &prototypes.Empty{})
-		if err != nil {
-			logFailedTo(logger, "get force task ids", err)
-			return nil, rpc.ErrRpcNotFound
-		}
+		return nil, rpc.ErrRpcNotFound
+	}
 
-		task, err = s.dm.GetPendingTask(ctx, ft.Ids)
-		if err != nil {
-			logFailedTo(s.logger, "get pending task", err)
-			return nil, rpc.ErrRpcInternal
-		}
-
-		if task == nil {
-			return nil, rpc.ErrRpcNotFound
-		}
-
-		taskLogFound := false
-		taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
-		if err == nil {
-			for _, taskLogItem := range taskLog {
-				if taskLogItem.ID == task.ID {
-					taskLogFound = true
-				}
+	taskLogFound := false
+	taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
+	if err == nil {
+		for _, taskLogItem := range taskLog {
+			if taskLogItem.ID == task.ID {
+				taskLogFound = true
 			}
 		}
+	}
 
-		if taskLogFound {
-			ft.Ids = append(ft.Ids, task.ID)
-			task, err = s.dm.GetPendingTask(ctx, ft.Ids)
-			if err != nil {
-				logFailedTo(s.logger, "get pending task (retry)", err)
-				return nil, rpc.ErrRpcInternal
+	if taskLogFound {
+		ft.Ids = append(ft.Ids, task.ID)
+		task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false)
+		if err != nil {
+			logFailedTo(s.logger, "get pending task (retry)", err)
+			return nil, rpc.ErrRpcInternal
+		}
+	}
+
+	if hw, ok := miner.Tags["hw"]; ok {
+		fullHDProfileID := "45d5ef05-efef-4606-6fa3-48f42d3f0b96"
+		if hw == "raspberrypi" {
+			if task.ProfileID != fullHDProfileID && task.IsOutputFile() {
+				cmdline := strings.Replace(task.Cmdline, "-c:v libx264", "-c:v h264_omx", -1)
+				err := s.dm.UpdateTaskCommandLine(ctx, task, cmdline)
+				if err != nil {
+					logFailedTo(s.logger, "update command line for raspberrypi", err)
+					return nil, rpc.ErrRpcInternal
+				}
+			} else {
+				excludeProfileIds := []string{fullHDProfileID}
+				task, err = s.dm.GetPendingTask(ctx, ft.Ids, excludeProfileIds, true)
+				if err != nil {
+					logFailedTo(s.logger, "get pending task for raspberrypi", err)
+					return nil, rpc.ErrRpcInternal
+				}
+
+				if task == nil {
+					return nil, rpc.ErrRpcNotFound
+				}
 			}
 		}
 	}

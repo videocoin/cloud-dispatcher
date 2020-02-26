@@ -244,7 +244,7 @@ func (ds *TaskDatastore) GetPendingByID(ctx context.Context, id string) (*Task, 
 	return task, nil
 }
 
-func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds []string) (*Task, error) {
+func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds, excludeProfileIds []string, onlyVOD bool) (*Task, error) {
 	var sess *dbr.Session
 	var tx *dbr.Tx
 
@@ -273,8 +273,16 @@ func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds []string
 		Where("status = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)]).
 		Where("client_id IS NULL")
 
-	if len(excludeIds) > 0 {
-		qs = qs.Where("ID NOT IN ?", excludeIds)
+	if excludeIds != nil && len(excludeIds) > 0 {
+		qs = qs.Where("id NOT IN ?", excludeIds)
+	}
+
+	if excludeProfileIds != nil && len(excludeProfileIds) > 0 {
+		qs = qs.Where("profile_id NOT IN ?", excludeProfileIds)
+	}
+
+	if onlyVOD {
+		qs = qs.Where("is_live = 0")
 	}
 
 	err := qs.
@@ -431,6 +439,42 @@ func (ds *TaskDatastore) UpdateStreamContract(
 		Where("id = ?", task.ID).
 		Set("stream_contract_id", task.StreamContractID).
 		Set("stream_contract_address", task.StreamContractAddress)
+
+	_, err := builder.Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *TaskDatastore) UpdateCommandLine(ctx context.Context, task *Task, cmdline string) error {
+	var sess *dbr.Session
+	var tx *dbr.Tx
+
+	sess, _ = DbSessionFromContext(ctx)
+	if sess == nil {
+		sess = ds.conn.NewSession(nil)
+	}
+
+	tx, _ = DbTxFromContext(ctx)
+	if tx == nil {
+		tx, err := sess.Begin()
+		if err != nil {
+			return err
+		}
+
+		defer func() {
+			tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	task.Cmdline = cmdline
+	builder := tx.
+		Update(ds.table).
+		Where("id = ?", task.ID).
+		Set("cmdline", task.Cmdline)
 
 	_, err := builder.Exec()
 	if err != nil {

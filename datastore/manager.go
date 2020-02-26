@@ -177,6 +177,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				StreamContractAddress: dbr.NewNullString(stream.StreamContractAddress),
 				MachineType:           dbr.NewNullString(p.MachineType),
 				Cmdline:               renderResp.Render,
+				IsLive:                false,
 			}
 
 			err = m.ds.Tasks.Create(ctx, task)
@@ -202,6 +203,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	task := TaskFromStreamResponse(stream)
 	task.MachineType = dbr.NewNullString(p.MachineType)
 	task.Status = v1.TaskStatusPending
+	task.IsLive = true
 
 	logger.Debugf("task %+v\n", task)
 
@@ -289,14 +291,14 @@ func (m *DataManager) DeleteTask(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (m *DataManager) GetPendingTask(ctx context.Context, excludeIds []string) (*Task, error) {
+func (m *DataManager) GetPendingTask(ctx context.Context, excludeIds, excludeProfileIds []string, onlyVOD bool) (*Task, error) {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
 		return nil, failedTo("get pending task", err)
 	}
 	defer tx.RollbackUnlessCommitted()
 
-	task, err := m.ds.Tasks.GetPendingTask(ctx, excludeIds)
+	task, err := m.ds.Tasks.GetPendingTask(ctx, excludeIds, excludeProfileIds, onlyVOD)
 	if err != nil {
 		return nil, err
 	}
@@ -457,6 +459,26 @@ func (m *DataManager) UpdateTaskStreamContract(ctx context.Context, task *Task, 
 	defer tx.RollbackUnlessCommitted()
 
 	err = m.ds.Tasks.UpdateStreamContract(ctx, task, id, address)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DataManager) UpdateTaskCommandLine(ctx context.Context, task *Task, cmdline string) error {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("update task command line", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.Tasks.UpdateCommandLine(ctx, task, cmdline)
 	if err != nil {
 		return err
 	}

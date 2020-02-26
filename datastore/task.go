@@ -25,6 +25,7 @@ type Task struct {
 	StreamContractID      dbr.NullInt64  `db:"stream_contract_id"`
 	StreamContractAddress dbr.NullString `db:"stream_contract_address"`
 	MachineType           dbr.NullString `db:"machine_type"`
+	IsLive                bool           `db:"is_live"`
 }
 
 func TaskFromStreamResponse(s *pstreamsv1.StreamResponse) *Task {
