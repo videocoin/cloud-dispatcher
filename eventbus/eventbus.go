@@ -213,7 +213,7 @@ func (e *EventBus) handleTaskEvent(d amqp.Delivery) error {
 				return err
 			}
 
-			if task.Status == v1.TaskStatusPending {
+			if req.Status == v1.TaskStatusPending {
 				err = e.dm.MarkTaskAsPending(ctx, task)
 				if err != nil {
 					logger.Errorf("failed to mark task as pending: %s", err)

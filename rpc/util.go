@@ -250,6 +250,7 @@ func (s *RpcServer) markTaskAsRetryable(task *datastore.Task) bool {
 			if err != nil {
 				logFailedTo(s.logger, "mark task as pending (failed)", err)
 			} else {
+				s.dm.ClearClientID(ctx, task)
 				isRetryable = true
 			}
 		}
