@@ -63,14 +63,15 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 
 	logger := s.logger.WithField("client_id", miner.Id)
 
-	logger.Infof("tags %+v", miner.Tags)
-
 	if forceTaskID, ok := miner.Tags["force_task_id"]; ok {
+		logger.Info("getting force task")
+
 		task, err = s.dm.GetPendingTaskByID(ctx, forceTaskID)
 		if err != nil {
 			logFailedTo(logger, "get force task", err)
 			return nil, rpc.ErrRpcInternal
 		}
+
 		if task.Status != v1.TaskStatusPending {
 			task = nil
 		}
@@ -80,11 +81,17 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 		return task, nil
 	}
 
+	logger.Info("getting force task list")
+
 	ft, err := s.miners.GetForceTaskList(ctx, &prototypes.Empty{})
 	if err != nil {
 		logFailedTo(logger, "get force task ids", err)
 		return nil, rpc.ErrRpcInternal
 	}
+
+	logger.Infof("force task list: %+v", ft)
+
+	logger.Info("getting pending task (default)")
 
 	task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false)
 	if err != nil {
@@ -108,6 +115,9 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 
 	if taskLogFound {
 		ft.Ids = append(ft.Ids, task.ID)
+
+		logger.Info("getting pending task (exclude task ids)")
+
 		task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false)
 		if err != nil {
 			logFailedTo(s.logger, "get pending task (retry)", err)
@@ -116,6 +126,8 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 	}
 
 	if hw, ok := miner.Tags["hw"]; ok {
+		logger.Info("raspberrypi pi miner")
+
 		fullHDProfileID := "45d5ef05-efef-4606-6fa3-48f42d3f0b96"
 		if hw == "raspberrypi" {
 			if task.ProfileID != fullHDProfileID && task.IsOutputFile() {

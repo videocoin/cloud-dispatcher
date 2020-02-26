@@ -24,6 +24,8 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 
 	logger := s.logger.WithField("client_id", req.ClientID)
 
+	logger.Info("get pending task")
+
 	task, err := s.getPendingTask(miner)
 	if err != nil {
 		return nil, err
@@ -34,6 +36,8 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 			"stream_contract_id": task.StreamContractID.Int64,
 			"chunk_id":           task.Output.Num,
 		})
+
+		logger.Info("adding input chunk")
 
 		achReq := &emitterv1.AddInputChunkIdRequest{
 			StreamContractId: uint64(task.StreamContractID.Int64),
@@ -49,6 +53,8 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 			return nil, rpc.ErrRpcNotFound
 		}
 	}
+
+	logger.Info("assigning task")
 
 	err = s.assignTask(task, miner)
 	if err != nil {
