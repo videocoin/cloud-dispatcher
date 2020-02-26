@@ -483,3 +483,39 @@ func (ds *TaskDatastore) UpdateCommandLine(ctx context.Context, task *Task, cmdl
 
 	return nil
 }
+
+func (ds *TaskDatastore) ClearClientID(ctx context.Context, task *Task) error {
+	var sess *dbr.Session
+	var tx *dbr.Tx
+
+	sess, _ = DbSessionFromContext(ctx)
+	if sess == nil {
+		sess = ds.conn.NewSession(nil)
+	}
+
+	tx, _ = DbTxFromContext(ctx)
+	if tx == nil {
+		tx, err := sess.Begin()
+		if err != nil {
+			return err
+		}
+
+		defer func() {
+			tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	task.ClientID = dbr.NewNullString(nil)
+	builder := tx.
+		Update(ds.table).
+		Where("id = ?", task.ID).
+		Set("client_id", task.ClientID)
+
+	_, err := builder.Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

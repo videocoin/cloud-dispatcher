@@ -9,6 +9,7 @@ import (
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
+	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
@@ -56,6 +57,12 @@ func (e *EventBus) Start() error {
 	if err != nil {
 		return err
 	}
+
+	err = e.mq.Consumer("tasks.events", 1, false, e.handleTaskEvent)
+	if err != nil {
+		return err
+	}
+
 	return e.mq.Run()
 }
 
@@ -156,6 +163,71 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 			}
 		}
 	case pstreamsv1.EventTypeUnknown:
+		e.logger.Error("event type is unknown")
+	}
+
+	return nil
+}
+
+func (e *EventBus) handleTaskEvent(d amqp.Delivery) error {
+	var span opentracing.Span
+	tracer := opentracing.GlobalTracer()
+	spanCtx, err := tracer.Extract(opentracing.TextMap, mqmux.RMQHeaderCarrier(d.Headers))
+
+	e.logger.Debugf("handling body: %+v", string(d.Body))
+
+	if err != nil {
+		span = tracer.StartSpan("eventbus.handleTaskEvent")
+	} else {
+		span = tracer.StartSpan("eventbus.handleTaskEvent", ext.RPCServerOption(spanCtx))
+	}
+
+	defer span.Finish()
+
+	req := new(v1.Event)
+	err = json.Unmarshal(d.Body, req)
+	if err != nil {
+		tracerext.SpanLogError(span, err)
+		return err
+	}
+
+	span.SetTag("task_id", req.TaskID)
+	span.SetTag("event_type", req.Type.String())
+
+	logger := e.logger.WithFields(logrus.Fields{
+		"stream_id":  req.TaskID,
+		"event_type": req.Type.String(),
+	})
+	logger.Debugf("handling request %+v", req)
+
+	ctx := opentracing.ContextWithSpan(context.Background(), span)
+
+	switch req.Type {
+	case v1.EventTypeUpdateStatus:
+		{
+			logger.Info("getting task")
+
+			task, err := e.dm.GetTaskByID(ctx, req.TaskID)
+			if err != nil {
+				logger.Errorf("failed to get task: %s", err)
+				return err
+			}
+
+			if task.Status == v1.TaskStatusPending {
+				err = e.dm.MarkTaskAsPending(ctx, task)
+				if err != nil {
+					logger.Errorf("failed to mark task as pending: %s", err)
+					return err
+				}
+			}
+
+			err = e.dm.ClearClientID(ctx, task)
+			if err != nil {
+				logger.Errorf("failed to clear client id: %s", err)
+				return err
+			}
+		}
+	case v1.EventTypeUnknown:
 		e.logger.Error("event type is unknown")
 	}
 

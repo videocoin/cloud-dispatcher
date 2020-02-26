@@ -35,6 +35,10 @@ func (c *Component) Render() string {
 }
 
 func (p *Param) Render() string {
+	if p.Value == "" {
+		return p.Key
+	}
+
 	return p.Key + " " + p.Value
 }
 

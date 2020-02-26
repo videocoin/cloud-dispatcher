@@ -530,3 +530,23 @@ func (m *DataManager) GetTaskLog(ctx context.Context, taskID string) ([]*TaskHis
 
 	return items, nil
 }
+
+func (m *DataManager) ClearClientID(ctx context.Context, task *Task) error {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("clear client id", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.Tasks.ClearClientID(ctx, task)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
