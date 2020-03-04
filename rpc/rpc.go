@@ -242,14 +242,38 @@ func (s *RpcServer) Register(ctx context.Context, req *minersv1.RegistrationRequ
 func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
 	resp := &v1.InternalConfigResponse{}
 
+	miners, err := s.miners.All(context.Background(), &prototypes.Empty{})
+	excludeClientIds := []string{}
+	if miners != nil && len(miners.Items) > 0 {
+		for _, miner := range miners.Items {
+			if miner.Status == minersv1.MinerStatusIdle ||
+				miner.Status == minersv1.MinerStatusBusy {
+				excludeClientIds = append(excludeClientIds, miner.Id)
+			}
+		}
+	}
+
 	clientIds, err := s.consul.GetTranscoderClientIds()
 	if err != nil {
 		return nil, err
 	}
 
 	if len(clientIds) > 0 {
-		rand.Seed(time.Now().Unix())
-		resp.ClientId = clientIds[rand.Intn(len(clientIds))]
+		for {
+			rand.Seed(time.Now().Unix())
+			found := false
+			resp.ClientId = clientIds[rand.Intn(len(clientIds))]
+			for _, exludeClientID := range excludeClientIds {
+				if resp.ClientId == exludeClientID {
+					found = true
+					break
+				}
+			}
+			if !found {
+				break
+			}
+		}
+
 	}
 
 	ksPairs, err := s.consul.GetTranscoderKeyAndSecret()
