@@ -94,7 +94,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	tasks := []*Task{}
 
 	getProfileReq := &profilesv1.ProfileRequest{
-		Id: stream.ProfileID,
+		ID: stream.ProfileID,
 	}
 
 	p, err := m.profiles.Get(ctx, getProfileReq)
@@ -149,7 +149,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 			newSegmentNum := segmentNum + 1
 			newSegmentURI := fmt.Sprintf("%d.ts", newSegmentNum)
 			profileReq := &profilesv1.RenderRequest{
-				Id:         stream.ProfileID,
+				ID:         stream.ProfileID,
 				Input:      inputURL,
 				Output:     fmt.Sprintf("%s/%s", outputPath, newSegmentURI),
 				Components: components,
@@ -208,7 +208,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	logger.Debugf("task %+v\n", task)
 
 	profileReq := &profilesv1.RenderRequest{
-		Id:     task.ProfileID,
+		ID:     task.ProfileID,
 		Input:  task.Input.GetURI(),
 		Output: fmt.Sprintf("%s/%s", task.Output.GetPath(), "index.m3u8"),
 	}
