@@ -178,6 +178,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				MachineType:           dbr.NewNullString(p.MachineType),
 				Cmdline:               renderResp.Render,
 				IsLive:                false,
+				Capacity:              p.Capacity,
 			}
 
 			err = m.ds.Tasks.Create(ctx, task)
@@ -204,6 +205,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	task.MachineType = dbr.NewNullString(p.MachineType)
 	task.Status = v1.TaskStatusPending
 	task.IsLive = true
+	task.Capacity = p.Capacity
 
 	logger.Debugf("task %+v\n", task)
 

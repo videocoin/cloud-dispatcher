@@ -66,7 +66,7 @@ func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
 
 	cols := []string{
 		"id", "stream_id", "owner_id", "created_at", "status", "profile_id", "input", "output", "cmdline",
-		"machine_type", "stream_contract_id", "stream_contract_address"}
+		"machine_type", "stream_contract_id", "stream_contract_address", "capacity"}
 	_, err := tx.InsertInto(ds.table).Columns(cols...).Record(task).Exec()
 	if err != nil {
 		return err
