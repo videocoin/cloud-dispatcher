@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -14,7 +13,7 @@ var (
 	sentryDSN string
 )
 
-func Init(serviceName string, serviceVersion string) error {
+func Init(serviceName string, serviceVersion string) {
 	sentryDSN = os.Getenv("SENTRY_DSN")
 
 	loglevel = os.Getenv("LOGLEVEL")
@@ -24,7 +23,7 @@ func Init(serviceName string, serviceVersion string) error {
 
 	level, err := logrus.ParseLevel(loglevel)
 	if err != nil {
-		return fmt.Errorf("not a valid log level: %q", loglevel)
+		level = logrus.InfoLevel
 	}
 
 	logrus.SetLevel(level)
@@ -60,6 +59,4 @@ func Init(serviceName string, serviceVersion string) error {
 			logrus.AddHook(sentryHook)
 		}
 	}
-
-	return nil
 }
