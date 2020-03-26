@@ -8,6 +8,7 @@ import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 import "profiles/v1/profile.proto";
+import "github.com/videocoin/cloud-api/miners/v1/miner.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -89,16 +90,19 @@ message ProfileResponse {
     string id = 1 [(gogoproto.customname) = "ID"];
     string name = 2;
     string description = 3;
-	bool is_enabled = 4;
+    bool is_enabled = 4;
+    cloud.api.miners.v1.CapacityInfo capacity = 5;
 }
 
 message GetProfileResponse {
     string id = 1 [(gogoproto.customname) = "ID"];
     string name = 2;
     string description = 3;
-	bool is_enabled = 4;
-	string machine_type = 5;
-	repeated cloud.api.profiles.v1.Component components = 6;
+    bool is_enabled = 4;
+    string machine_type = 5;
+    float cost = 6;
+    repeated cloud.api.profiles.v1.Component components = 7;
+    cloud.api.miners.v1.CapacityInfo capacity = 8;
 }
 
 message ProfileListResponse {

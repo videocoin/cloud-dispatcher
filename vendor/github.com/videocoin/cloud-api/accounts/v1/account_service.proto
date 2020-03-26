@@ -17,63 +17,14 @@ option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
 service AccountService {
-    rpc Get(AccountRequest) returns (AccountProfile) {
-        option (google.api.http) = {
-            get: "/api/v1/accounts/{id}"
-        };
-    }
-
-    rpc GetByAddress(Address) returns (AccountProfile) {}
+    rpc Get(AccountRequest) returns (AccountProfile) {}
     rpc GetByOwner(AccountRequest) returns (AccountProfile) {}
     rpc Create(AccountRequest) returns (AccountProfile) {}
-    rpc List(google.protobuf.Empty) returns (ListResponse) {}
-
     rpc Key(AccountRequest) returns (AccountKey) {}
-    rpc Keys(google.protobuf.Empty) returns (AccountKeys) {}
-
-    rpc CreateTransfer(CreateTransferRequest) returns (TransferResponse) {}
-    rpc GetTransfer(TransferRequest) returns (TransferResponse) {}
-    rpc ExecuteTransfer(ExecuteTransferRequest) returns (google.protobuf.Empty) {}
 }
 
 message AccountRequest {
     string id = 1;
     string owner_id = 2;
 }
-
-message Address {
-    string address = 1;
-}
-
-message ListResponse {
-    repeated AccountProfile items = 1;
-}
-
-message CreateTransferRequest {
-    string user_id = 1;
-    string to_address = 2;
-    bytes amount = 3;
-}
-
-message TransferRequest {
-    string id = 1;
-}
-
-message TransferResponse {
-    string id = 1;
-    string to_address = 2;
-    string pin = 3;
-    bytes amount = 4;
-
-    google.protobuf.Timestamp expires_at = 5 [
-        (gogoproto.stdtime) = true
-    ];
-}
-
-message ExecuteTransferRequest {
-    string id = 1;
-    string user_id = 2;
-    string user_email = 3;
-}
-
 

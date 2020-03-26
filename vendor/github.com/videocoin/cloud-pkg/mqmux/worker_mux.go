@@ -104,17 +104,11 @@ func (m *WorkerMux) Publisher(name string) error {
 func (m *WorkerMux) Run() error {
 	m.Logger.Info("running consumers")
 
-	errCh := make(chan error, 1)
 	for name, wc := range m.consumers {
-		go func(name string, wc *WorkerConsumer) {
-			errCh <- m.consume(name, wc)
-		}(name, wc)
+		go m.consume(name, wc)
 	}
 
-	select {
-	case err := <-errCh:
-		return err
-	}
+	return nil
 }
 
 func (m *WorkerMux) Close() error {
