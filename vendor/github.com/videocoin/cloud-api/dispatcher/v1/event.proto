@@ -22,10 +22,17 @@ enum EventType {
     EVENT_TYPE_UPDATE = 2 [(gogoproto.enumvalue_customname) = "EventTypeUpdate"];
     EVENT_TYPE_DELETE = 3 [(gogoproto.enumvalue_customname) = "EventTypeDelete"];
     EVENT_TYPE_UPDATE_STATUS = 4 [(gogoproto.enumvalue_customname) = "EventTypeUpdateStatus"];
+    EVENT_TYPE_SEGMENT_TRANSCODED = 5 [(gogoproto.enumvalue_customname) = "EventTypeSegmentTranscoded"];
 }
 
 message Event {
     EventType type = 1;
     string task_id = 2 [(gogoproto.customname) = "TaskID"];
     cloud.api.dispatcher.v1.TaskStatus status = 3;
+    string stream_id = 4 [(gogoproto.customname) = "StreamID"];
+    string client_id = 5 [(gogoproto.customname) = "ClientID"];
+    string profile_id = 6 [(gogoproto.customname) = "ProfileID"];
+    int32 user_id = 7 [(gogoproto.customname) = "UserID"];
+    uint64 num = 8;
+    double duration = 9;
 }
