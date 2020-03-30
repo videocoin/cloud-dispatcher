@@ -93,25 +93,6 @@ func NewService(cfg *Config) (*Service, error) {
 		return nil, err
 	}
 
-	rpcConfig := &rpc.RpcServerOpts{
-		Addr:       cfg.RPCAddr,
-		Accounts:   accounts,
-		Emitter:    emitter,
-		Streams:    streams,
-		Validator:  validator,
-		Miners:     miners,
-		Logger:     cfg.Logger,
-		DM:         dm,
-		Consul:     consulCli,
-		RPCNodeURL: cfg.RPCNodeURL,
-		SyncerURL:  cfg.SyncerURL,
-	}
-
-	rpc, err := rpc.NewRpcServer(rpcConfig)
-	if err != nil {
-		return nil, err
-	}
-
 	ebConfig := &eventbus.Config{
 		URI:     cfg.MQURI,
 		Name:    cfg.Name,
@@ -121,6 +102,26 @@ func NewService(cfg *Config) (*Service, error) {
 		Miners:  miners,
 	}
 	eb, err := eventbus.New(ebConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	rpcConfig := &rpc.RpcServerOpts{
+		Addr:       cfg.RPCAddr,
+		Accounts:   accounts,
+		Emitter:    emitter,
+		Streams:    streams,
+		Validator:  validator,
+		Miners:     miners,
+		Logger:     cfg.Logger,
+		DM:         dm,
+		EB:         eb,
+		Consul:     consulCli,
+		RPCNodeURL: cfg.RPCNodeURL,
+		SyncerURL:  cfg.SyncerURL,
+	}
+
+	rpc, err := rpc.NewRpcServer(rpcConfig)
 	if err != nil {
 		return nil, err
 	}

@@ -332,3 +332,24 @@ func (s *RpcServer) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.C
 		SyncerURL:  s.syncerURL,
 	}, nil
 }
+
+func (s *RpcServer) MarkSegmentAsTranscoded(ctx context.Context, req *v1.SegmentRequest) (*prototypes.Empty, error) {
+	logger := s.logger.WithFields(logrus.Fields{
+		"task_id":    req.TaskID,
+		"stream_id":  req.StreamID,
+		"client_id":  req.ClientID,
+		"profile_id": req.ProfileID,
+		"user_id":    req.UserID,
+		"num":        req.Num,
+		"duration":   req.Duration,
+	})
+	logger.Info("segment transcoded")
+
+	err := s.eb.EmitSegmentTranscoded(ctx, req)
+	if err != nil {
+		logger.Errorf("failed to emit segment transcoded: %s", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	return new(prototypes.Empty), nil
+}

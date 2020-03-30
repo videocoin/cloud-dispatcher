@@ -63,6 +63,11 @@ func (e *EventBus) Start() error {
 		return err
 	}
 
+	err = e.mq.Publisher("dispatcher.events")
+	if err != nil {
+		return err
+	}
+
 	return e.mq.Run()
 }
 
@@ -347,6 +352,42 @@ func (e *EventBus) onStreamStatusCompleted(
 		tracerext.SpanLogError(span, fmtErr)
 		logger.Error(fmtErr)
 		return fmtErr
+	}
+
+	return nil
+}
+
+func (e *EventBus) EmitSegmentTranscoded(ctx context.Context, req *v1.SegmentRequest) error {
+	headers := make(amqp.Table)
+
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		ext.SpanKindRPCServer.Set(span)
+		ext.Component.Set(span, "transcoder")
+		err := span.Tracer().Inject(
+			span.Context(),
+			opentracing.TextMap,
+			mqmux.RMQHeaderCarrier(headers),
+		)
+		if err != nil {
+			e.logger.Errorf("failed to span inject: %s", err)
+		}
+	}
+
+	event := &v1.Event{
+		Type:      v1.EventTypeSegmentTranscoded,
+		TaskID:    req.TaskID,
+		StreamID:  req.StreamID,
+		ClientID:  req.ClientID,
+		ProfileID: req.ProfileID,
+		UserID:    req.UserID,
+		Num:       req.Num,
+		Duration:  req.Duration,
+	}
+
+	err := e.mq.PublishX("dispatcher.events", event, headers)
+	if err != nil {
+		return err
 	}
 
 	return nil
