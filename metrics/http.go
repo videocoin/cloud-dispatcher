@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"github.com/labstack/echo"
-	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -40,5 +40,5 @@ func (s *HTTPServer) Stop() error {
 }
 
 func (s *HTTPServer) routes() {
-	s.e.GET("/metrics", echo.WrapHandler(prometheus.Handler()))
+	s.e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 }

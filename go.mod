@@ -4,8 +4,8 @@ go 1.13
 
 require (
 	github.com/AlekSi/pointer v1.1.0
-	github.com/go-playground/locales v0.13.0
-	github.com/go-playground/universal-translator v0.17.0
+	github.com/go-playground/locales v0.13.0 // indirect
+	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/gogo/protobuf v1.3.1
 	github.com/grafov/m3u8 v0.11.1
@@ -22,7 +22,7 @@ require (
 	github.com/videocoin/cloud-pkg v0.0.6
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
 	google.golang.org/grpc v1.21.1
-	gopkg.in/go-playground/validator.v9 v9.31.0
+	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
 )
 
 replace github.com/videocoin/cloud-api => ../cloud-api

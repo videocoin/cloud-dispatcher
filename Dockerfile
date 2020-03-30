@@ -1,4 +1,4 @@
-FROM golang:1.12.4 as builder
+FROM golang:1.14 as builder
 WORKDIR /go/src/github.com/videocoin/cloud-dispatcher
 COPY . .
 RUN make build

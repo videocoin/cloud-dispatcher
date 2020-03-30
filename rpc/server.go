@@ -20,7 +20,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-type RpcServerOpts struct {
+type ServerOpts struct {
 	Logger     *logrus.Entry
 	Addr       string
 	DM         *datastore.DataManager
@@ -35,7 +35,7 @@ type RpcServerOpts struct {
 	RPCNodeURL string
 }
 
-type RpcServer struct {
+type Server struct {
 	logger     *logrus.Entry
 	addr       string
 	grpc       *grpc.Server
@@ -45,7 +45,6 @@ type RpcServer struct {
 	streams    streamsv1.StreamsServiceClient
 	validator  validatorv1.ValidatorServiceClient
 	miners     minersv1.MinersServiceClient
-	v          *requestValidator
 	dm         *datastore.DataManager
 	eb         *eventbus.EventBus
 	consul     *consul.Client
@@ -53,7 +52,7 @@ type RpcServer struct {
 	rpcNodeURL string
 }
 
-func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
+func NewServer(opts *ServerOpts) (*Server, error) {
 	grpcOpts := grpcutil.DefaultServerOpts(opts.Logger)
 	grpcOpts = append(grpcOpts, grpc.MaxRecvMsgSize(1024*1024*1024))
 	grpcOpts = append(grpcOpts, grpc.MaxSendMsgSize(1024*1024*1024))
@@ -65,7 +64,7 @@ func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 		return nil, err
 	}
 
-	rpcServer := &RpcServer{
+	rpcServer := &Server{
 		addr:       opts.Addr,
 		grpc:       grpcServer,
 		listen:     listen,
@@ -75,7 +74,6 @@ func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 		validator:  opts.Validator,
 		miners:     opts.Miners,
 		logger:     opts.Logger.WithField("system", "rpc"),
-		v:          newRequestValidator(),
 		dm:         opts.DM,
 		eb:         opts.EB,
 		consul:     opts.Consul,
@@ -89,7 +87,7 @@ func NewRpcServer(opts *RpcServerOpts) (*RpcServer, error) {
 	return rpcServer, nil
 }
 
-func (s *RpcServer) Start() error {
+func (s *Server) Start() error {
 	s.logger.Infof("starting rpc server on %s", s.addr)
 	return s.grpc.Serve(s.listen)
 }

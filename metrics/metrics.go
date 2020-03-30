@@ -12,7 +12,6 @@ import (
 )
 
 type Metrics struct {
-	jobsTotalCount  *prometheus.GaugeVec
 	tasksTotalCount *prometheus.GaugeVec
 }
 

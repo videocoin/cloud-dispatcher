@@ -1,7 +1,7 @@
 package datastore
 
 import (
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql" // nolint
 	"github.com/mailru/dbr"
 )
 

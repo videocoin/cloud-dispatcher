@@ -6,6 +6,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/mailru/dbr"
+	"github.com/videocoin/cloud-pkg/dbrutil"
 	"github.com/videocoin/cloud-pkg/uuid4"
 )
 
@@ -22,23 +23,16 @@ func NewTasksHistoryDatastore(conn *dbr.Connection) (*TasksHistoryDatastore, err
 }
 
 func (ds *TasksHistoryDatastore) Log(ctx context.Context, minerID, taskID string) error {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -65,28 +59,21 @@ func (ds *TasksHistoryDatastore) Log(ctx context.Context, minerID, taskID string
 }
 
 func (ds *TasksHistoryDatastore) GetLogByTaskID(ctx context.Context, taskID string) ([]*TaskHistoryItem, error) {
-	var items []*TaskHistoryItem
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return nil, err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
 
+	var items []*TaskHistoryItem
 	sb := tx.Select("*").From(ds.table).Where("task_id = ?", taskID)
 	_, err := sb.LoadStructs(&items)
 	if err != nil {

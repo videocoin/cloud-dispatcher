@@ -5,11 +5,10 @@ import (
 	"errors"
 	"time"
 
-	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
-
 	"github.com/AlekSi/pointer"
-
 	"github.com/mailru/dbr"
+	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
+	"github.com/videocoin/cloud-pkg/dbrutil"
 	"github.com/videocoin/cloud-pkg/uuid4"
 )
 
@@ -30,23 +29,16 @@ func NewTaskDatastore(conn *dbr.Connection) (*TaskDatastore, error) {
 }
 
 func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -76,23 +68,16 @@ func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
 }
 
 func (ds *TaskDatastore) DeleteByID(ctx context.Context, id string) error {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -111,23 +96,16 @@ func (ds *TaskDatastore) DeleteByID(ctx context.Context, id string) error {
 }
 
 func (ds *TaskDatastore) GetList(ctx context.Context) ([]*Task, error) {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return nil, err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -144,23 +122,16 @@ func (ds *TaskDatastore) GetList(ctx context.Context) ([]*Task, error) {
 }
 
 func (ds *TaskDatastore) GetListByStreamID(ctx context.Context, streamID string) ([]*Task, error) {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return nil, err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -177,23 +148,16 @@ func (ds *TaskDatastore) GetListByStreamID(ctx context.Context, streamID string)
 }
 
 func (ds *TaskDatastore) GetByID(ctx context.Context, id string) (*Task, error) {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return nil, err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -211,23 +175,16 @@ func (ds *TaskDatastore) GetByID(ctx context.Context, id string) (*Task, error) 
 }
 
 func (ds *TaskDatastore) GetPendingByID(ctx context.Context, id string) (*Task, error) {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return nil, err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -245,23 +202,16 @@ func (ds *TaskDatastore) GetPendingByID(ctx context.Context, id string) (*Task, 
 }
 
 func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds, excludeProfileIds []string, onlyVOD bool) (*Task, error) {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return nil, err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -273,11 +223,11 @@ func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds, exclude
 		Where("status = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)]).
 		Where("client_id IS NULL")
 
-	if excludeIds != nil && len(excludeIds) > 0 {
+	if len(excludeIds) > 0 {
 		qs = qs.Where("id NOT IN ?", excludeIds)
 	}
 
-	if excludeProfileIds != nil && len(excludeProfileIds) > 0 {
+	if len(excludeProfileIds) > 0 {
 		qs = qs.Where("profile_id NOT IN ?", excludeProfileIds)
 	}
 
@@ -351,23 +301,16 @@ func (ds *TaskDatastore) markTaskStatusAs(
 	task *Task,
 	status v1.TaskStatus,
 ) error {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -411,23 +354,16 @@ func (ds *TaskDatastore) UpdateStreamContract(
 	id int64,
 	address string,
 ) error {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -449,23 +385,16 @@ func (ds *TaskDatastore) UpdateStreamContract(
 }
 
 func (ds *TaskDatastore) UpdateCommandLine(ctx context.Context, task *Task, cmdline string) error {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}
@@ -485,23 +414,16 @@ func (ds *TaskDatastore) UpdateCommandLine(ctx context.Context, task *Task, cmdl
 }
 
 func (ds *TaskDatastore) ClearClientID(ctx context.Context, task *Task) error {
-	var sess *dbr.Session
-	var tx *dbr.Tx
-
-	sess, _ = DbSessionFromContext(ctx)
-	if sess == nil {
-		sess = ds.conn.NewSession(nil)
-	}
-
-	tx, _ = DbTxFromContext(ctx)
-	if tx == nil {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
 		tx, err := sess.Begin()
 		if err != nil {
 			return err
 		}
 
 		defer func() {
-			tx.Commit()
+			err = tx.Commit()
 			tx.RollbackUnlessCommitted()
 		}()
 	}

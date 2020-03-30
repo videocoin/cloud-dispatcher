@@ -18,7 +18,7 @@ import (
 
 type Service struct {
 	cfg *Config
-	rpc *rpc.RpcServer
+	rpc *rpc.Server
 	eb  *eventbus.EventBus
 	mc  *metrics.Collector
 	ms  *metrics.HTTPServer
@@ -106,7 +106,7 @@ func NewService(cfg *Config) (*Service, error) {
 		return nil, err
 	}
 
-	rpcConfig := &rpc.RpcServerOpts{
+	rpcConfig := &rpc.ServerOpts{
 		Addr:       cfg.RPCAddr,
 		Accounts:   accounts,
 		Emitter:    emitter,
@@ -121,7 +121,7 @@ func NewService(cfg *Config) (*Service, error) {
 		SyncerURL:  cfg.SyncerURL,
 	}
 
-	rpc, err := rpc.NewRpcServer(rpcConfig)
+	rpc, err := rpc.NewServer(rpcConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -144,26 +144,43 @@ func NewService(cfg *Config) (*Service, error) {
 	return svc, nil
 }
 
-func (s *Service) Start() error {
-	s.cfg.Logger.Info("starting rpc server")
-	go s.rpc.Start()
+func (s *Service) Start(errCh chan error) {
+	go func() {
+		s.cfg.Logger.Info("starting rpc server")
+		errCh <- s.rpc.Start()
+	}()
 
-	s.cfg.Logger.Info("starting eventbus")
-	go s.eb.Start()
+	go func() {
+		s.cfg.Logger.Info("starting eventbus")
+		errCh <- s.eb.Start()
+	}()
 
-	s.cfg.Logger.Info("starting metrics collector")
-	go s.mc.Start()
+	go func() {
+		s.cfg.Logger.Info("starting metrics collector")
+		errCh <- s.mc.Start()
+	}()
 
-	s.cfg.Logger.Info("starting metrics server")
-	go s.ms.Start()
-
-	return nil
+	go func() {
+		s.cfg.Logger.Info("starting metrics server")
+		errCh <- s.ms.Start()
+	}()
 }
 
 func (s *Service) Stop() error {
-	s.eb.Stop()
-	s.ms.Stop()
-	s.mc.Stop()
+	err := s.eb.Stop()
+	if err != nil {
+		return err
+	}
+
+	err = s.ms.Stop()
+	if err != nil {
+		return err
+	}
+
+	err = s.mc.Stop()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

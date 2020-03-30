@@ -15,7 +15,7 @@ import (
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 )
 
-func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
+func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
 	miner, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
@@ -64,7 +64,7 @@ func (s *RpcServer) GetPendingTask(ctx context.Context, req *v1.TaskPendingReque
 	return toTaskResponse(task), nil
 }
 
-func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+func (s *Server) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
 	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
@@ -79,7 +79,7 @@ func (s *RpcServer) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task,
 	return toTaskResponse(task), nil
 }
 
-func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
 	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
@@ -115,7 +115,7 @@ func (s *RpcServer) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest
 	return toTaskResponse(task), nil
 }
 
-func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
 	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
@@ -165,7 +165,7 @@ func (s *RpcServer) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (
 	return toTaskResponse(task), nil
 }
 
-func (s *RpcServer) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*prototypes.Empty, error) {
+func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*prototypes.Empty, error) {
 	logger := s.logger.WithField("stream_id", req.StreamId)
 
 	relTasks, err := s.dm.GetTasksByStreamID(ctx, req.StreamId)
@@ -196,7 +196,7 @@ func (s *RpcServer) ValidateProof(ctx context.Context, req *validatorv1.Validate
 	return s.validator.ValidateProof(ctx, req)
 }
 
-func (s *RpcServer) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1.PingResponse, error) {
+func (s *Server) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1.PingResponse, error) {
 	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
@@ -217,7 +217,7 @@ func (s *RpcServer) Ping(ctx context.Context, req *minersv1.PingRequest) (*miner
 	return &minersv1.PingResponse{}, nil
 }
 
-func (s *RpcServer) Register(ctx context.Context, req *minersv1.RegistrationRequest) (*prototypes.Empty, error) {
+func (s *Server) Register(ctx context.Context, req *minersv1.RegistrationRequest) (*prototypes.Empty, error) {
 	_, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
@@ -239,10 +239,14 @@ func (s *RpcServer) Register(ctx context.Context, req *minersv1.RegistrationRequ
 	return &prototypes.Empty{}, nil
 }
 
-func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
+func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
 	resp := &v1.InternalConfigResponse{}
 
 	miners, err := s.miners.All(context.Background(), &prototypes.Empty{})
+	if err != nil {
+		return nil, err
+	}
+
 	excludeClientIds := []string{}
 	if miners != nil && len(miners.Items) > 0 {
 		for _, miner := range miners.Items {
@@ -294,10 +298,13 @@ func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfi
 			task, err := s.dm.GetTaskByID(context.Background(), minerResp.TaskId)
 			if err == nil && task == nil {
 				go func() {
-					s.miners.UnassignTask(
+					_, err := s.miners.UnassignTask(
 						context.Background(),
 						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
 					)
+					s.logger.
+						WithField("task_id", minerResp.TaskId).
+						Errorf("failed to unassign task: %s", err)
 				}()
 
 				continue
@@ -307,10 +314,13 @@ func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfi
 				task.Status == v1.TaskStatusFailed ||
 				task.Status == v1.TaskStatusCanceled {
 				go func() {
-					s.miners.UnassignTask(
+					_, err := s.miners.UnassignTask(
 						context.Background(),
 						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
 					)
+					s.logger.
+						WithField("task_id", minerResp.TaskId).
+						Errorf("failed to unassign task: %s", err)
 				}()
 
 				continue
@@ -326,14 +336,14 @@ func (s *RpcServer) GetInternalConfig(ctx context.Context, req *v1.InternalConfi
 	return resp, nil
 }
 
-func (s *RpcServer) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.ConfigResponse, error) {
+func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.ConfigResponse, error) {
 	return &v1.ConfigResponse{
 		RPCNodeURL: s.rpcNodeURL,
 		SyncerURL:  s.syncerURL,
 	}, nil
 }
 
-func (s *RpcServer) MarkSegmentAsTranscoded(ctx context.Context, req *v1.SegmentRequest) (*prototypes.Empty, error) {
+func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.SegmentRequest) (*prototypes.Empty, error) {
 	logger := s.logger.WithFields(logrus.Fields{
 		"task_id":    req.TaskID,
 		"stream_id":  req.StreamID,

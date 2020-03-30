@@ -22,12 +22,12 @@ var (
 	ErrClientIDNotFound = errors.New("client id not found")
 )
 
-func (s *RpcServer) authenticate(ctx context.Context, clientID string) (*minersv1.MinerResponse, error) {
+func (s *Server) authenticate(ctx context.Context, clientID string) (*minersv1.MinerResponse, error) {
 	if clientID == "" {
 		return nil, ErrClientIDIsEmpty
 	}
 
-	miner, err := s.miners.GetByID(context.Background(), &minersv1.MinerRequest{Id: clientID})
+	miner, err := s.miners.GetByID(ctx, &minersv1.MinerRequest{Id: clientID})
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (s *RpcServer) authenticate(ctx context.Context, clientID string) (*minersv
 	return miner, nil
 }
 
-func (s *RpcServer) getTask(id string) (*datastore.Task, error) {
+func (s *Server) getTask(id string) (*datastore.Task, error) {
 	task, err := s.dm.GetTaskByID(context.Background(), id)
 	if err != nil {
 		logFailedTo(s.logger, "get task", err)
@@ -53,14 +53,11 @@ func (s *RpcServer) getTask(id string) (*datastore.Task, error) {
 	return task, nil
 }
 
-func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Task, error) {
+func (s *Server) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Task, error) {
 	var err error
+	var task *datastore.Task
 
 	ctx := context.Background()
-
-	task := &datastore.Task{}
-	task = nil
-
 	logger := s.logger.WithField("client_id", miner.Id)
 
 	if forceTaskID, ok := miner.Tags["force_task_id"]; ok {
@@ -155,7 +152,7 @@ func (s *RpcServer) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Ta
 	return task, nil
 }
 
-func (s *RpcServer) markStreamAsCompletedIfNeeded(task *datastore.Task) error {
+func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
 	ctx := context.Background()
 
 	logger := s.logger.
@@ -168,7 +165,7 @@ func (s *RpcServer) markStreamAsCompletedIfNeeded(task *datastore.Task) error {
 		relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
 		if err != nil {
 			logFailedTo(s.logger, "get tasks by stream", err)
-			return err
+			return
 		}
 
 		relTasksCount := len(relTasks)
@@ -190,15 +187,13 @@ func (s *RpcServer) markStreamAsCompletedIfNeeded(task *datastore.Task) error {
 			_, err := s.streams.Complete(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
 			if err != nil {
 				logFailedTo(s.logger, "file publish done", err)
-				return err
+				return
 			}
 		}
 	}
-
-	return nil
 }
 
-func (s *RpcServer) markStreamAsFailedIfNeeded(task *datastore.Task) error {
+func (s *Server) markStreamAsFailedIfNeeded(task *datastore.Task) {
 	ctx := context.Background()
 
 	logger := s.logger.
@@ -210,7 +205,7 @@ func (s *RpcServer) markStreamAsFailedIfNeeded(task *datastore.Task) error {
 		relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
 		if err != nil {
 			logFailedTo(s.logger, "get tasks by stream", err)
-			return err
+			return
 		}
 
 		for _, relTask := range relTasks {
@@ -220,7 +215,7 @@ func (s *RpcServer) markStreamAsFailedIfNeeded(task *datastore.Task) error {
 					err := s.dm.MarkTaskAsCanceled(ctx, relTask)
 					if err != nil {
 						logFailedTo(s.logger, "mark task as canceled", err)
-						return err
+						return
 					}
 				}
 			}
@@ -233,13 +228,11 @@ func (s *RpcServer) markStreamAsFailedIfNeeded(task *datastore.Task) error {
 	)
 	if err != nil {
 		logFailedTo(s.logger, "update stream status", err)
-		return err
+		return
 	}
-
-	return nil
 }
 
-func (s *RpcServer) markTaskAsRetryable(task *datastore.Task) bool {
+func (s *Server) markTaskAsRetryable(task *datastore.Task) bool {
 	isRetryable := false
 	ctx := context.Background()
 	taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
@@ -250,7 +243,12 @@ func (s *RpcServer) markTaskAsRetryable(task *datastore.Task) bool {
 			if err != nil {
 				logFailedTo(s.logger, "mark task as pending (failed)", err)
 			} else {
-				s.dm.ClearClientID(ctx, task)
+				err := s.dm.ClearClientID(ctx, task)
+				if err != nil {
+					s.logger.
+						WithField("task_id", task.ID).
+						Errorf("failed to clear client id: %s", err)
+				}
 				isRetryable = true
 			}
 		}
@@ -259,7 +257,7 @@ func (s *RpcServer) markTaskAsRetryable(task *datastore.Task) bool {
 	return isRetryable
 }
 
-func (s *RpcServer) assignTask(task *datastore.Task, miner *minersv1.MinerResponse) error {
+func (s *Server) assignTask(task *datastore.Task, miner *minersv1.MinerResponse) error {
 	logger := s.logger.WithField("client_id", miner.Id)
 
 	task.ClientID = dbr.NewNullString(miner.Id)

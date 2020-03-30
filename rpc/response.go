@@ -9,7 +9,7 @@ import (
 func toTaskResponse(task *datastore.Task) *v1.Task {
 	v1Task := &v1.Task{}
 
-	copier.Copy(v1Task, task)
+	_ = copier.Copy(v1Task, task)
 
 	v1Task.ClientID = task.ClientID.String
 	v1Task.StreamID = task.StreamID

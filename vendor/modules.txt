@@ -10,12 +10,6 @@ github.com/certifi/gocertifi
 github.com/evalphobia/logrus_sentry
 # github.com/getsentry/raven-go v0.2.0
 github.com/getsentry/raven-go
-# github.com/go-playground/locales v0.13.0
-github.com/go-playground/locales
-github.com/go-playground/locales/currency
-github.com/go-playground/locales/en
-# github.com/go-playground/universal-translator v0.17.0
-github.com/go-playground/universal-translator
 # github.com/go-sql-driver/mysql v1.4.1
 github.com/go-sql-driver/mysql
 # github.com/gogo/googleapis v1.3.0
@@ -81,8 +75,6 @@ github.com/labstack/echo
 # github.com/labstack/gommon v0.2.9
 github.com/labstack/gommon/color
 github.com/labstack/gommon/log
-# github.com/leodido/go-urn v1.2.0
-github.com/leodido/go-urn
 # github.com/mailru/dbr v3.0.0+incompatible
 github.com/mailru/dbr
 github.com/mailru/dbr/dialect
@@ -105,6 +97,7 @@ github.com/pkg/errors
 # github.com/prometheus/client_golang v0.9.4
 github.com/prometheus/client_golang/prometheus
 github.com/prometheus/client_golang/prometheus/internal
+github.com/prometheus/client_golang/prometheus/promhttp
 # github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 github.com/prometheus/client_model/go
 # github.com/prometheus/common v0.4.1
@@ -155,6 +148,7 @@ github.com/videocoin/cloud-api/streams/v1
 github.com/videocoin/cloud-api/validator/v1
 # github.com/videocoin/cloud-pkg v0.0.6 => ../cloud-pkg
 github.com/videocoin/cloud-pkg/consul
+github.com/videocoin/cloud-pkg/dbrutil
 github.com/videocoin/cloud-pkg/grpcutil
 github.com/videocoin/cloud-pkg/hls
 github.com/videocoin/cloud-pkg/logger
@@ -231,6 +225,3 @@ google.golang.org/grpc/resolver/passthrough
 google.golang.org/grpc/stats
 google.golang.org/grpc/status
 google.golang.org/grpc/tap
-# gopkg.in/go-playground/validator.v9 v9.31.0
-gopkg.in/go-playground/validator.v9
-gopkg.in/go-playground/validator.v9/translations/en
