@@ -8,6 +8,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/mailru/dbr"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
+	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-pkg/dbrutil"
 	"github.com/videocoin/cloud-pkg/uuid4"
 )
@@ -58,7 +59,7 @@ func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
 
 	cols := []string{
 		"id", "stream_id", "owner_id", "created_at", "status", "profile_id", "input", "output", "cmdline",
-		"machine_type", "stream_contract_id", "stream_contract_address"}
+		"machine_type", "stream_contract_id", "stream_contract_address", "capacity"}
 	_, err := tx.InsertInto(ds.table).Columns(cols...).Record(task).Exec()
 	if err != nil {
 		return err
@@ -201,7 +202,10 @@ func (ds *TaskDatastore) GetPendingByID(ctx context.Context, id string) (*Task, 
 	return task, nil
 }
 
-func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds, excludeProfileIds []string, onlyVOD bool) (*Task, error) {
+func (ds *TaskDatastore) GetPendingTask(
+	ctx context.Context, excludeIds, excludeProfileIds []string,
+	onlyVOD bool,
+	withCapacity *minersv1.CapacityInfo) (*Task, error) {
 	tx, ok := dbrutil.DbTxFromContext(ctx)
 	if !ok {
 		sess := ds.conn.NewSession(nil)
@@ -233,6 +237,11 @@ func (ds *TaskDatastore) GetPendingTask(ctx context.Context, excludeIds, exclude
 
 	if onlyVOD {
 		qs = qs.Where("is_live = 0")
+	}
+
+	if withCapacity != nil {
+		qs = qs.Where("JSON_EXTRACT(capacity, \"$.encode\") <= ? AND JSON_EXTRACT(capacity, \"$.cpu\") <= ? ",
+			withCapacity.Encode, withCapacity.Cpu)
 	}
 
 	err := qs.

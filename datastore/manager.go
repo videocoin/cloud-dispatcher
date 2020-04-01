@@ -12,6 +12,7 @@ import (
 	"github.com/mailru/dbr"
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
+	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
@@ -178,6 +179,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				MachineType:           dbr.NewNullString(p.MachineType),
 				Cmdline:               renderResp.Render,
 				IsLive:                false,
+				Capacity:              p.Capacity,
 			}
 
 			err = m.ds.Tasks.Create(ctx, task)
@@ -204,6 +206,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	task.MachineType = dbr.NewNullString(p.MachineType)
 	task.Status = v1.TaskStatusPending
 	task.IsLive = true
+	task.Capacity = p.Capacity
 
 	logger.Debugf("task %+v\n", task)
 
@@ -291,14 +294,14 @@ func (m *DataManager) DeleteTask(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (m *DataManager) GetPendingTask(ctx context.Context, excludeIds, excludeProfileIds []string, onlyVOD bool) (*Task, error) {
+func (m *DataManager) GetPendingTask(ctx context.Context, excludeIds, excludeProfileIds []string, onlyVOD bool, withCapacity *minersv1.CapacityInfo) (*Task, error) {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
 		return nil, failedTo("get pending task", err)
 	}
 	defer tx.RollbackUnlessCommitted()
 
-	task, err := m.ds.Tasks.GetPendingTask(ctx, excludeIds, excludeProfileIds, onlyVOD)
+	task, err := m.ds.Tasks.GetPendingTask(ctx, excludeIds, excludeProfileIds, onlyVOD, withCapacity)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,10 @@ package rpc
 import (
 	"context"
 	"errors"
+	"math/rand"
+	"sort"
 	"strings"
+	"time"
 
 	"github.com/mailru/dbr"
 
@@ -90,7 +93,8 @@ func (s *Server) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Task,
 
 	logger.Info("getting pending task (default)")
 
-	task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false)
+	// get pending task miner can handle
+	task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false, miner.CapacityInfo)
 	if err != nil {
 		logFailedTo(s.logger, "get pending task", err)
 		return nil, rpc.ErrRpcInternal
@@ -115,7 +119,7 @@ func (s *Server) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Task,
 
 		logger.Info("getting pending task (exclude task ids)")
 
-		task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false)
+		task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false, miner.CapacityInfo)
 		if err != nil {
 			logFailedTo(s.logger, "get pending task (retry)", err)
 			return nil, rpc.ErrRpcInternal
@@ -136,7 +140,7 @@ func (s *Server) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Task,
 				}
 			} else {
 				excludeProfileIds := []string{fullHDProfileID}
-				task, err = s.dm.GetPendingTask(ctx, ft.Ids, excludeProfileIds, true)
+				task, err = s.dm.GetPendingTask(ctx, ft.Ids, excludeProfileIds, true, miner.CapacityInfo)
 				if err != nil {
 					logFailedTo(s.logger, "get pending task for raspberrypi", err)
 					return nil, rpc.ErrRpcInternal
@@ -147,6 +151,16 @@ func (s *Server) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Task,
 				}
 			}
 		}
+	}
+
+	ok, err := s.isMinerQualify(ctx, miner, task)
+	if err != nil {
+		logFailedTo(logger, "qualify miner", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	if !ok {
+		return nil, rpc.ErrRpcNotFound
 	}
 
 	return task, nil
@@ -287,4 +301,48 @@ func (s *Server) assignTask(task *datastore.Task, miner *minersv1.MinerResponse)
 	}
 
 	return nil
+}
+
+func (s *Server) isMinerQualify(ctx context.Context, miner *minersv1.MinerResponse, task *datastore.Task) (bool, error) {
+	resp, err := s.miners.GetMinersCandidates(ctx, &minersv1.MinersCandidatesRequest{
+		EncodeCapacity: task.Capacity.Encode,
+		CpuCapacity:    task.Capacity.Cpu,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	miners := resp.Items
+	if len(miners) <= 1 {
+		return true, nil
+	}
+
+	sort.Slice(miners[:], func(i, j int) bool {
+		return miners[i].Stake > miners[j].Stake
+	})
+
+	var qStake int32
+	for _, m := range miners {
+		qStake += m.Stake
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	r := rand.Float64()
+
+	var choosenMinerID string
+	for _, m := range miners {
+		weight := float64(m.Stake) / float64(qStake)
+		if weight > r {
+			choosenMinerID = m.ID
+			break
+		} else {
+			r = r - weight
+		}
+	}
+
+	if choosenMinerID != miner.Id {
+		return false, nil
+	}
+
+	return true, nil
 }
