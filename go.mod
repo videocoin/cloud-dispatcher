@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/AlekSi/pointer v1.1.0
+	github.com/bradfitz/slice v0.0.0-20180809154707-2b758aa73013
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.1
@@ -20,8 +21,9 @@ require (
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
 	github.com/videocoin/cloud-api v0.2.15
 	github.com/videocoin/cloud-pkg v0.0.6
-	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
-	google.golang.org/grpc v1.21.1
+	go4.org v0.0.0-20200312051459-7028f7b4a332 // indirect
+	golang.org/x/net v0.0.0-20200222125558-5a598a2470a0
+	google.golang.org/grpc v1.27.1
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
 )
 
