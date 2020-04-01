@@ -42,7 +42,7 @@ func NewDataManager(
 }
 
 func (m *DataManager) NewContext(ctx context.Context) (context.Context, *dbr.Session, *dbr.Tx, error) {
-	dbLogger := NewDatastoreLogger(m.logger)
+	dbLogger := dbrutil.NewDatastoreLogger(m.logger)
 	sess := m.ds.conn.NewSession(dbLogger)
 	tx, err := sess.Begin()
 	if err != nil {
