@@ -15,6 +15,7 @@ import (
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
+	"github.com/videocoin/cloud-pkg/dbrutil"
 	"github.com/videocoin/cloud-pkg/hls"
 	"github.com/videocoin/cloud-pkg/uuid4"
 )
@@ -48,8 +49,8 @@ func (m *DataManager) NewContext(ctx context.Context) (context.Context, *dbr.Ses
 		return ctx, nil, nil, err
 	}
 
-	ctx = NewContextWithDbSession(ctx, sess)
-	ctx = NewContextWithDbTx(ctx, tx)
+	ctx = dbrutil.NewContextWithDbSession(ctx, sess)
+	ctx = dbrutil.NewContextWithDbTx(ctx, tx)
 
 	return ctx, sess, tx, err
 }

@@ -92,12 +92,10 @@ func (mc *Collector) collectMetrics() {
 	}
 }
 
-func (mc *Collector) Start() error {
+func (mc *Collector) Start() {
 	go mc.Collect()
-	return nil
 }
 
-func (mc *Collector) Stop() error {
+func (mc *Collector) Stop() {
 	mc.ticker.Stop()
-	return nil
 }

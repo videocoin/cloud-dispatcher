@@ -156,14 +156,11 @@ func (s *Service) Start(errCh chan error) {
 	}()
 
 	go func() {
-		s.cfg.Logger.Info("starting metrics collector")
-		errCh <- s.mc.Start()
-	}()
-
-	go func() {
 		s.cfg.Logger.Info("starting metrics server")
 		errCh <- s.ms.Start()
 	}()
+
+	s.mc.Start()
 }
 
 func (s *Service) Stop() error {
@@ -177,10 +174,7 @@ func (s *Service) Stop() error {
 		return err
 	}
 
-	err = s.mc.Stop()
-	if err != nil {
-		return err
-	}
+	s.mc.Stop()
 
 	return nil
 }
