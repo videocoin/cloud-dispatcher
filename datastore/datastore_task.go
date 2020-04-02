@@ -203,9 +203,11 @@ func (ds *TaskDatastore) GetPendingByID(ctx context.Context, id string) (*Task, 
 }
 
 func (ds *TaskDatastore) GetPendingTask(
-	ctx context.Context, excludeIds, excludeProfileIds []string,
+	ctx context.Context,
+	excludeIds, excludeProfileIds []string,
 	onlyVOD bool,
-	withCapacity *minersv1.CapacityInfo) (*Task, error) {
+	withCapacity *minersv1.CapacityInfo,
+) (*Task, error) {
 	tx, ok := dbrutil.DbTxFromContext(ctx)
 	if !ok {
 		sess := ds.conn.NewSession(nil)
@@ -240,8 +242,11 @@ func (ds *TaskDatastore) GetPendingTask(
 	}
 
 	if withCapacity != nil {
-		qs = qs.Where("JSON_EXTRACT(capacity, \"$.encode\") <= ? AND JSON_EXTRACT(capacity, \"$.cpu\") <= ? ",
-			withCapacity.Encode, withCapacity.Cpu)
+		qs = qs.Where(
+			"JSON_EXTRACT(capacity, \"$.encode\") <= ? AND JSON_EXTRACT(capacity, \"$.cpu\") <= ? ",
+			withCapacity.Encode,
+			withCapacity.Cpu,
+		)
 	}
 
 	err := qs.
