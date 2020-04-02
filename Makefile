@@ -17,11 +17,7 @@ version:
 lint: docker-lint
 
 docker-lint:
-	docker run --rm \
-		-v `PWD`:/go/src/github.com/videocoin/cloud-dispatcher \
-		-w /go/src/github.com/videocoin/cloud-dispatcher \
-		golangci/golangci-lint:v1.23.6 \
-		golangci-lint run -v
+	docker build -f Dockerfile.lint .
 
 build:
 	GOOS=${GOOS} GOARCH=${GOARCH} \
