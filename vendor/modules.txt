@@ -4,8 +4,6 @@ github.com/AlekSi/pointer
 github.com/armon/go-metrics
 # github.com/beorn7/perks v1.0.0
 github.com/beorn7/perks/quantile
-# github.com/bradfitz/slice v0.0.0-20180809154707-2b758aa73013
-github.com/bradfitz/slice
 # github.com/certifi/gocertifi v0.0.0-20190506164543-d2eda7129713
 github.com/certifi/gocertifi
 # github.com/evalphobia/logrus_sentry v0.8.2
@@ -22,7 +20,7 @@ github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/protoc-gen-gogo/descriptor
 github.com/gogo/protobuf/sortkeys
 github.com/gogo/protobuf/types
-# github.com/golang/protobuf v1.3.3
+# github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/descriptor
 github.com/golang/protobuf/jsonpb
 github.com/golang/protobuf/proto
@@ -62,7 +60,7 @@ github.com/hashicorp/go-cleanhttp
 github.com/hashicorp/go-immutable-radix
 # github.com/hashicorp/go-rootcerts v1.0.0
 github.com/hashicorp/go-rootcerts
-# github.com/hashicorp/golang-lru v0.5.1
+# github.com/hashicorp/golang-lru v0.5.0
 github.com/hashicorp/golang-lru/simplelru
 # github.com/hashicorp/serf v0.8.2
 github.com/hashicorp/serf/coordinate
@@ -159,12 +157,10 @@ github.com/videocoin/cloud-pkg/tracer
 github.com/videocoin/cloud-pkg/uuid4
 # go.uber.org/atomic v1.5.1
 go.uber.org/atomic
-# go4.org v0.0.0-20200312051459-7028f7b4a332
-go4.org/reflectutil
 # golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
 golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
-# golang.org/x/lint v0.0.0-20200130185559-910be7a94367
+# golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f
 golang.org/x/lint
 golang.org/x/lint/golint
 # golang.org/x/net v0.0.0-20200222125558-5a598a2470a0
@@ -175,20 +171,20 @@ golang.org/x/net/http2/hpack
 golang.org/x/net/idna
 golang.org/x/net/internal/timeseries
 golang.org/x/net/trace
-# golang.org/x/sys v0.0.0-20200223170610-d5e6a3e2c0ae
+# golang.org/x/sys v0.0.0-20190602015325-4c4f7f33c9ed
 golang.org/x/sys/unix
-# golang.org/x/text v0.3.2
+# golang.org/x/text v0.3.0
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
-# golang.org/x/tools v0.0.0-20200212150539-ea181f53ac56
+# golang.org/x/tools v0.0.0-20200128002243-345141a36859
 golang.org/x/tools/go/ast/astutil
 golang.org/x/tools/go/gcexportdata
 golang.org/x/tools/go/internal/gcimporter
-# google.golang.org/appengine v1.6.5
+# google.golang.org/appengine v1.4.0
 google.golang.org/appengine/cloudsql
-# google.golang.org/genproto v0.0.0-20200212174721-66ed5ce911ce
+# google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 google.golang.org/genproto/googleapis/api/httpbody
 google.golang.org/genproto/googleapis/rpc/status
 google.golang.org/genproto/protobuf/field_mask
