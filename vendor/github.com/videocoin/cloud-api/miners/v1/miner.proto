@@ -41,6 +41,6 @@ message CryptoInfo {
 }
 
 message CapacityInfo {
-    int32 encode = 1;
-    int32 cpu = 2;
+    double encode = 1;
+    double cpu = 2;
 }

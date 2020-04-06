@@ -187,8 +187,8 @@ message MinersWithForceTaskResponse {
 }
 
 message MinersCandidatesRequest {
-    int32 encodeCapacity = 1;
-    int32 cpuCapacity = 2;
+    double encodeCapacity = 1;
+    double cpuCapacity = 2;
 }
 
 message MinerCandidateResponse {
