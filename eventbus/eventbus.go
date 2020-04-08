@@ -361,7 +361,6 @@ func (e *EventBus) EmitTaskCompleted(
 	ctx context.Context,
 	task *datastore.Task,
 	miner *minersv1.MinerResponse,
-	stream *streamsv1.StreamResponse,
 ) error {
 	headers := make(amqp.Table)
 
