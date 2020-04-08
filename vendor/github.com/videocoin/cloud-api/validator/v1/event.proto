@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package cloud.api.validator.v1;
+
+import "google/api/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+enum EventType {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "EventType";
+
+    EVENT_TYPE_UNKNOWN = 0 [(gogoproto.enumvalue_customname) = "EventTypeUnknown"];
+    EVENT_TYPE_VALIDATED_PROOF = 1 [(gogoproto.enumvalue_customname) = "EventTypeValidatedProof"];
+    EVENT_TYPE_SCRAPED_PROOF = 2 [(gogoproto.enumvalue_customname) = "EventTypeScrapedProof"];
+}
+
+message Event {
+    EventType type = 1;
+    string stream_contract_address = 2;
+    uint64 chunk_num = 3;
+}

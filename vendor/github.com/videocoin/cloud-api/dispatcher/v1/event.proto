@@ -29,13 +29,21 @@ message Event {
     EventType type = 1;
     string task_id = 2 [(gogoproto.customname) = "TaskID"];
     cloud.api.dispatcher.v1.TaskStatus status = 3;
+    
     string stream_id = 4 [(gogoproto.customname) = "StreamID"];
-    string stream_contract_address = 5;
-    string profile_id = 6 [(gogoproto.customname) = "ProfileID"];
-    string client_id = 7 [(gogoproto.customname) = "ClientID"];
-    string client_user_id = 8 [(gogoproto.customname) = "ClientUserID"];
-    string user_id = 9 [(gogoproto.customname) = "UserID"];
-    uint64 chunk_num = 10;
-    double duration = 11;
-    double price = 12;
+    string stream_name = 5;
+    string stream_contract_address = 6;
+    bool stream_is_live = 7;
+
+    string profile_id = 8 [(gogoproto.customname) = "ProfileID"];
+    string profile_name = 9;
+    double profile_cost = 10;
+
+    string client_id = 11 [(gogoproto.customname) = "ClientID"];
+    string client_user_id = 12 [(gogoproto.customname) = "ClientUserID"];
+    string user_id = 13 [(gogoproto.customname) = "UserID"];
+
+    uint64 chunk_num = 14;
+    double duration = 15;
+    double cost_per_sec = 16;
 }

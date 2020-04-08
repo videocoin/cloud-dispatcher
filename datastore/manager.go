@@ -560,3 +560,7 @@ func (m *DataManager) GetProfile(ctx context.Context, profileID string) (*profil
 		ID: profileID,
 	})
 }
+
+func (m *DataManager) GetStream(ctx context.Context, streamID string) (*pstreamsv1.StreamResponse, error) {
+	return m.streams.Get(ctx, &pstreamsv1.StreamRequest{Id: streamID})
+}

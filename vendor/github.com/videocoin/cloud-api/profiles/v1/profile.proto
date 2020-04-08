@@ -16,7 +16,7 @@ message Spec {
   string version = 1;
   repeated Component components = 2;
   string machine_type = 3;
-  float cost = 4;
+  double cost = 4;
 }
 
 enum ComponentType {

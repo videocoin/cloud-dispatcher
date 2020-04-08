@@ -100,7 +100,7 @@ message GetProfileResponse {
     string description = 3;
     bool is_enabled = 4;
     string machine_type = 5;
-    float cost = 6;
+    double cost = 6;
     repeated cloud.api.profiles.v1.Component components = 7;
     cloud.api.miners.v1.CapacityInfo capacity = 8;
 }

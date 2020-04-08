@@ -109,7 +109,12 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 			return nil, rpc.ErrRpcInternal
 		}
 
-		go s.eb.EmitTaskCompleted(ctx, task, miner)
+		go func() {
+			err := s.eb.EmitTaskCompleted(ctx, task, miner)
+			if err != nil {
+				logFailedTo(s.logger, "emit task completed", err)
+			}
+		}()
 
 		go s.markStreamAsCompletedIfNeeded(task)
 	}

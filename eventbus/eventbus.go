@@ -357,7 +357,12 @@ func (e *EventBus) onStreamStatusCompleted(
 	return nil
 }
 
-func (e *EventBus) EmitTaskCompleted(ctx context.Context, task *datastore.Task, miner *minersv1.MinerResponse) error {
+func (e *EventBus) EmitTaskCompleted(
+	ctx context.Context,
+	task *datastore.Task,
+	miner *minersv1.MinerResponse,
+	stream *streamsv1.StreamResponse,
+) error {
 	headers := make(amqp.Table)
 
 	span := opentracing.SpanFromContext(ctx)
@@ -379,19 +384,28 @@ func (e *EventBus) EmitTaskCompleted(ctx context.Context, task *datastore.Task, 
 		return err
 	}
 
+	stream, err := e.dm.GetStream(ctx, task.StreamID)
+	if err != nil {
+		return err
+	}
+
 	if task.Output != nil && task.Output.Num > 0 && task.Output.Duration > 0 {
 		event := &v1.Event{
 			Type:                  v1.EventTypeTaskCompleted,
 			TaskID:                task.ID,
-			StreamID:              task.StreamID,
+			StreamID:              stream.ID,
+			StreamName:            stream.Name,
 			StreamContractAddress: task.StreamContractAddress.String,
+			StreamIsLive:          false,
 			ProfileID:             task.ProfileID,
+			ProfileCost:           profile.Cost,
+			ProfileName:           profile.Name,
 			ClientID:              task.ClientID.String,
 			ClientUserID:          miner.UserID,
 			UserID:                task.UserID.String,
 			ChunkNum:              uint64(task.Output.Num),
 			Duration:              task.Output.Duration,
-			Price:                 float64(profile.Cost) / float64(60),
+			CostPerSec:            float64(profile.Cost) / float64(60),
 		}
 
 		err := e.mq.PublishX("dispatcher.events", event, headers)
