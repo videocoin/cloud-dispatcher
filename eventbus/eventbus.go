@@ -357,7 +357,7 @@ func (e *EventBus) onStreamStatusCompleted(
 	return nil
 }
 
-func (e *EventBus) EmitSegmentTranscoded(ctx context.Context, req *v1.SegmentRequest) error {
+func (e *EventBus) EmitTaskCompleted(ctx context.Context, task *datastore.Task, miner *minersv1.MinerResponse) error {
 	headers := make(amqp.Table)
 
 	span := opentracing.SpanFromContext(ctx)
@@ -374,20 +374,30 @@ func (e *EventBus) EmitSegmentTranscoded(ctx context.Context, req *v1.SegmentReq
 		}
 	}
 
-	event := &v1.Event{
-		Type:      v1.EventTypeSegmentTranscoded,
-		TaskID:    req.TaskID,
-		StreamID:  req.StreamID,
-		ClientID:  req.ClientID,
-		ProfileID: req.ProfileID,
-		UserID:    req.UserID,
-		Num:       req.Num,
-		Duration:  req.Duration,
-	}
-
-	err := e.mq.PublishX("dispatcher.events", event, headers)
+	profile, err := e.dm.GetProfile(ctx, task.ProfileID)
 	if err != nil {
 		return err
+	}
+
+	if task.Output != nil && task.Output.Num > 0 && task.Output.Duration > 0 {
+		event := &v1.Event{
+			Type:                  v1.EventTypeTaskCompleted,
+			TaskID:                task.ID,
+			StreamID:              task.StreamID,
+			StreamContractAddress: task.StreamContractAddress.String,
+			ProfileID:             task.ProfileID,
+			ClientID:              task.ClientID.String,
+			ClientUserID:          miner.UserID,
+			UserID:                task.UserID.String,
+			ChunkNum:              uint64(task.Output.Num),
+			Duration:              task.Output.Duration,
+			Price:                 float64(profile.Cost) / float64(60),
+		}
+
+		err := e.mq.PublishX("dispatcher.events", event, headers)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

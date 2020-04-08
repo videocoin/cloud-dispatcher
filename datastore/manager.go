@@ -164,7 +164,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 			task := &Task{
 				ID:        taskID,
 				StreamID:  stream.ID,
-				OwnerID:   0,
+				UserID:    dbr.NewNullString(stream.UserID),
 				CreatedAt: pointer.ToTime(time.Now()),
 				ProfileID: stream.ProfileID,
 				Status:    v1.TaskStatusPending,
@@ -553,4 +553,10 @@ func (m *DataManager) ClearClientID(ctx context.Context, task *Task) error {
 	}
 
 	return nil
+}
+
+func (m *DataManager) GetProfile(ctx context.Context, profileID string) (*profilesv1.GetProfileResponse, error) {
+	return m.profiles.Get(ctx, &profilesv1.ProfileRequest{
+		ID: profileID,
+	})
 }

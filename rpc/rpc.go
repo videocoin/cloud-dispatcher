@@ -80,7 +80,7 @@ func (s *Server) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, er
 }
 
 func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
-	_, err := s.authenticate(ctx, req.ClientID)
+	miner, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
 		s.logger.Warningf("failed to auth: %s", err)
 		return nil, rpc.ErrRpcUnauthenticated
@@ -108,6 +108,8 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 			logFailedTo(s.logger, "mark task as completed", err)
 			return nil, rpc.ErrRpcInternal
 		}
+
+		go s.eb.EmitTaskCompleted(ctx, task, miner)
 
 		go s.markStreamAsCompletedIfNeeded(task)
 	}
@@ -236,7 +238,7 @@ func (s *Server) Register(ctx context.Context, req *minersv1.RegistrationRequest
 		return nil, err
 	}
 
-	return &prototypes.Empty{}, nil
+	return new(prototypes.Empty), nil
 }
 
 func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
@@ -341,25 +343,4 @@ func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.Conf
 		RPCNodeURL: s.rpcNodeURL,
 		SyncerURL:  s.syncerURL,
 	}, nil
-}
-
-func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.SegmentRequest) (*prototypes.Empty, error) {
-	logger := s.logger.WithFields(logrus.Fields{
-		"task_id":    req.TaskID,
-		"stream_id":  req.StreamID,
-		"client_id":  req.ClientID,
-		"profile_id": req.ProfileID,
-		"user_id":    req.UserID,
-		"num":        req.Num,
-		"duration":   req.Duration,
-	})
-	logger.Info("segment transcoded")
-
-	err := s.eb.EmitSegmentTranscoded(ctx, req)
-	if err != nil {
-		logger.Errorf("failed to emit segment transcoded: %s", err)
-		return nil, rpc.ErrRpcInternal
-	}
-
-	return new(prototypes.Empty), nil
 }

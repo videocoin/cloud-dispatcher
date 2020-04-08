@@ -143,6 +143,7 @@ message MinerResponse {
     SystemInfo system_info = 5;
     CryptoInfo crypto_info = 6;
     CapacityInfo capacity_info = 7;
+    string user_id = 8 [(gogoproto.customname) = "UserID"];;
 }
 
 message MinerListResponse {

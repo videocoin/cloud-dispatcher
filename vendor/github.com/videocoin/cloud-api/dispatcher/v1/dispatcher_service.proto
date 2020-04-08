@@ -26,7 +26,6 @@ service DispatcherService {
   rpc Register(cloud.api.miners.v1.RegistrationRequest) returns (google.protobuf.Empty) {}
   rpc GetInternalConfig(InternalConfigRequest) returns (InternalConfigResponse) {}
   rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
-  rpc MarkSegmentAsTranscoded(SegmentRequest) returns (google.protobuf.Empty) {}
 }
 
 message TaskPendingRequest {
@@ -51,14 +50,4 @@ message ConfigRequest {}
 message ConfigResponse {
     string rpc_node_url = 1 [(gogoproto.customname) = "RPCNodeURL"];
     string syncer_url = 2 [(gogoproto.customname) = "SyncerURL"];
-}
-
-message SegmentRequest {
-  string task_id = 1 [(gogoproto.customname) = "TaskID"];
-  string stream_id = 2 [(gogoproto.customname) = "StreamID"];
-  string client_id = 3 [(gogoproto.customname) = "ClientID"];
-  string profile_id = 4 [(gogoproto.customname) = "ProfileID"];
-  int32 user_id = 5 [(gogoproto.customname) = "UserID"];
-  uint64 num = 6;
-  double duration = 7;
 }

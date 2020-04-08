@@ -16,6 +16,7 @@ type Task struct {
 	ID                    string                 `db:"id"`
 	StreamID              string                 `db:"stream_id"`
 	OwnerID               int32                  `db:"owner_id"`
+	UserID                dbr.NullString         `db:"user_id"`
 	CreatedAt             *time.Time             `db:"created_at"`
 	Status                v1.TaskStatus          `db:"status"`
 	ProfileID             string                 `db:"profile_id"`
@@ -36,7 +37,7 @@ func TaskFromStreamResponse(s *pstreamsv1.StreamResponse) *Task {
 	return &Task{
 		ID:        s.ID,
 		StreamID:  s.ID,
-		OwnerID:   0,
+		UserID:    dbr.NewNullString(s.UserID),
 		CreatedAt: pointer.ToTime(time.Now()),
 		ProfileID: s.ProfileID,
 		Status:    v1.TaskStatusCreated,
