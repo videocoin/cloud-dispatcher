@@ -404,7 +404,7 @@ func (e *EventBus) EmitTaskCompleted(
 			UserID:                task.UserID.String,
 			ChunkNum:              uint64(task.Output.Num),
 			Duration:              task.Output.Duration,
-			CostPerSec:            float64(profile.Cost) / float64(60),
+			CostPerSec:            profile.Cost / 60,
 		}
 
 		err := e.mq.PublishX("dispatcher.events", event, headers)
