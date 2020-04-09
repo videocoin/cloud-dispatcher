@@ -16,7 +16,7 @@ option (gogoproto.messagename_all) = true;
 service EmitterService {
     rpc InitStream(InitStreamRequest) returns (google.protobuf.Empty) {}
     rpc EndStream(EndStreamRequest) returns (google.protobuf.Empty) {}
-    rpc AddInputChunkId(AddInputChunkIdRequest) returns (google.protobuf.Empty) {}
+    rpc AddInputChunk(AddInputChunkRequest) returns (google.protobuf.Empty) {}
     rpc GetBalance(BalanceRequest) returns (BalanceResponse) {}
     rpc Deposit(DepositRequest) returns (DepositResponse) {}
 }
@@ -39,10 +39,10 @@ message EndStreamRequest {
     string stream_contract_address = 4;
 }
 
-message AddInputChunkIdRequest {
+message AddInputChunkRequest {
     uint64 stream_contract_id = 1;
     uint64 chunk_id = 2;
-    double chunk_duration = 3;
+    double reward = 4;
 }
 
 message BalanceRequest {

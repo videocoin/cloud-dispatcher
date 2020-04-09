@@ -23,12 +23,17 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 	}
 
 	logger := s.logger.WithField("client_id", req.ClientID)
-
 	logger.Info("get pending task")
 
 	task, err := s.getPendingTask(miner)
 	if err != nil {
 		return nil, err
+	}
+
+	profile, err := s.dm.GetProfile(ctx, task.ProfileID)
+	if err != nil {
+		logger.Errorf("failed to get profile: %s", err.Error())
+		return nil, rpc.ErrRpcNotFound
 	}
 
 	if task.IsOutputFile() {
@@ -39,15 +44,15 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 
 		logger.Info("adding input chunk")
 
-		achReq := &emitterv1.AddInputChunkIdRequest{
+		achReq := &emitterv1.AddInputChunkRequest{
 			StreamContractId: uint64(task.StreamContractID.Int64),
 			ChunkId:          uint64(task.Output.Num),
-			ChunkDuration:    10,
+			Reward:           profile.Cost / 60 * task.Output.Duration,
 		}
 
 		logger.Debugf("calling AddInputChunkId")
 
-		_, err = s.emitter.AddInputChunkId(context.Background(), achReq)
+		_, err = s.emitter.AddInputChunk(context.Background(), achReq)
 		if err != nil {
 			logger.Errorf("failed to add input chunk: %s", err.Error())
 			return nil, rpc.ErrRpcNotFound

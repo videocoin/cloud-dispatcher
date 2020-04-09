@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package cloud.api.streams.private.v1;
 
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
@@ -34,6 +33,7 @@ message StreamResponse {
   string name = 2;
 
   string profile_id = 3 [(gogoproto.customname) = "ProfileID"];
+  double profile_cost = 16;
 
   string input_url = 4 [(gogoproto.customname) = "InputURL"];
   string output_url = 5 [(gogoproto.customname) = "OutputURL"];
