@@ -415,3 +415,63 @@ func (e *EventBus) EmitTaskCompleted(
 
 	return nil
 }
+
+func (e *EventBus) EmitSegmentTranscoded(
+	ctx context.Context,
+	req *v1.TaskSegmentRequest,
+	task *datastore.Task,
+	miner *minersv1.MinerResponse,
+) error {
+	headers := make(amqp.Table)
+
+	span := opentracing.SpanFromContext(ctx)
+	if span != nil {
+		ext.SpanKindRPCServer.Set(span)
+		ext.Component.Set(span, "transcoder")
+		err := span.Tracer().Inject(
+			span.Context(),
+			opentracing.TextMap,
+			mqmux.RMQHeaderCarrier(headers),
+		)
+		if err != nil {
+			e.logger.Errorf("failed to span inject: %s", err)
+		}
+	}
+
+	profile, err := e.dm.GetProfile(ctx, task.ProfileID)
+	if err != nil {
+		return err
+	}
+
+	stream, err := e.dm.GetStream(ctx, task.StreamID)
+	if err != nil {
+		return err
+	}
+
+	if req.Num > 0 && req.Duration > 0 {
+		event := &v1.Event{
+			Type:                  v1.EventTypeSegementTranscoded,
+			TaskID:                task.ID,
+			StreamID:              stream.ID,
+			StreamName:            stream.Name,
+			StreamContractAddress: task.StreamContractAddress.String,
+			StreamIsLive:          true,
+			ProfileID:             task.ProfileID,
+			ProfileCost:           profile.Cost,
+			ProfileName:           profile.Name,
+			ClientID:              task.ClientID.String,
+			ClientUserID:          miner.UserID,
+			UserID:                task.UserID.String,
+			ChunkNum:              req.Num,
+			Duration:              req.Duration,
+			CostPerSec:            profile.Cost / 60,
+		}
+
+		err := e.mq.PublishX("dispatcher.events", event, headers)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

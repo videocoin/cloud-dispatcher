@@ -349,3 +349,25 @@ func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.Conf
 		SyncerURL:  s.syncerURL,
 	}, nil
 }
+
+func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmentRequest) (*prototypes.Empty, error) {
+	miner, err := s.authenticate(ctx, req.ClientID)
+	if err != nil {
+		s.logger.Warningf("failed to auth: %s", err)
+		return nil, rpc.ErrRpcUnauthenticated
+	}
+
+	task, err := s.getTask(req.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		err := s.eb.EmitSegmentTranscoded(ctx, req, task, miner)
+		if err != nil {
+			logFailedTo(s.logger, "emit segment transcoded", err)
+		}
+	}()
+
+	return new(prototypes.Empty), nil
+}

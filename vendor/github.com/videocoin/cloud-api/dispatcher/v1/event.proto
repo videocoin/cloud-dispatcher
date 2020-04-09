@@ -23,6 +23,7 @@ enum EventType {
     EVENT_TYPE_DELETE = 3 [(gogoproto.enumvalue_customname) = "EventTypeDelete"];
     EVENT_TYPE_UPDATE_STATUS = 4 [(gogoproto.enumvalue_customname) = "EventTypeUpdateStatus"];
     EVENT_TYPE_TASK_COMPLETED = 5 [(gogoproto.enumvalue_customname) = "EventTypeTaskCompleted"];
+    EVENT_TYPE_SEGEMENT_TRANSCODED = 6 [(gogoproto.enumvalue_customname) = "EventTypeSegementTranscoded"];
 }
 
 message Event {
