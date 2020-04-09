@@ -363,7 +363,7 @@ func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmen
 	}
 
 	go func() {
-		err := s.eb.EmitSegmentTranscoded(ctx, req, task, miner)
+		err := s.eb.EmitSegmentTranscoded(context.Background(), req, task, miner)
 		if err != nil {
 			logFailedTo(s.logger, "emit segment transcoded", err)
 		}
