@@ -121,7 +121,6 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 			}
 		}()
 
-		go s.eb.EmitTaskCompleted(context.Background(), task, miner)
 		go s.markStreamAsCompletedIfNeeded(task)
 	}
 
