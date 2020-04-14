@@ -5,7 +5,6 @@ import (
 	"errors"
 	"math/rand"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/mailru/dbr"
@@ -129,27 +128,29 @@ func (s *Server) getPendingTask(miner *minersv1.MinerResponse) (*datastore.Task,
 	if hw, ok := miner.Tags["hw"]; ok {
 		logger.Info("raspberrypi pi miner")
 
-		fullHDProfileID := "45d5ef05-efef-4606-6fa3-48f42d3f0b96"
+		// fullHDProfileID := "45d5ef05-efef-4606-6fa3-48f42d3f0b96"
 		if hw == "raspberrypi" {
-			if task.ProfileID != fullHDProfileID && task.IsOutputFile() {
-				cmdline := strings.Replace(task.Cmdline, "-c:v libx264", "-c:v h264_omx", -1)
-				err := s.dm.UpdateTaskCommandLine(ctx, task, cmdline)
-				if err != nil {
-					logFailedTo(s.logger, "update command line for raspberrypi", err)
-					return nil, rpc.ErrRpcInternal
-				}
-			} else {
-				excludeProfileIds := []string{fullHDProfileID}
-				task, err = s.dm.GetPendingTask(ctx, ft.Ids, excludeProfileIds, true, miner.CapacityInfo)
-				if err != nil {
-					logFailedTo(s.logger, "get pending task for raspberrypi", err)
-					return nil, rpc.ErrRpcInternal
-				}
+			return nil, rpc.ErrRpcNotFound
 
-				if task == nil {
-					return nil, rpc.ErrRpcNotFound
-				}
-			}
+			// if task.ProfileID != fullHDProfileID && task.IsOutputFile() {
+			// 	cmdline := strings.Replace(task.Cmdline, "-c:v libx264", "-c:v h264_omx", -1)
+			// 	err := s.dm.UpdateTaskCommandLine(ctx, task, cmdline)
+			// 	if err != nil {
+			// 		logFailedTo(s.logger, "update command line for raspberrypi", err)
+			// 		return nil, rpc.ErrRpcInternal
+			// 	}
+			// } else {
+			// 	excludeProfileIds := []string{fullHDProfileID}
+			// 	task, err = s.dm.GetPendingTask(ctx, ft.Ids, excludeProfileIds, true, miner.CapacityInfo)
+			// 	if err != nil {
+			// 		logFailedTo(s.logger, "get pending task for raspberrypi", err)
+			// 		return nil, rpc.ErrRpcInternal
+			// 	}
+
+			// 	if task == nil {
+			// 		return nil, rpc.ErrRpcNotFound
+			// 	}
+			// }
 		}
 	}
 
