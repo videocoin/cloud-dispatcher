@@ -256,17 +256,18 @@ message StreamResponse {
 
   InputType input_type = 15;
   OutputType output_type = 16;
+  double total_cost = 18;
 }
 
 message StreamListResponse {
-    option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+  option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
 		json_schema: {
 			description: "List of streams."
 		};
 		example: {
-            value: '{ "id": "4a1c3973-8cf6-49af-4a56-7a1d49c2bac6", "name": "Live", "output_url": "https://streams.videocoin.network/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6/index.m3u8", "stream_contract_id": "2758350251200610030", "stream_contract_address": "", "status": "STREAM_STATUS_NEW", "input_status": "INPUT_STATUS_NONE", "created_at": "2019-11-06T19:31:03.059408235Z", "updated_at": "2019-11-06T19:31:03.059460430Z", "ready_at": null, "completed_at": null, "rtmp_url": "rtmp://rtmp.studio.videocoin.network:1935/live/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6" }'
-        }
-
+      value: '{ "id": "4a1c3973-8cf6-49af-4a56-7a1d49c2bac6", "name": "Live", "output_url": "https://streams.videocoin.network/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6/index.m3u8", "stream_contract_id": "2758350251200610030", "stream_contract_address": "", "status": "STREAM_STATUS_NEW", "input_status": "INPUT_STATUS_NONE", "created_at": "2019-11-06T19:31:03.059408235Z", "updated_at": "2019-11-06T19:31:03.059460430Z", "ready_at": null, "completed_at": null, "rtmp_url": "rtmp://rtmp.studio.videocoin.network:1935/live/4a1c3973-8cf6-49af-4a56-7a1d49c2bac6" }'
+    }
 	};
-    repeated StreamResponse items = 1;
+  
+  repeated StreamResponse items = 1;
 }

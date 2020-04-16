@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package cloud.api.account.v1;
 
-import "google/protobuf/timestamp.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
 option go_package = "v1";

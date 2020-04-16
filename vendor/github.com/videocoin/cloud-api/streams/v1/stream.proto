@@ -3,8 +3,6 @@ syntax = "proto3";
 package cloud.api.streams.v1;
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-
-import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 option go_package = "v1";

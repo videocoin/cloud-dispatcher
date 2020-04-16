@@ -50,7 +50,7 @@ func ClientDialOptsWithRetry(logger *logrus.Entry) []grpc.DialOption {
 	tracerOpts := grpctracing.WithTracer(opentracing.GlobalTracer())
 	retryOpts := []grpcretry.CallOption{
 		grpcretry.WithMax(3),
-		grpcretry.WithPerRetryTimeout(1 * time.Second),
+		grpcretry.WithPerRetryTimeout(5 * time.Second),
 		grpcretry.WithBackoff(grpcretry.BackoffLinear(300 * time.Millisecond)),
 	}
 

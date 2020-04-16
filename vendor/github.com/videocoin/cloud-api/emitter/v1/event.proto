@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package cloud.api.emitter.v1;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+enum EventType {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "EventType";
+
+    EVENT_TYPE_UNKNOWN = 0 [(gogoproto.enumvalue_customname) = "EventTypeUnknown"];
+    EVENT_TYPE_ACCOUNT_CREATED = 1 [(gogoproto.enumvalue_customname) = "EventTypeAccountCreated"];
+}
+
+message Event {
+    EventType type = 1;
+    string user_id = 2 [(gogoproto.customname) = "UserID"];
+    string address = 3;
+}

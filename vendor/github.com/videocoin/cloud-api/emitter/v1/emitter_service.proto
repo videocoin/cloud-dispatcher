@@ -1,10 +1,10 @@
 syntax = "proto3";
 
-package cloud.api.streams.v1;
+package cloud.api.emitter.v1;
 
 import "google/protobuf/empty.proto";
-import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -19,6 +19,9 @@ service EmitterService {
     rpc AddInputChunk(AddInputChunkRequest) returns (google.protobuf.Empty) {}
     rpc GetBalance(BalanceRequest) returns (BalanceResponse) {}
     rpc Deposit(DepositRequest) returns (DepositResponse) {}
+    rpc ValidateProof(ValidateProofRequest) returns (ValidateProofResponse) {}
+    rpc ScrapProof(ScrapProofRequest) returns (ScrapProofResponse) {}
+    rpc ListWorkers(google.protobuf.Empty) returns (ListWorkersResponse) {}
 }
 
 message Tx {
@@ -63,4 +66,47 @@ message DepositRequest {
 
 message DepositResponse {
     bytes tx_id = 1;
+}
+
+message ValidateProofRequest {
+    string stream_contract_address = 1;
+    bytes profile_id = 2;
+    bytes chunk_id = 3;
+}
+
+message ValidateProofResponse {
+    bytes tx_id = 1;
+}
+
+message ScrapProofRequest {
+    string stream_contract_address = 1;
+    bytes profile_id = 2;
+    bytes chunk_id = 3;
+}
+
+message ScrapProofResponse {
+    bytes tx_id = 1;
+}
+
+enum WorkerState {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "WorkerState";
+
+    BONDING   = 0 [(gogoproto.enumvalue_customname) = "WorkerStateBonding"];
+    BONDED    = 1 [(gogoproto.enumvalue_customname) = "WorkerStateBonded"];
+    UNBONDED  = 2 [(gogoproto.enumvalue_customname) = "WorkerStateUnbonded"];
+    UNBONDING = 3 [(gogoproto.enumvalue_customname) = "WorkerStateUnbonding"];
+}
+
+message WorkerResponse {
+    string address = 1;
+    WorkerState state = 2;
+    bytes totalStake = 3;
+    bytes selfStake = 4;
+    bytes delegatedStake = 5;
+    google.protobuf.Timestamp registeredAt = 6 [(gogoproto.stdtime) = true];
+}
+
+message ListWorkersResponse {
+    repeated WorkerResponse items = 1;
 }
