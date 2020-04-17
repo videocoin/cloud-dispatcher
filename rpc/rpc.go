@@ -6,6 +6,7 @@ import (
 	"time"
 
 	prototypes "github.com/gogo/protobuf/types"
+	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
@@ -16,54 +17,87 @@ import (
 )
 
 func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
+	span := opentracing.SpanFromContext(ctx)
+	span.SetTag("client_id", req.ClientID)
+
 	miner, err := s.authenticate(ctx, req.ClientID)
 	if err != nil {
-		s.logger.Warningf("failed to auth: %s", err)
+		span.SetTag("error", true)
+		span.LogKV("event", "failed to authenticate", "message", err)
 		return nil, rpc.ErrRpcUnauthenticated
 	}
 
-	logger := s.logger.WithField("client_id", req.ClientID)
-	logger.Info("get pending task")
-
-	task, err := s.getPendingTask(miner)
-	if err != nil {
-		return nil, err
+	span.SetTag("miner_id", miner.Id)
+	span.SetTag("miner_status", miner.Status.String())
+	span.SetTag("miner_user_id", miner.UserID)
+	span.SetTag("miner_address", miner.Address)
+	span.SetTag("miner_tags", miner.Tags)
+	if miner.CapacityInfo != nil {
+		span.SetTag("miner_capacity_info_encode", miner.CapacityInfo.Encode)
+		span.SetTag("miner_capacity_info_cpu", miner.CapacityInfo.Cpu)
 	}
 
-	profile, err := s.dm.GetProfile(ctx, task.ProfileID)
+	task, err := s.getPendingTask(ctx, miner)
 	if err != nil {
-		logger.Errorf("failed to get profile: %s", err.Error())
-		return nil, rpc.ErrRpcNotFound
+		span.SetTag("error", true)
+		span.LogKV("event", "no task", "message", err)
+		return &v1.Task{}, nil
 	}
+
+	if task == nil {
+		span.LogKV("event", "no task")
+		return &v1.Task{}, nil
+	}
+
+	span.SetTag("task_id", task.ID)
+	if task.Input != nil {
+		span.SetTag("input", task.Input.URI)
+	}
+	span.SetTag("created_at", task.CreatedAt)
+	span.SetTag("cmdline", task.Cmdline)
+	span.SetTag("user_id", task.UserID.String)
+	span.SetTag("stream_id", task.StreamID)
+	span.SetTag("stream_contract_id", task.StreamContractID.Int64)
+	span.SetTag("stream_contract_address", task.StreamContractAddress.String)
+	span.SetTag("chunk_num", task.Output.Num)
+	span.SetTag("profile_id", task.ProfileID)
 
 	if task.IsOutputFile() {
-		logger = logger.WithFields(logrus.Fields{
-			"stream_contract_id": task.StreamContractID.Int64,
-			"chunk_id":           task.Output.Num,
-		})
+		span.SetTag("vod", true)
 
-		logger.Info("adding input chunk")
+		profile, err := s.dm.GetProfile(ctx, task.ProfileID)
+		if err != nil {
+			span.SetTag("error", true)
+			span.LogKV("event", "failed to get profile", "message", err)
+			return &v1.Task{}, nil
+		}
+
+		reward := profile.Cost / 60 * task.Output.Duration
+
+		span.SetTag("reward", reward)
 
 		achReq := &emitterv1.AddInputChunkRequest{
 			StreamContractId: uint64(task.StreamContractID.Int64),
 			ChunkId:          uint64(task.Output.Num),
-			Reward:           profile.Cost / 60 * task.Output.Duration,
+			Reward:           reward,
 		}
-
-		logger.Debugf("calling AddInputChunkId")
-
-		_, err = s.emitter.AddInputChunk(context.Background(), achReq)
+		_, err = s.emitter.AddInputChunk(ctx, achReq)
 		if err != nil {
-			logger.Errorf("failed to add input chunk: %s", err.Error())
-			return nil, rpc.ErrRpcNotFound
+			span.SetTag("error", true)
+			span.LogKV("event", "failed to add input chunk", "message", err)
+			return &v1.Task{}, nil
 		}
+	} else {
+		span.SetTag("live", true)
 	}
 
-	logger.Info("assigning task")
+	span.LogKV("event", "assigning task")
 
-	err = s.assignTask(task, miner)
+	err = s.assignTask(ctx, task, miner)
 	if err != nil {
-		return nil, err
+		span.SetTag("error", true)
+		span.LogKV("event", "failed to assign task", "message", err)
+		return &v1.Task{}, nil
 	}
 
 	return toTaskResponse(task), nil
