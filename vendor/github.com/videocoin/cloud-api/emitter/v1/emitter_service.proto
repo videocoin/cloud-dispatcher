@@ -101,10 +101,10 @@ enum WorkerState {
 message WorkerResponse {
     string address = 1;
     WorkerState state = 2;
-    bytes totalStake = 3;
-    bytes selfStake = 4;
-    bytes delegatedStake = 5;
-    google.protobuf.Timestamp registeredAt = 6 [(gogoproto.stdtime) = true];
+    string total_stake = 3;
+    string self_stake = 4;
+    string delegated_stake = 5;
+    google.protobuf.Timestamp registered_at = 6 [(gogoproto.stdtime) = true];
 }
 
 message ListWorkersResponse {
