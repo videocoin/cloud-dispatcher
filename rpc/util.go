@@ -2,42 +2,14 @@ package rpc
 
 import (
 	"context"
-	"errors"
 
-	"github.com/opentracing/opentracing-go"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
-	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"go.uber.org/zap"
 )
-
-var (
-	ErrClientIDIsEmpty  = errors.New("client id is empty")
-	ErrClientIDNotFound = errors.New("client id not found")
-)
-
-func (s *Server) authenticate(ctx context.Context, clientID string) (*minersv1.MinerResponse, error) {
-	span, spanCtx := opentracing.StartSpanFromContext(ctx, "rpc.authenticate")
-	defer span.Finish()
-
-	if clientID == "" {
-		return nil, ErrClientIDIsEmpty
-	}
-
-	miner, err := s.miners.GetByID(spanCtx, &minersv1.MinerRequest{Id: clientID})
-	if err != nil {
-		return nil, err
-	}
-
-	if miner == nil {
-		return nil, ErrClientIDNotFound
-	}
-
-	return miner, nil
-}
 
 func (s *Server) getTask(id string) (*datastore.Task, error) {
 	task, err := s.dm.GetTaskByID(context.Background(), id)

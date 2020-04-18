@@ -209,6 +209,28 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 	return toTaskResponse(task), nil
 }
 
+func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmentRequest) (*prototypes.Empty, error) {
+	miner, err := s.authenticate(ctx, req.ClientID)
+	if err != nil {
+		s.logger.Warn("failed to auth", zap.Error(err))
+		return nil, rpc.ErrRpcUnauthenticated
+	}
+
+	task, err := s.getTask(req.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		err := s.eb.EmitSegmentTranscoded(context.Background(), req, task, miner)
+		if err != nil {
+			s.logger.Error("failed to emit segment transcoded", zap.Error(err))
+		}
+	}()
+
+	return new(prototypes.Empty), nil
+}
+
 func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*prototypes.Empty, error) {
 	relTasks, err := s.dm.GetTasksByStreamID(ctx, req.StreamId)
 	if err != nil {
@@ -375,26 +397,4 @@ func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.Conf
 		RPCNodeURL: s.rpcNodeURL,
 		SyncerURL:  s.syncerURL,
 	}, nil
-}
-
-func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmentRequest) (*prototypes.Empty, error) {
-	miner, err := s.authenticate(ctx, req.ClientID)
-	if err != nil {
-		s.logger.Warn("failed to auth", zap.Error(err))
-		return nil, rpc.ErrRpcUnauthenticated
-	}
-
-	task, err := s.getTask(req.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	go func() {
-		err := s.eb.EmitSegmentTranscoded(context.Background(), req, task, miner)
-		if err != nil {
-			s.logger.Error("failed to emit segment transcoded", zap.Error(err))
-		}
-	}()
-
-	return new(prototypes.Empty), nil
 }

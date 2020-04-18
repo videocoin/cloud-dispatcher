@@ -5,6 +5,7 @@ import (
 	"net"
 
 	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpcauth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	grpcctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -83,7 +84,7 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 			grpctracing.UnaryServerInterceptor(tracerOpts...),
 			grpcprometheus.UnaryServerInterceptor,
 			grpczap.UnaryServerInterceptor(ctxzap.Extract(ctx), zapOpts...),
-			// grpc_auth.UnaryServerInterceptor(myAuthFunction),
+			grpcauth.UnaryServerInterceptor(nil),
 		)),
 	}
 
