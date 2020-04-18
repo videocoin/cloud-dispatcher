@@ -1,13 +1,8 @@
 package service
 
-import (
-	"github.com/sirupsen/logrus"
-)
-
 type Config struct {
-	Name    string        `envconfig:"-"`
-	Version string        `envconfig:"-"`
-	Logger  *logrus.Entry `envconfig:"-"`
+	Name    string `envconfig:"-"`
+	Version string `envconfig:"-"`
 
 	RPCAddr          string `envconfig:"RPC_ADDR" default:"0.0.0.0:5008"`
 	AccountsRPCAddr  string `envconfig:"ACCOUNTS_RPC_ADDR" default:"0.0.0.0:5001"`

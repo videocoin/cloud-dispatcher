@@ -1,9 +1,16 @@
 package rpc
 
 import (
+	"context"
 	"net"
 
-	"github.com/sirupsen/logrus"
+	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	grpcctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	grpctracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/opentracing/opentracing-go"
 	accountsv1 "github.com/videocoin/cloud-api/accounts/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
@@ -13,15 +20,14 @@ import (
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-pkg/consul"
-	"github.com/videocoin/cloud-pkg/grpcutil"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
-	"google.golang.org/grpc/health/grpc_health_v1"
+	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 )
 
 type ServerOpts struct {
-	Logger     *logrus.Entry
 	Addr       string
 	DM         *datastore.DataManager
 	EB         *eventbus.EventBus
@@ -36,7 +42,7 @@ type ServerOpts struct {
 }
 
 type Server struct {
-	logger     *logrus.Entry
+	logger     *zap.Logger
 	addr       string
 	grpc       *grpc.Server
 	listen     net.Listener
@@ -52,19 +58,43 @@ type Server struct {
 	rpcNodeURL string
 }
 
-func NewServer(opts *ServerOpts) (*Server, error) {
-	grpcOpts := grpcutil.DefaultServerOpts(opts.Logger)
-	grpcOpts = append(grpcOpts, grpc.MaxRecvMsgSize(1024*1024*1024))
-	grpcOpts = append(grpcOpts, grpc.MaxSendMsgSize(1024*1024*1024))
+func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
+	// grpclogrus.ReplaceGrpcLogger(logger)
+	// grpczap.ReplaceGrpcLoggerV2(zapLogger)
+
+	tracerOpts := []grpctracing.Option{
+		grpctracing.WithTracer(opentracing.GlobalTracer()),
+		grpctracing.WithFilterFunc(func(ctx context.Context, fullMethodName string) bool {
+			return fullMethodName != "/grpc.health.v1.Health/Check"
+		}),
+	}
+
+	zapOpts := []grpczap.Option{
+		grpczap.WithDecider(
+			func(methodFullName string, err error) bool {
+				return methodFullName != "/grpc.health.v1.Health/Check"
+			},
+		),
+	}
+
+	grpcOpts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(grpcmiddleware.ChainUnaryServer(
+			grpcctxtags.UnaryServerInterceptor(),
+			grpctracing.UnaryServerInterceptor(tracerOpts...),
+			grpcprometheus.UnaryServerInterceptor,
+			grpczap.UnaryServerInterceptor(ctxzap.Extract(ctx), zapOpts...),
+			// grpc_auth.UnaryServerInterceptor(myAuthFunction),
+		)),
+	}
+
 	grpcServer := grpc.NewServer(grpcOpts...)
-	healthService := health.NewServer()
-	grpc_health_v1.RegisterHealthServer(grpcServer, healthService)
 	listen, err := net.Listen("tcp", opts.Addr)
 	if err != nil {
 		return nil, err
 	}
 
 	rpcServer := &Server{
+		logger:     ctxzap.Extract(ctx).With(zap.String("system", "rpc")),
 		addr:       opts.Addr,
 		grpc:       grpcServer,
 		listen:     listen,
@@ -73,13 +103,15 @@ func NewServer(opts *ServerOpts) (*Server, error) {
 		streams:    opts.Streams,
 		validator:  opts.Validator,
 		miners:     opts.Miners,
-		logger:     opts.Logger.WithField("system", "rpc"),
 		dm:         opts.DM,
 		eb:         opts.EB,
 		consul:     opts.Consul,
 		syncerURL:  opts.SyncerURL,
 		rpcNodeURL: opts.RPCNodeURL,
 	}
+
+	healthSrv := health.NewServer()
+	healthv1.RegisterHealthServer(grpcServer, healthSrv)
 
 	v1.RegisterDispatcherServiceServer(grpcServer, rpcServer)
 	reflection.Register(grpcServer)
@@ -88,6 +120,5 @@ func NewServer(opts *ServerOpts) (*Server, error) {
 }
 
 func (s *Server) Start() error {
-	s.logger.Infof("starting rpc server on %s", s.addr)
 	return s.grpc.Serve(s.listen)
 }

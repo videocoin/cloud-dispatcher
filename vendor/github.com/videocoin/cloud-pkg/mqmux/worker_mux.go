@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 )
 
@@ -17,7 +16,6 @@ type WorkerMux struct {
 	conn       *amqp.Connection
 	consumers  map[string]*WorkerConsumer
 	publishers map[string]*Publisher
-	Logger     *logrus.Entry
 }
 
 func NewWorkerMux(uri string, connPrefix string) (*WorkerMux, error) {
@@ -40,7 +38,6 @@ func NewWorkerMux(uri string, connPrefix string) (*WorkerMux, error) {
 	mux.conn = conn
 	mux.consumers = map[string]*WorkerConsumer{}
 	mux.publishers = map[string]*Publisher{}
-	mux.Logger = logrus.New().WithField("system", "mq")
 	return mux, nil
 }
 
@@ -102,8 +99,6 @@ func (m *WorkerMux) Publisher(name string) error {
 }
 
 func (m *WorkerMux) Run() error {
-	m.Logger.Info("running consumers")
-
 	errCh := make(chan error, 1)
 	for name, wc := range m.consumers {
 		go func(name string, wc *WorkerConsumer) {
@@ -118,16 +113,16 @@ func (m *WorkerMux) Run() error {
 }
 
 func (m *WorkerMux) Close() error {
-	for name, c := range m.consumers {
-		err := c.Ch.Close()
-		if err != nil {
-			m.Logger.Errorf("failed to close consumer %s: %s", name, err)
-		}
-	}
-
 	err := m.conn.Close()
 	if err != nil {
-		m.Logger.Errorf("failed to close connection: %s", err)
+		return err
+	}
+
+	for _, c := range m.consumers {
+		err := c.Ch.Close()
+		if err != nil {
+			continue
+		}
 	}
 
 	return nil
@@ -185,26 +180,19 @@ func (m *WorkerMux) PublishX(name string, message interface{}, headers amqp.Tabl
 }
 
 func (m *WorkerMux) consume(name string, c *WorkerConsumer) error {
-	l := m.Logger.WithField("consumer", name)
-	l.Info("starting consumer")
-
 	for d := range c.D {
-		l.Info("performing message")
-
 		if c.async {
-			go func(l *logrus.Entry, c *WorkerConsumer, d amqp.Delivery) {
+			go func(c *WorkerConsumer, d amqp.Delivery) {
 				err := c.Handler(d)
 				if err != nil {
-					l.Errorf("failed to perform message: %s", err.Error())
 					d.Reject(false)
 					return
 				}
 				d.Ack(false)
-			}(l, c, d)
+			}(c, d)
 		} else {
 			err := c.Handler(d)
 			if err != nil {
-				l.Errorf("failed to perform message: %s", err.Error())
 				d.Reject(false)
 				continue
 			}

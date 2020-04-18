@@ -9,8 +9,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/grafov/m3u8"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"github.com/mailru/dbr"
-	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
@@ -19,23 +19,19 @@ import (
 	"github.com/videocoin/cloud-pkg/dbrutil"
 	"github.com/videocoin/cloud-pkg/hls"
 	"github.com/videocoin/cloud-pkg/uuid4"
+	"go.uber.org/zap"
 )
 
 type DataManager struct {
-	logger   *logrus.Entry
+	logger   *zap.Logger
 	ds       *Datastore
 	streams  pstreamsv1.StreamsServiceClient
 	profiles profilesv1.ProfilesServiceClient
 }
 
-func NewDataManager(
-	ds *Datastore,
-	streams pstreamsv1.StreamsServiceClient,
-	profiles profilesv1.ProfilesServiceClient,
-	logger *logrus.Entry,
-) (*DataManager, error) {
+func NewDataManager(ctx context.Context, ds *Datastore, streams pstreamsv1.StreamsServiceClient, profiles profilesv1.ProfilesServiceClient) (*DataManager, error) {
 	return &DataManager{
-		logger:   logger,
+		logger:   ctxzap.Extract(ctx).With(zap.String("system", "datamanager")),
 		ds:       ds,
 		streams:  streams,
 		profiles: profiles,
@@ -43,8 +39,7 @@ func NewDataManager(
 }
 
 func (m *DataManager) NewContext(ctx context.Context) (context.Context, *dbr.Session, *dbr.Tx, error) {
-	dbLogger := dbrutil.NewDatastoreLogger(m.logger)
-	sess := m.ds.conn.NewSession(dbLogger)
+	sess := m.ds.conn.NewSession(dbrutil.NewZapLogger(m.logger))
 	tx, err := sess.Begin()
 	if err != nil {
 		return ctx, nil, nil, err
@@ -84,8 +79,10 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	ctx context.Context,
 	stream *pstreamsv1.StreamResponse,
 ) ([]*Task, error) {
-	logger := m.logger.WithField("stream_id", stream.ID)
-	logger = logger.WithField("input_type", stream.InputType.String())
+	logger := m.logger.With(
+		zap.String("stream_id", stream.ID),
+		zap.String("input_type", stream.InputType.String()),
+	)
 
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
@@ -104,12 +101,10 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 		return nil, failedTo("get profile", err)
 	}
 
-	logger.Debugf("profile %+v\n", p)
-
 	// File
 	if stream.InputType == streamsv1.InputTypeFile {
 		logger.Info("creating tasks from stream")
-		logger.Infof("reading hls playlist %s", stream.InputURL)
+		logger.Info("reading hls playlist", zap.String("url", stream.InputURL))
 
 		pl, plType, err := hls.ParseHLSFromURL(stream.InputURL)
 		if err != nil {
@@ -208,8 +203,6 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	task.Status = v1.TaskStatusPending
 	task.IsLive = true
 	task.Capacity = p.Capacity
-
-	logger.Debugf("task %+v\n", task)
 
 	profileReq := &profilesv1.RenderRequest{
 		ID:     task.ProfileID,

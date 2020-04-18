@@ -4,17 +4,18 @@
 package grpc_retry
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"sync"
 	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
-	"golang.org/x/net/context"
 	"golang.org/x/net/trace"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -83,24 +84,47 @@ func StreamClientInterceptor(optFuncs ...CallOption) grpc.StreamClientIntercepto
 			return streamer(parentCtx, desc, cc, method, grpcOpts...)
 		}
 		if desc.ClientStreams {
-			return nil, grpc.Errorf(codes.Unimplemented, "grpc_retry: cannot retry on ClientStreams, set grpc_retry.Disable()")
+			return nil, status.Errorf(codes.Unimplemented, "grpc_retry: cannot retry on ClientStreams, set grpc_retry.Disable()")
 		}
-		logTrace(parentCtx, "grpc_retry attempt: %d, no backoff for this call", 0)
-		callCtx := perCallContext(parentCtx, callOpts, 0)
-		newStreamer, err := streamer(callCtx, desc, cc, method, grpcOpts...)
-		if err != nil {
-			// TODO(mwitkow): Maybe dial and transport errors should be retriable?
-			return nil, err
+
+		var lastErr error
+		for attempt := uint(0); attempt < callOpts.max; attempt++ {
+			if err := waitRetryBackoff(attempt, parentCtx, callOpts); err != nil {
+				return nil, err
+			}
+			callCtx := perCallContext(parentCtx, callOpts, 0)
+
+			var newStreamer grpc.ClientStream
+			newStreamer, lastErr = streamer(callCtx, desc, cc, method, grpcOpts...)
+			if lastErr == nil {
+				retryingStreamer := &serverStreamingRetryingStream{
+					ClientStream: newStreamer,
+					callOpts:     callOpts,
+					parentCtx:    parentCtx,
+					streamerCall: func(ctx context.Context) (grpc.ClientStream, error) {
+						return streamer(ctx, desc, cc, method, grpcOpts...)
+					},
+				}
+				return retryingStreamer, nil
+			}
+
+			logTrace(parentCtx, "grpc_retry attempt: %d, got err: %v", attempt, lastErr)
+			if isContextError(lastErr) {
+				if parentCtx.Err() != nil {
+					logTrace(parentCtx, "grpc_retry attempt: %d, parent context error: %v", attempt, parentCtx.Err())
+					// its the parent context deadline or cancellation.
+					return nil, lastErr
+				} else {
+					logTrace(parentCtx, "grpc_retry attempt: %d, context error from retry call", attempt)
+					// its the callCtx deadline or cancellation, in which case try again.
+					continue
+				}
+			}
+			if !isRetriable(lastErr, callOpts) {
+				return nil, lastErr
+			}
 		}
-		retryingStreamer := &serverStreamingRetryingStream{
-			ClientStream: newStreamer,
-			callOpts:     callOpts,
-			parentCtx:    parentCtx,
-			streamerCall: func(ctx context.Context) (grpc.ClientStream, error) {
-				return streamer(ctx, desc, cc, method, grpcOpts...)
-			},
-		}
-		return retryingStreamer, nil
+		return nil, lastErr
 	}
 }
 
@@ -109,7 +133,7 @@ func StreamClientInterceptor(optFuncs ...CallOption) grpc.StreamClientIntercepto
 // a new ClientStream according to the retry policy.
 type serverStreamingRetryingStream struct {
 	grpc.ClientStream
-	bufferedSends []interface{} // single messsage that the client can sen
+	bufferedSends []interface{} // single message that the client can sen
 	receivedGood  bool          // indicates whether any prior receives were successful
 	wasClosedSend bool          // indicates that CloseSend was closed
 	parentCtx     context.Context
@@ -231,7 +255,7 @@ func (s *serverStreamingRetryingStream) reestablishStreamAndResendBuffer(callCtx
 func waitRetryBackoff(attempt uint, parentCtx context.Context, callOpts *options) error {
 	var waitTime time.Duration = 0
 	if attempt > 0 {
-		waitTime = callOpts.backoffFunc(attempt)
+		waitTime = callOpts.backoffFunc(parentCtx, attempt)
 	}
 	if waitTime > 0 {
 		logTrace(parentCtx, "grpc_retry attempt: %d, backoff for %v", attempt, waitTime)
@@ -247,7 +271,7 @@ func waitRetryBackoff(attempt uint, parentCtx context.Context, callOpts *options
 }
 
 func isRetriable(err error, callOpts *options) bool {
-	errCode := grpc.Code(err)
+	errCode := status.Code(err)
 	if isContextError(err) {
 		// context errors are not retriable based on user settings.
 		return false
@@ -261,7 +285,8 @@ func isRetriable(err error, callOpts *options) bool {
 }
 
 func isContextError(err error) bool {
-	return grpc.Code(err) == codes.DeadlineExceeded || grpc.Code(err) == codes.Canceled
+	code := status.Code(err)
+	return code == codes.DeadlineExceeded || code == codes.Canceled
 }
 
 func perCallContext(parentCtx context.Context, callOpts *options, attempt uint) context.Context {
@@ -279,11 +304,11 @@ func perCallContext(parentCtx context.Context, callOpts *options, attempt uint) 
 func contextErrToGrpcErr(err error) error {
 	switch err {
 	case context.DeadlineExceeded:
-		return grpc.Errorf(codes.DeadlineExceeded, err.Error())
+		return status.Errorf(codes.DeadlineExceeded, err.Error())
 	case context.Canceled:
-		return grpc.Errorf(codes.Canceled, err.Error())
+		return status.Errorf(codes.Canceled, err.Error())
 	default:
-		return grpc.Errorf(codes.Unknown, err.Error())
+		return status.Errorf(codes.Unknown, err.Error())
 	}
 }
 

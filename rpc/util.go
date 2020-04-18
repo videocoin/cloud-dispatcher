@@ -11,6 +11,7 @@ import (
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
+	"go.uber.org/zap"
 )
 
 var (
@@ -41,7 +42,7 @@ func (s *Server) authenticate(ctx context.Context, clientID string) (*minersv1.M
 func (s *Server) getTask(id string) (*datastore.Task, error) {
 	task, err := s.dm.GetTaskByID(context.Background(), id)
 	if err != nil {
-		logFailedTo(s.logger, "get task", err)
+		s.logger.Error("failed to get task", zap.Error(err))
 		return nil, rpc.ErrRpcInternal
 	}
 
@@ -55,23 +56,22 @@ func (s *Server) getTask(id string) (*datastore.Task, error) {
 func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
 	ctx := context.Background()
 
-	logger := s.logger.
-		WithField("id", task.ID).
-		WithField("stream_id", task.StreamID)
+	logger := s.logger.With(
+		zap.String("id", task.ID),
+		zap.String("stream_id", task.StreamID),
+	)
 
 	if task.ID != task.StreamID {
 		logger.Info("getting tasks by stream")
 
 		relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
 		if err != nil {
-			logFailedTo(s.logger, "get tasks by stream", err)
+			s.logger.Error("failed to get tasks by stream", zap.Error(err))
 			return
 		}
 
 		relTasksCount := len(relTasks)
 		relCompletedTasksCount := 0
-
-		logger.Infof("relation tasks count - %d", relTasksCount)
 
 		for _, t := range relTasks {
 			if t.Status == v1.TaskStatusCompleted {
@@ -79,14 +79,12 @@ func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
 			}
 		}
 
-		logger.Infof("relation completed tasks count - %d", relCompletedTasksCount)
-
 		if relTasksCount == relCompletedTasksCount {
-			logger.Infof("complete stream")
+			logger.Info("complete stream")
 
 			_, err := s.streams.Complete(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
 			if err != nil {
-				logFailedTo(s.logger, "file publish done", err)
+				s.logger.Error("failed to file publish done", zap.Error(err))
 				return
 			}
 		}
@@ -96,15 +94,13 @@ func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
 func (s *Server) markStreamAsFailedIfNeeded(task *datastore.Task) {
 	ctx := context.Background()
 
-	logger := s.logger.
-		WithField("id", task.ID).
-		WithField("stream_id", task.StreamID)
+	logger := s.logger.With(zap.String("id", task.ID), zap.String("stream_id", task.StreamID))
 
 	if task.ID != task.StreamID {
 		logger.Info("getting tasks by stream")
 		relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
 		if err != nil {
-			logFailedTo(s.logger, "get tasks by stream", err)
+			s.logger.Error("get tasks by stream", zap.Error(err))
 			return
 		}
 
@@ -114,7 +110,7 @@ func (s *Server) markStreamAsFailedIfNeeded(task *datastore.Task) {
 					relTask.Status == v1.TaskStatusCreated || relTask.Status == v1.TaskStatusEncoding {
 					err := s.dm.MarkTaskAsCanceled(ctx, relTask)
 					if err != nil {
-						logFailedTo(s.logger, "mark task as canceled", err)
+						s.logger.Error("failed to mark task as canceled", zap.Error(err))
 						return
 					}
 				}
@@ -127,7 +123,7 @@ func (s *Server) markStreamAsFailedIfNeeded(task *datastore.Task) {
 		&pstreamsv1.UpdateStatusRequest{ID: task.StreamID, Status: streamsv1.StreamStatusFailed},
 	)
 	if err != nil {
-		logFailedTo(s.logger, "update stream status", err)
+		s.logger.Error("failed to update stream status", zap.Error(err))
 		return
 	}
 }
@@ -141,13 +137,13 @@ func (s *Server) markTaskAsRetryable(task *datastore.Task) bool {
 		if taskLogCount < 2 {
 			err := s.dm.MarkTaskAsPending(ctx, task)
 			if err != nil {
-				logFailedTo(s.logger, "mark task as pending (failed)", err)
+				s.logger.Error("mark task as pending (failed)", zap.Error(err))
 			} else {
 				err := s.dm.ClearClientID(ctx, task)
 				if err != nil {
 					s.logger.
-						WithField("task_id", task.ID).
-						Errorf("failed to clear client id: %s", err)
+						With(zap.String("task_id", task.ID)).
+						Error("failed to clear client id", zap.Error(err))
 				}
 				isRetryable = true
 			}
