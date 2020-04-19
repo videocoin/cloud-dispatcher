@@ -11,6 +11,7 @@ import (
 	"github.com/grafov/m3u8"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	"github.com/mailru/dbr"
+	clientv1 "github.com/videocoin/cloud-api/client/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
@@ -23,18 +24,16 @@ import (
 )
 
 type DataManager struct {
-	logger   *zap.Logger
-	ds       *Datastore
-	streams  pstreamsv1.StreamsServiceClient
-	profiles profilesv1.ProfilesServiceClient
+	logger *zap.Logger
+	ds     *Datastore
+	sc     *clientv1.ServiceClient
 }
 
-func NewDataManager(ctx context.Context, ds *Datastore, streams pstreamsv1.StreamsServiceClient, profiles profilesv1.ProfilesServiceClient) (*DataManager, error) {
+func NewDataManager(ctx context.Context, ds *Datastore, sc *clientv1.ServiceClient) (*DataManager, error) {
 	return &DataManager{
-		logger:   ctxzap.Extract(ctx).With(zap.String("system", "datamanager")),
-		ds:       ds,
-		streams:  streams,
-		profiles: profiles,
+		logger: ctxzap.Extract(ctx).With(zap.String("system", "datamanager")),
+		ds:     ds,
+		sc:     sc,
 	}, nil
 }
 
@@ -96,7 +95,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 		ID: stream.ProfileID,
 	}
 
-	p, err := m.profiles.Get(ctx, getProfileReq)
+	p, err := m.sc.Profiles.Get(ctx, getProfileReq)
 	if err != nil {
 		return nil, failedTo("get profile", err)
 	}
@@ -151,7 +150,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				Output:     fmt.Sprintf("%s/%s", outputPath, newSegmentURI),
 				Components: components,
 			}
-			renderResp, err := m.profiles.Render(ctx, profileReq)
+			renderResp, err := m.sc.Profiles.Render(ctx, profileReq)
 			if err != nil {
 				return nil, failedTo("render profile", err)
 			}
@@ -209,7 +208,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 		Input:  task.Input.GetURI(),
 		Output: fmt.Sprintf("%s/%s", task.Output.GetPath(), "index.m3u8"),
 	}
-	renderResp, err := m.profiles.Render(ctx, profileReq)
+	renderResp, err := m.sc.Profiles.Render(ctx, profileReq)
 	if err != nil {
 		return nil, failedTo("render profile", err)
 	}
@@ -549,11 +548,11 @@ func (m *DataManager) ClearClientID(ctx context.Context, task *Task) error {
 }
 
 func (m *DataManager) GetProfile(ctx context.Context, profileID string) (*profilesv1.GetProfileResponse, error) {
-	return m.profiles.Get(ctx, &profilesv1.ProfileRequest{
+	return m.sc.Profiles.Get(ctx, &profilesv1.ProfileRequest{
 		ID: profileID,
 	})
 }
 
 func (m *DataManager) GetStream(ctx context.Context, streamID string) (*pstreamsv1.StreamResponse, error) {
-	return m.streams.Get(ctx, &pstreamsv1.StreamRequest{Id: streamID})
+	return m.sc.Streams.Get(ctx, &pstreamsv1.StreamRequest{Id: streamID})
 }

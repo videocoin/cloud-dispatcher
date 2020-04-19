@@ -12,12 +12,8 @@ import (
 	grpctracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/opentracing/opentracing-go"
-	accountsv1 "github.com/videocoin/cloud-api/accounts/v1"
+	clientv1 "github.com/videocoin/cloud-api/client/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
-	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
-	minersv1 "github.com/videocoin/cloud-api/miners/v1"
-	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
-	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-pkg/consul"
@@ -32,11 +28,7 @@ type ServerOpts struct {
 	Addr       string
 	DM         *datastore.DataManager
 	EB         *eventbus.EventBus
-	Accounts   accountsv1.AccountServiceClient
-	Emitter    emitterv1.EmitterServiceClient
-	Streams    streamsv1.StreamsServiceClient
-	Validator  validatorv1.ValidatorServiceClient
-	Miners     minersv1.MinersServiceClient
+	SC         *clientv1.ServiceClient
 	Consul     *consul.Client
 	SyncerURL  string
 	RPCNodeURL string
@@ -47,11 +39,7 @@ type Server struct {
 	addr       string
 	grpc       *grpc.Server
 	listen     net.Listener
-	accounts   accountsv1.AccountServiceClient
-	emitter    emitterv1.EmitterServiceClient
-	streams    streamsv1.StreamsServiceClient
-	validator  validatorv1.ValidatorServiceClient
-	miners     minersv1.MinersServiceClient
+	sc         *clientv1.ServiceClient
 	dm         *datastore.DataManager
 	eb         *eventbus.EventBus
 	consul     *consul.Client
@@ -97,18 +85,14 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 	rpcServer := &Server{
 		logger:     ctxzap.Extract(ctx).With(zap.String("system", "rpc")),
 		addr:       opts.Addr,
-		grpc:       grpcServer,
-		listen:     listen,
-		accounts:   opts.Accounts,
-		emitter:    opts.Emitter,
-		streams:    opts.Streams,
-		validator:  opts.Validator,
-		miners:     opts.Miners,
+		sc:         opts.SC,
 		dm:         opts.DM,
 		eb:         opts.EB,
 		consul:     opts.Consul,
 		syncerURL:  opts.SyncerURL,
 		rpcNodeURL: opts.RPCNodeURL,
+		grpc:       grpcServer,
+		listen:     listen,
 	}
 
 	healthSrv := health.NewServer()

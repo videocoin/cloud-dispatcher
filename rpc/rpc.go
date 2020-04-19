@@ -81,7 +81,7 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 			ChunkId:          uint64(task.Output.Num),
 			Reward:           reward,
 		}
-		_, err = s.emitter.AddInputChunk(ctx, achReq)
+		_, err = s.sc.Emitter.AddInputChunk(ctx, achReq)
 		if err != nil {
 			span.SetTag("error", true)
 			span.LogKV("event", "failed to add input chunk", "message", err)
@@ -135,7 +135,7 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 			ClientID: task.ClientID.String,
 			TaskID:   task.ID,
 		}
-		_, err = s.miners.UnassignTask(context.Background(), atReq)
+		_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
 		if err != nil {
 			s.logger.Error("failed to unassign task to miners service", zap.Error(err))
 		}
@@ -179,13 +179,13 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 				ClientID: task.ClientID.String,
 				TaskID:   task.ID,
 			}
-			_, err = s.miners.UnassignTask(context.Background(), atReq)
+			_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
 			if err != nil {
 				s.logger.Error("failed to unassign task to miners service", zap.Error(err))
 			}
 
 			if !isRetryable {
-				_, err = s.streams.PublishDone(
+				_, err = s.sc.Streams.PublishDone(
 					context.Background(),
 					&pstreamsv1.StreamRequest{Id: task.StreamID},
 				)
@@ -255,7 +255,7 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 		}
 	}
 
-	return s.validator.ValidateProof(ctx, req)
+	return s.sc.Validator.ValidateProof(ctx, req)
 }
 
 func (s *Server) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1.PingResponse, error) {
@@ -266,7 +266,7 @@ func (s *Server) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1
 	}
 
 	go func() {
-		_, err := s.miners.Ping(context.Background(), req)
+		_, err := s.sc.Miners.Ping(context.Background(), req)
 		if err != nil {
 			s.logger.With(zap.String("client_id", req.ClientID)).Error("failed to ping", zap.Error(err))
 		}
@@ -287,7 +287,7 @@ func (s *Server) Register(ctx context.Context, req *minersv1.RegistrationRequest
 		zap.String("address", req.Address),
 	).Info("registering")
 
-	_, err = s.miners.Register(ctx, req)
+	_, err = s.sc.Miners.Register(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +298,7 @@ func (s *Server) Register(ctx context.Context, req *minersv1.RegistrationRequest
 func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
 	resp := &v1.InternalConfigResponse{}
 
-	miners, err := s.miners.All(context.Background(), &prototypes.Empty{})
+	miners, err := s.sc.Miners.All(context.Background(), &prototypes.Empty{})
 	if err != nil {
 		return nil, err
 	}
@@ -348,13 +348,13 @@ func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRe
 		resp.Secret = ksPair.Key
 	}
 
-	minersResp, _ := s.miners.GetMinersWithForceTask(context.Background(), &prototypes.Empty{})
+	minersResp, _ := s.sc.Miners.GetMinersWithForceTask(context.Background(), &prototypes.Empty{})
 	if minersResp != nil {
 		for _, minerResp := range minersResp.Items {
 			task, err := s.dm.GetTaskByID(context.Background(), minerResp.TaskId)
 			if err == nil && task == nil {
 				go func() {
-					_, err := s.miners.UnassignTask(
+					_, err := s.sc.Miners.UnassignTask(
 						context.Background(),
 						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
 					)
@@ -370,7 +370,7 @@ func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRe
 				task.Status == v1.TaskStatusFailed ||
 				task.Status == v1.TaskStatusCanceled {
 				go func() {
-					_, err := s.miners.UnassignTask(
+					_, err := s.sc.Miners.UnassignTask(
 						context.Background(),
 						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
 					)

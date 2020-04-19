@@ -158,6 +158,7 @@ github.com/valyala/fasttemplate
 # github.com/videocoin/cloud-api v0.2.15 => ../cloud-api
 ## explicit
 github.com/videocoin/cloud-api/accounts/v1
+github.com/videocoin/cloud-api/client/v1
 github.com/videocoin/cloud-api/dispatcher/v1
 github.com/videocoin/cloud-api/emitter/v1
 github.com/videocoin/cloud-api/miners/v1

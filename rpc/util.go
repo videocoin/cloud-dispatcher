@@ -54,7 +54,7 @@ func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
 		if relTasksCount == relCompletedTasksCount {
 			logger.Info("complete stream")
 
-			_, err := s.streams.Complete(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
+			_, err := s.sc.Streams.Complete(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
 			if err != nil {
 				s.logger.Error("failed to file publish done", zap.Error(err))
 				return
@@ -90,7 +90,7 @@ func (s *Server) markStreamAsFailedIfNeeded(task *datastore.Task) {
 		}
 	}
 
-	_, err := s.streams.UpdateStatus(
+	_, err := s.sc.Streams.UpdateStatus(
 		context.Background(),
 		&pstreamsv1.UpdateStatusRequest{ID: task.StreamID, Status: streamsv1.StreamStatusFailed},
 	)

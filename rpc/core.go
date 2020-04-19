@@ -39,7 +39,7 @@ func (s *Server) getPendingTask(ctx context.Context, miner *minersv1.MinerRespon
 
 	span.LogKV("event", "getting force task list")
 
-	ft, err := s.miners.GetForceTaskList(ctx, &prototypes.Empty{})
+	ft, err := s.sc.Miners.GetForceTaskList(ctx, &prototypes.Empty{})
 	if err != nil {
 		fmtErr := fmt.Errorf("failed to get force task ids: %s", err)
 		return nil, rpc.NewRpcInternalError(fmtErr)
@@ -115,7 +115,7 @@ func (s *Server) assignTask(ctx context.Context, task *datastore.Task, miner *mi
 		ClientID: task.ClientID.String,
 		TaskID:   task.ID,
 	}
-	_, err = s.miners.AssignTask(ctx, atReq)
+	_, err = s.sc.Miners.AssignTask(ctx, atReq)
 	if err != nil {
 		return fmt.Errorf("failed to assign task to miner: %s", err)
 	}

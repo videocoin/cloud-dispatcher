@@ -8,6 +8,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/streadway/amqp"
+	clientv1 "github.com/videocoin/cloud-api/client/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
@@ -18,36 +19,26 @@ import (
 	"go.uber.org/zap"
 )
 
-type Config struct {
-	URI     string
-	Name    string
-	DM      *datastore.DataManager
-	Streams pstreamsv1.StreamsServiceClient
-	Miners  minersv1.MinersServiceClient
-}
-
 type EventBus struct {
-	logger  *zap.Logger
-	mq      *mqmux.WorkerMux
-	dm      *datastore.DataManager
-	streams pstreamsv1.StreamsServiceClient
-	miners  minersv1.MinersServiceClient
+	logger *zap.Logger
+	mq     *mqmux.WorkerMux
+	dm     *datastore.DataManager
+	sc     *clientv1.ServiceClient
 }
 
-func New(ctx context.Context, c *Config) (*EventBus, error) {
+func NewEventBus(ctx context.Context, uri, name string, dm *datastore.DataManager, sc *clientv1.ServiceClient) (*EventBus, error) {
 	logger := ctxzap.Extract(ctx).With(zap.String("system", "eventbus"))
 
-	mq, err := mqmux.NewWorkerMux(c.URI, c.Name)
+	mq, err := mqmux.NewWorkerMux(uri, name)
 	if err != nil {
 		return nil, err
 	}
 
 	return &EventBus{
-		logger:  logger,
-		mq:      mq,
-		dm:      c.DM,
-		streams: c.Streams,
-		miners:  c.Miners,
+		logger: logger,
+		mq:     mq,
+		dm:     dm,
+		sc:     sc,
 	}, nil
 }
 
@@ -112,7 +103,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 			logger.Info("getting stream")
 
 			streamReq := &pstreamsv1.StreamRequest{Id: req.StreamID}
-			streamResp, err := e.streams.Get(ctx, streamReq)
+			streamResp, err := e.sc.Streams.Get(ctx, streamReq)
 			if err != nil {
 				logger.Error("failed to get stream", zap.Error(err))
 				return nil
@@ -137,7 +128,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	case pstreamsv1.EventTypeDelete:
 		{
 			streamReq := &pstreamsv1.StreamRequest{Id: req.StreamID}
-			streamResp, err := e.streams.Get(ctx, streamReq)
+			streamResp, err := e.sc.Streams.Get(ctx, streamReq)
 			if err != nil {
 				logger.Error("failed to get stream", zap.Error(err))
 				return nil
@@ -151,7 +142,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 					TaskID:   req.StreamID,
 				}
 
-				_, err = e.miners.UnassignTask(context.Background(), atReq)
+				_, err = e.sc.Miners.UnassignTask(context.Background(), atReq)
 				if err != nil {
 					logger.Error("failed to unassign task from miner", zap.Error(err))
 				}
@@ -275,7 +266,7 @@ func (e *EventBus) onStreamStatusCancelled(
 				zap.String("task_id", atReq.TaskID),
 			)
 
-			_, err = e.miners.UnassignTask(context.Background(), atReq)
+			_, err = e.sc.Miners.UnassignTask(context.Background(), atReq)
 			if err != nil {
 				logger.Error("failed to unassign task from miner", zap.Error(err))
 			}
@@ -322,7 +313,7 @@ func (e *EventBus) onStreamStatusCompleted(
 			zap.String("task_id", atReq.TaskID),
 		)
 
-		_, err = e.miners.UnassignTask(context.Background(), atReq)
+		_, err = e.sc.Miners.UnassignTask(context.Background(), atReq)
 		if err != nil {
 			logger.Error("failed to unassign task from miner", zap.Error(err))
 		}

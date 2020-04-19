@@ -21,7 +21,7 @@ func (s *Server) authenticate(ctx context.Context, clientID string) (*minersv1.M
 		return nil, ErrClientIDIsEmpty
 	}
 
-	miner, err := s.miners.GetByID(spanCtx, &minersv1.MinerRequest{Id: clientID})
+	miner, err := s.sc.Miners.GetByID(spanCtx, &minersv1.MinerRequest{Id: clientID})
 	if err != nil {
 		return nil, err
 	}
