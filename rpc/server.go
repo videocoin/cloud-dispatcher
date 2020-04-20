@@ -72,7 +72,7 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 			grpctracing.UnaryServerInterceptor(tracerOpts...),
 			grpcprometheus.UnaryServerInterceptor,
 			grpczap.UnaryServerInterceptor(ctxzap.Extract(ctx), zapOpts...),
-			grpcauth.UnaryServerInterceptor(nil),
+			grpcauth.UnaryServerInterceptor(nopAuth),
 		)),
 	}
 

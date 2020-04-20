@@ -164,10 +164,10 @@ func (ds *TaskDatastore) GetByID(ctx context.Context, id string) (*Task, error) 
 	}
 
 	task := new(Task)
-	_, err := tx.Select("*").From(ds.table).Where("id = ?", id).Load(task)
+	err := tx.Select("*").From(ds.table).Where("id = ?", id).LoadStruct(task)
 	if err != nil {
 		if err == dbr.ErrNotFound {
-			return nil, nil
+			return nil, ErrTaskNotFound
 		}
 		return nil, err
 	}

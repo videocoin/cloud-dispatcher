@@ -2,10 +2,15 @@ package rpc
 
 import (
 	"context"
+	"fmt"
+	"math/big"
 	"math/rand"
+	"strconv"
 	"time"
 
 	prototypes "github.com/gogo/protobuf/types"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"github.com/mailru/dbr"
 	"github.com/opentracing/opentracing-go"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
@@ -13,6 +18,7 @@ import (
 	"github.com/videocoin/cloud-api/rpc"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
+	"github.com/videocoin/cloud-dispatcher/datastore"
 	"go.uber.org/zap"
 )
 
@@ -74,10 +80,31 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 			ChunkId:          uint64(task.Output.Num),
 			Reward:           reward,
 		}
-		_, err = s.sc.Emitter.AddInputChunk(ctx, achReq)
+		aicResp, err := s.sc.Emitter.AddInputChunk(ctx, achReq)
 		if err != nil {
 			span.SetTag("error", true)
 			span.LogKV("event", "failed to add input chunk", "message", err)
+
+			s.markTaskAsFailed(ctx, task)
+
+			return &v1.Task{}, nil
+		}
+
+		taskTx := &datastore.TaskTx{
+			TaskID:                task.ID,
+			StreamContractID:      strconv.FormatInt(task.StreamContractID.Int64, 10),
+			StreamContractAddress: task.StreamContractAddress.String,
+			ChunkID:               task.Output.Num,
+			AddInputChunkTx:       dbr.NewNullString(aicResp.Tx),
+			AddInputChunkTxStatus: dbr.NewNullString(aicResp.Status.String()),
+		}
+		err = s.dm.CreateTaskTx(ctx, taskTx)
+		if err != nil {
+			span.SetTag("error", true)
+			span.LogKV("event", "failed to create task tx", "message", err)
+
+			s.markTaskAsFailed(ctx, task)
+
 			return &v1.Task{}, nil
 		}
 	} else {
@@ -173,13 +200,7 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 		}()
 
 		if !isRetryable {
-			err = s.dm.MarkTaskAsFailed(ctx, task)
-			if err != nil {
-				s.logger.Error("failed to mark task as failed", zap.Error(err))
-				return nil, rpc.ErrRpcInternal
-			}
-
-			go s.markStreamAsFailedIfNeeded(task)
+			s.markTaskAsFailed(ctx, task)
 		}
 	}
 
@@ -204,31 +225,44 @@ func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmen
 	return new(prototypes.Empty), nil
 }
 
-func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*prototypes.Empty, error) {
-	relTasks, err := s.dm.GetTasksByStreamID(ctx, req.StreamId)
-	if err != nil {
-		s.logger.
-			With(zap.String("stream_id", req.StreamId)).
-			Error("failed to get tasks by stream", zap.Error(err))
-		return nil, err
+func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*validatorv1.ValidateProofResponse, error) {
+	span := opentracing.SpanFromContext(ctx)
+
+	chunkID := new(big.Int).SetBytes(req.ChunkId).Int64()
+	profileID := new(big.Int).SetBytes(req.ProfileId).Int64()
+
+	span.SetTag("stream_contract_address", req.StreamContractAddress)
+	span.SetTag("chunk_id", chunkID)
+	span.SetTag("profile_id", profileID)
+
+	logger := s.logger.With(
+		zap.String("stream_contract_address", req.StreamContractAddress),
+		zap.Int64("chunk_id", chunkID),
+		zap.Int64("profile_id", profileID),
+	)
+
+	logger.Info("validating proof")
+
+	resp, err := s.sc.Validator.ValidateProof(ctx, req)
+	if resp != nil {
+		data := datastore.UpdateProof{
+			StreamContractAddress: req.StreamContractAddress,
+			ChunkID:               chunkID,
+			ProfileID:             profileID,
+			SubmitProofTx:         req.SubmitProofTx,
+			SubmitProofTxStatus:   req.SubmitProofTxStatus,
+			ValidateProofTx:       resp.ValidateProofTx,
+			ValidateProofTxStatus: resp.ValidateProofTxStatus,
+			ScrapProofTx:          resp.ScrapProofTx,
+			ScrapProofTxStatus:    resp.ScrapProofTxStatus,
+		}
+		err := s.dm.UpdateProof(ctxzap.ToContext(ctx, logger), data)
+		if err != nil {
+			logger.Error("failed to update proof", zap.Error(err))
+		}
 	}
 
-	relTasksCount := len(relTasks)
-	relCompletedTasksCount := 0
-
-	if relTasksCount > 1 {
-		for _, t := range relTasks {
-			if t.Status == v1.TaskStatusCompleted {
-				relCompletedTasksCount++
-			}
-		}
-
-		if relTasksCount == relCompletedTasksCount+1 {
-			req.IsLast = true
-		}
-	}
-
-	return s.sc.Validator.ValidateProof(ctx, req)
+	return resp, err
 }
 
 func (s *Server) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1.PingResponse, error) {
@@ -308,7 +342,7 @@ func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRe
 	if minersResp != nil {
 		for _, minerResp := range minersResp.Items {
 			task, err := s.dm.GetTaskByID(context.Background(), minerResp.TaskId)
-			if err == nil && task == nil {
+			if err == datastore.ErrTaskNotFound {
 				go func() {
 					_, err := s.sc.Miners.UnassignTask(
 						context.Background(),
@@ -353,4 +387,63 @@ func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.Conf
 		RPCNodeURL: s.rpcNodeURL,
 		SyncerURL:  s.syncerURL,
 	}, nil
+}
+
+func (s *Server) AddInputChunk(ctx context.Context, req *v1.AddInputChunkRequest) (*v1.AddInputChunkResponse, error) {
+	span := opentracing.SpanFromContext(ctx)
+	span.SetTag("stream_id", req.StreamId)
+	span.SetTag("stream_contract_id", req.StreamContractId)
+	span.SetTag("chunk_id", req.ChunkId)
+	span.SetTag("reward", req.Reward)
+
+	logger := s.logger.With(
+		zap.String("stream_id", req.StreamId),
+		zap.Uint64("stream_contract_id", req.StreamContractId),
+		zap.Uint64("chunk_id", req.ChunkId),
+		zap.Float64("reward", req.Reward),
+	)
+
+	logger.Info("add input chunk")
+
+	aicReq := &emitterv1.AddInputChunkRequest{
+		StreamContractId: req.StreamContractId,
+		ChunkId:          req.ChunkId,
+		Reward:           req.Reward,
+	}
+
+	aicResp, err := s.sc.Emitter.AddInputChunk(ctx, aicReq)
+	if err != nil {
+		if aicResp != nil {
+			logger = logger.With(zap.String("tx", aicResp.Tx))
+		}
+		logger.Error("failed to add input chunk", zap.Error(err))
+		fmtErr := fmt.Errorf("failed to Emitter.AddInputChunk: %s", err)
+		return nil, rpc.NewRpcInternalError(fmtErr)
+	}
+
+	resp := &v1.AddInputChunkResponse{
+		Tx:     aicResp.Tx,
+		Status: aicResp.Status,
+	}
+
+	logger = logger.With(zap.String("tx", resp.Tx), zap.String("tx_status", resp.Status.String()))
+	logger.Info("add input chunk successful")
+
+	if aicResp != nil {
+		data := datastore.AddInputChunk{
+			StreamID:              req.StreamId,
+			StreamContractID:      strconv.FormatUint(req.StreamContractId, 10),
+			ChunkID:               int64(req.ChunkId),
+			AddInputChunkTx:       resp.Tx,
+			AddInputChunkTxStatus: resp.Status,
+		}
+		err := s.dm.AddInputChunk(ctxzap.ToContext(ctx, logger), data)
+		if err != nil {
+			logger.Error("failed to dm.AddInputChunk", zap.Error(err))
+			fmtErr := fmt.Errorf("failed to dm.AddInputChunk: %s", err)
+			return resp, rpc.NewRpcInternalError(fmtErr)
+		}
+	}
+
+	return resp, nil
 }

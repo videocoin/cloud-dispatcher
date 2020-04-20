@@ -5,6 +5,7 @@ package cloud.api.emitter.v1;
 import "google/protobuf/empty.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
+import "emitter/v1/receipt.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -14,9 +15,9 @@ option (gogoproto.goproto_registration) = true;
 option (gogoproto.messagename_all) = true;
 
 service EmitterService {
-    rpc InitStream(InitStreamRequest) returns (google.protobuf.Empty) {}
-    rpc EndStream(EndStreamRequest) returns (google.protobuf.Empty) {}
-    rpc AddInputChunk(AddInputChunkRequest) returns (google.protobuf.Empty) {}
+    rpc InitStream(InitStreamRequest) returns (InitStreamResponse) {}
+    rpc EndStream(EndStreamRequest) returns (EndStreamResponse) {}
+    rpc AddInputChunk(AddInputChunkRequest) returns (AddInputChunkResponse) {}
     rpc GetBalance(BalanceRequest) returns (BalanceResponse) {}
     rpc Deposit(DepositRequest) returns (DepositResponse) {}
     rpc ValidateProof(ValidateProofRequest) returns (ValidateProofResponse) {}
@@ -35,6 +36,18 @@ message InitStreamRequest {
     repeated string profiles_ids = 4;
 }
 
+message InitStreamResponse {
+    string request_stream_tx = 1;
+    ReceiptStatus request_stream_tx_status = 2;
+    string approve_stream_tx = 3;
+    ReceiptStatus approve_stream_tx_status = 4;
+    string create_stream_tx = 5;
+    ReceiptStatus create_stream_tx_status = 6;
+    string allow_refund_tx = 7;
+    ReceiptStatus allow_refund_tx_status = 8;
+    string stream_contract_address = 9;
+}
+
 message EndStreamRequest {
     string stream_id = 1;
     string user_id = 2;
@@ -42,10 +55,22 @@ message EndStreamRequest {
     string stream_contract_address = 4;
 }
 
+message EndStreamResponse {
+    string end_stream_tx = 1;
+    ReceiptStatus end_stream_tx_status = 2;
+    string escrow_refund_tx = 3;
+    ReceiptStatus escrow_refund_tx_status = 4;
+}
+
 message AddInputChunkRequest {
     uint64 stream_contract_id = 1;
     uint64 chunk_id = 2;
     double reward = 4;
+}
+
+message AddInputChunkResponse {
+    string tx = 1;
+    ReceiptStatus status = 2;
 }
 
 message BalanceRequest {
@@ -65,7 +90,8 @@ message DepositRequest {
 }
 
 message DepositResponse {
-    bytes tx_id = 1;
+    string tx = 1;
+    ReceiptStatus status = 2;
 }
 
 message ValidateProofRequest {
@@ -75,7 +101,8 @@ message ValidateProofRequest {
 }
 
 message ValidateProofResponse {
-    bytes tx_id = 1;
+    string tx = 1;
+    ReceiptStatus status = 2;
 }
 
 message ScrapProofRequest {
@@ -85,7 +112,8 @@ message ScrapProofRequest {
 }
 
 message ScrapProofResponse {
-    bytes tx_id = 1;
+    string tx = 1;
+    ReceiptStatus status = 2;
 }
 
 enum WorkerState {

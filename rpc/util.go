@@ -63,9 +63,7 @@ func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
 	}
 }
 
-func (s *Server) markStreamAsFailedIfNeeded(task *datastore.Task) {
-	ctx := context.Background()
-
+func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore.Task) {
 	logger := s.logger.With(zap.String("id", task.ID), zap.String("stream_id", task.StreamID))
 
 	if task.ID != task.StreamID {
@@ -91,7 +89,7 @@ func (s *Server) markStreamAsFailedIfNeeded(task *datastore.Task) {
 	}
 
 	_, err := s.sc.Streams.UpdateStatus(
-		context.Background(),
+		ctx,
 		&pstreamsv1.UpdateStatusRequest{ID: task.StreamID, Status: streamsv1.StreamStatusFailed},
 	)
 	if err != nil {

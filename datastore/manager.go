@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -555,4 +556,121 @@ func (m *DataManager) GetProfile(ctx context.Context, profileID string) (*profil
 
 func (m *DataManager) GetStream(ctx context.Context, streamID string) (*pstreamsv1.StreamResponse, error) {
 	return m.sc.Streams.Get(ctx, &pstreamsv1.StreamRequest{Id: streamID})
+}
+
+func (m *DataManager) CreateTaskTx(ctx context.Context, taskTx *TaskTx) error {
+	logger := m.logger
+
+	logger.Info("creating task tx")
+
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("create task", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.TaskTxs.Create(ctx, taskTx)
+	if err != nil {
+		return failedTo("create task tx", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DataManager) UpdateProof(ctx context.Context, data UpdateProof) error {
+	logger := ctxzap.Extract(ctx)
+
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("create task tx", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	logger.Info("getting task tx by stream contract addrees and chunk id")
+
+	taskTx, err := m.ds.TaskTxs.GetByStreamContractAddressAndChunkID(ctx, data.StreamContractAddress, data.ChunkID)
+	if err != nil {
+		return failedTo("get task tx by stream contract address and chunk id", err)
+	}
+
+	if taskTx.SubmitProofTx.String != "" || taskTx.ValidateProofTx.String != "" || taskTx.ScrapProofTx.String != "" {
+		return errors.New("proof data already exist")
+	}
+
+	logger.Info("updating proof")
+
+	err = m.ds.TaskTxs.UpdateProof(ctx, taskTx, data)
+	if err != nil {
+		return failedTo("update validate proof", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *DataManager) AddInputChunk(ctx context.Context, data AddInputChunk) error {
+	logger := ctxzap.Extract(ctx)
+
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("create task tx", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	logger.Info("getting task by stream id")
+
+	task, err := m.ds.Tasks.GetByID(ctx, data.StreamID)
+	if err != nil {
+		return failedTo("get task by stream id", err)
+	}
+
+	logger = logger.With(zap.String("task_id", task.ID))
+
+	logger.Info("getting task tx by stream contract id and chunk id")
+
+	_, err = m.ds.TaskTxs.GetByStreamContractIDAndChunkID(ctx, data.StreamContractID, data.ChunkID)
+	if err != nil {
+		if err == ErrTaskTxNotFound {
+			newTaskTx := &TaskTx{
+				TaskID:                task.ID,
+				StreamContractID:      strconv.FormatInt(task.StreamContractID.Int64, 10),
+				StreamContractAddress: task.StreamContractAddress.String,
+				ChunkID:               data.ChunkID,
+				AddInputChunkTx:       dbr.NewNullString(data.AddInputChunkTx),
+				AddInputChunkTxStatus: dbr.NewNullString(data.AddInputChunkTxStatus.String()),
+			}
+
+			logger.Info("creating task tx",
+				zap.String("task_id", newTaskTx.ID),
+				zap.String("stream_contract_id", newTaskTx.StreamContractID),
+				zap.String("stream_contract_address", newTaskTx.StreamContractAddress),
+				zap.Int64("chunk_id", newTaskTx.ChunkID),
+				zap.String("add_input_chunk_tx", data.AddInputChunkTx),
+				zap.String("add_input_chunk_tx_status", data.AddInputChunkTxStatus.String()),
+			)
+
+			createErr := m.CreateTaskTx(ctx, newTaskTx)
+			if createErr != nil {
+				logger.Error("failed to create tx", zap.Error(err))
+			}
+		} else {
+			return failedTo("get task tx by stream contract id and chunk id", err)
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

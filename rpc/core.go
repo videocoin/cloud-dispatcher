@@ -11,6 +11,7 @@ import (
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	"github.com/videocoin/cloud-dispatcher/datastore"
+	"go.uber.org/zap"
 )
 
 func (s *Server) getPendingTask(ctx context.Context, miner *minersv1.MinerResponse) (*datastore.Task, error) {
@@ -126,4 +127,14 @@ func (s *Server) assignTask(ctx context.Context, task *datastore.Task, miner *mi
 	// }
 
 	return nil
+}
+
+func (s *Server) markTaskAsFailed(ctx context.Context, task *datastore.Task) {
+	err := s.dm.MarkTaskAsFailed(ctx, task)
+	if err != nil {
+		s.logger.Error("failed to mark task as failed", zap.Error(err))
+		return
+	}
+
+	s.markStreamAsFailedIfNeeded(ctx, task)
 }

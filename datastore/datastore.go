@@ -10,6 +10,7 @@ type Datastore struct {
 
 	Tasks        *TaskDatastore
 	TasksHistory *TasksHistoryDatastore
+	TaskTxs      *TaskTxDatastore
 }
 
 func NewDatastore(uri string) (*Datastore, error) {
@@ -40,6 +41,13 @@ func NewDatastore(uri string) (*Datastore, error) {
 	}
 
 	ds.TasksHistory = thDs
+
+	taskTxsDs, err := NewTaskTxDatastore(conn)
+	if err != nil {
+		return nil, err
+	}
+
+	ds.TaskTxs = taskTxsDs
 
 	return ds, nil
 }

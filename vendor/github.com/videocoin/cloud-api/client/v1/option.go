@@ -36,3 +36,21 @@ func NewDefaultClientDialOption(ctx context.Context) []grpc.DialOption {
 		}),
 	}
 }
+
+func NewDefaultClientValidatorDialOption(ctx context.Context) []grpc.DialOption {
+	return []grpc.DialOption{
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(
+			grpcmiddleware.ChainUnaryClient(
+				grpctracing.UnaryClientInterceptor(grpctracing.WithTracer(opentracing.GlobalTracer())),
+				grpcprometheus.UnaryClientInterceptor,
+				grpczap.UnaryClientInterceptor(ctxzap.Extract(ctx)),
+			),
+		),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:                time.Second * 10,
+			Timeout:             time.Second * 10,
+			PermitWithoutStream: true,
+		}),
+	}
+}

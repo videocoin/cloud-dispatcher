@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package cloud.api.validator.v1;
 
-import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/videocoin/cloud-api/emitter/v1/receipt.proto";
 
 option go_package = "v1";
 option (gogoproto.unmarshaler_all) = false;
@@ -12,13 +12,21 @@ option (gogoproto.marshaler_all) = false;
 option (gogoproto.sizer_all) = false;
 
 service ValidatorService {
-  rpc ValidateProof(ValidateProofRequest) returns (google.protobuf.Empty) {}
+  rpc ValidateProof(ValidateProofRequest) returns (ValidateProofResponse) {}
 }
 
 message ValidateProofRequest {
-    string stream_id = 1;
-    string stream_contract_address = 2;
-    bytes profile_id = 3;
-    bytes output_chunk_id = 4;
-    bool is_last = 5;
+  string stream_id = 1;
+  string stream_contract_address = 2;
+  bytes profile_id = 3;
+  bytes chunk_id = 4;
+  string submit_proof_tx = 5;
+  cloud.api.emitter.v1.ReceiptStatus submit_proof_tx_status = 6;
+}
+
+message ValidateProofResponse {
+  string validate_proof_tx = 1;
+  cloud.api.emitter.v1.ReceiptStatus validate_proof_tx_status = 2;
+  string scrap_proof_tx = 3;
+  cloud.api.emitter.v1.ReceiptStatus scrap_proof_tx_status = 4;
 }
