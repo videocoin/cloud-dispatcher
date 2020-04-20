@@ -29,13 +29,10 @@ service DispatcherService {
   rpc MarkSegmentAsTranscoded(TaskSegmentRequest) returns (google.protobuf.Empty) {}
 }
 
-message TaskPendingRequest {
-  string client_id = 1 [(gogoproto.customname) = "ClientID"];
-}
+message TaskPendingRequest {}
 
 message TaskRequest {
-  string client_id = 1 [(gogoproto.customname) = "ClientID"];
-  string id = 2 [(gogoproto.customname) = "ID"];
+  string id = 1 [(gogoproto.customname) = "ID"];
 }
 
 message InternalConfigRequest {}
@@ -54,8 +51,7 @@ message ConfigResponse {
 }
 
 message TaskSegmentRequest {
-  string client_id = 1 [(gogoproto.customname) = "ClientID"];
-  string id = 2 [(gogoproto.customname) = "ID"];
-  uint64 num = 3;
-  double duration = 4;
+  string id = 1 [(gogoproto.customname) = "ID"];
+  uint64 num = 2;
+  double duration = 3;
 }
