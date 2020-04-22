@@ -64,36 +64,40 @@ func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
 }
 
 func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore.Task) {
-	logger := s.logger.With(zap.String("id", task.ID), zap.String("stream_id", task.StreamID))
+	logger := s.logger.With(
+		zap.String("id", task.ID),
+		zap.String("stream_id", task.StreamID),
+	)
 
 	if task.ID != task.StreamID {
 		logger.Info("getting tasks by stream")
 		relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
 		if err != nil {
-			s.logger.Error("get tasks by stream", zap.Error(err))
-			return
-		}
-
-		for _, relTask := range relTasks {
-			if relTask.ID != task.ID {
-				if relTask.Status == v1.TaskStatusAssigned || relTask.Status == v1.TaskStatusPending ||
-					relTask.Status == v1.TaskStatusCreated || relTask.Status == v1.TaskStatusEncoding {
-					err := s.dm.MarkTaskAsCanceled(ctx, relTask)
-					if err != nil {
-						s.logger.Error("failed to mark task as canceled", zap.Error(err))
-						return
+			logger.Error("get tasks by stream", zap.Error(err))
+		} else {
+			for _, relTask := range relTasks {
+				if relTask.ID != task.ID {
+					if relTask.Status == v1.TaskStatusCreated ||
+						relTask.Status == v1.TaskStatusPending ||
+						relTask.Status == v1.TaskStatusAssigned ||
+						relTask.Status == v1.TaskStatusEncoding {
+						err := s.dm.MarkTaskAsCanceled(ctx, relTask)
+						if err != nil {
+							logger.Error("failed to mark task as canceled", zap.Error(err))
+						}
 					}
 				}
 			}
 		}
 	}
 
-	_, err := s.sc.Streams.UpdateStatus(
-		ctx,
-		&pstreamsv1.UpdateStatusRequest{ID: task.StreamID, Status: streamsv1.StreamStatusFailed},
-	)
+	updateReq := &pstreamsv1.UpdateStatusRequest{
+		ID:     task.StreamID,
+		Status: streamsv1.StreamStatusFailed,
+	}
+	_, err := s.sc.Streams.UpdateStatus(ctx, updateReq)
 	if err != nil {
-		s.logger.Error("failed to update stream status", zap.Error(err))
+		logger.Error("failed to update stream status", zap.Error(err))
 		return
 	}
 }
