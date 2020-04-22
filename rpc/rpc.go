@@ -140,6 +140,9 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 		return nil, err
 	}
 
+	logger := s.logger.With(zap.String("task_id", task.ID))
+	logger.Info("marking task as completed")
+
 	defer func() {
 		atReq := &minersv1.AssignTaskRequest{
 			ClientID: task.ClientID.String,
@@ -147,23 +150,23 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 		}
 		_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
 		if err != nil {
-			s.logger.Error("failed to unassign task to miners service", zap.Error(err))
+			logger.Error("failed to unassign task to miners service", zap.Error(err))
 		}
 	}()
 
 	if task.Status < v1.TaskStatusCompleted {
 		err = s.dm.MarkTaskAsCompleted(ctx, task)
 		if err != nil {
-			s.logger.Error("failed to mark task as completed", zap.Error(err))
+			logger.Error("failed to mark task as completed", zap.Error(err))
 			return nil, rpc.ErrRpcInternal
 		}
 
 		err := s.eb.EmitTaskCompleted(context.Background(), task, miner)
 		if err != nil {
-			s.logger.Error("failed to emit task completed", zap.Error(err))
+			logger.Error("failed to emit task completed", zap.Error(err))
 		}
 
-		go s.markStreamAsCompletedIfNeeded(task)
+		s.markStreamAsCompletedIfNeeded(ctxzap.ToContext(ctx, logger), task)
 	}
 
 	return toTaskResponse(task), nil

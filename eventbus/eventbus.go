@@ -115,11 +115,11 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 					logger.Info("stream is pending")
 					return e.onStreamStatusPending(ctx, streamResp)
 				}
-			case streamsv1.StreamStatusCompleted:
-				{
-					logger.Info("stream is completed")
-					return e.onStreamStatusCompleted(ctx, streamResp)
-				}
+			// case streamsv1.StreamStatusCompleted:
+			// 	{
+			// 		logger.Info("stream is completed")
+			// 		return e.onStreamStatusCompleted(ctx, streamResp)
+			// 	}
 			case streamsv1.StreamStatusCancelled:
 				logger.Info("stream was cancelled")
 				return e.onStreamStatusCancelled(ctx, streamResp)
@@ -286,49 +286,49 @@ func (e *EventBus) onStreamStatusCancelled(
 	return nil
 }
 
-func (e *EventBus) onStreamStatusCompleted(
-	ctx context.Context,
-	stream *pstreamsv1.StreamResponse,
-) error {
-	span, spanCtx := opentracing.StartSpanFromContext(ctx, "onStreamStatusCompleted")
-	defer span.Finish()
+// func (e *EventBus) onStreamStatusCompleted(
+// 	ctx context.Context,
+// 	stream *pstreamsv1.StreamResponse,
+// ) error {
+// 	span, spanCtx := opentracing.StartSpanFromContext(ctx, "onStreamStatusCompleted")
+// 	defer span.Finish()
 
-	logger := e.logger.With(zap.String("stream_id", stream.ID))
+// 	logger := e.logger.With(zap.String("stream_id", stream.ID))
 
-	task, err := e.dm.GetTaskByID(spanCtx, stream.ID)
-	if err != nil {
-		tracerext.SpanLogError(span, err)
-		return err
-	}
+// 	task, err := e.dm.GetTaskByID(spanCtx, stream.ID)
+// 	if err != nil {
+// 		tracerext.SpanLogError(span, err)
+// 		return err
+// 	}
 
-	defer func() {
-		atReq := &minersv1.AssignTaskRequest{
-			ClientID: task.ClientID.String,
-			TaskID:   task.ID,
-		}
+// 	defer func() {
+// 		atReq := &minersv1.AssignTaskRequest{
+// 			ClientID: task.ClientID.String,
+// 			TaskID:   task.ID,
+// 		}
 
-		logger.Info(
-			"unassigning task",
-			zap.String("client_id", atReq.ClientID),
-			zap.String("task_id", atReq.TaskID),
-		)
+// 		logger.Info(
+// 			"unassigning task",
+// 			zap.String("client_id", atReq.ClientID),
+// 			zap.String("task_id", atReq.TaskID),
+// 		)
 
-		_, err = e.sc.Miners.UnassignTask(context.Background(), atReq)
-		if err != nil {
-			logger.Error("failed to unassign task from miner", zap.Error(err))
-		}
-	}()
+// 		_, err = e.sc.Miners.UnassignTask(context.Background(), atReq)
+// 		if err != nil {
+// 			logger.Error("failed to unassign task from miner", zap.Error(err))
+// 		}
+// 	}()
 
-	logger.Info("marking task as completed")
+// 	logger.Info("marking task as completed")
 
-	err = e.dm.MarkTaskAsCompleted(ctx, task)
-	if err != nil {
-		logger.Error("failed to mark task as completed", zap.Error(err))
-		return nil
-	}
+// 	err = e.dm.MarkTaskAsCompleted(ctx, task)
+// 	if err != nil {
+// 		logger.Error("failed to mark task as completed", zap.Error(err))
+// 		return nil
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func (e *EventBus) EmitTaskCompleted(
 	ctx context.Context,

@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
@@ -25,20 +26,15 @@ func (s *Server) getTask(id string) (*datastore.Task, error) {
 	return task, nil
 }
 
-func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
-	ctx := context.Background()
-
-	logger := s.logger.With(
-		zap.String("id", task.ID),
-		zap.String("stream_id", task.StreamID),
-	)
+func (s *Server) markStreamAsCompletedIfNeeded(ctx context.Context, task *datastore.Task) {
+	logger := ctxzap.Extract(ctx).With(zap.String("stream_id", task.StreamID))
 
 	if task.ID != task.StreamID {
 		logger.Info("getting tasks by stream")
 
 		relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
 		if err != nil {
-			s.logger.Error("failed to get tasks by stream", zap.Error(err))
+			logger.Error("failed to get tasks by stream", zap.Error(err))
 			return
 		}
 
@@ -54,9 +50,9 @@ func (s *Server) markStreamAsCompletedIfNeeded(task *datastore.Task) {
 		if relTasksCount == relCompletedTasksCount {
 			logger.Info("complete stream")
 
-			_, err := s.sc.Streams.Complete(context.Background(), &pstreamsv1.StreamRequest{Id: task.StreamID})
+			_, err := s.sc.Streams.Complete(ctx, &pstreamsv1.StreamRequest{Id: task.StreamID})
 			if err != nil {
-				s.logger.Error("failed to file publish done", zap.Error(err))
+				logger.Error("failed to file publish done", zap.Error(err))
 				return
 			}
 		}
