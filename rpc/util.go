@@ -52,9 +52,17 @@ func (s *Server) markStreamAsCompletedIfNeeded(ctx context.Context, task *datast
 
 			_, err := s.sc.Streams.Complete(ctx, &pstreamsv1.StreamRequest{Id: task.StreamID})
 			if err != nil {
-				logger.Error("failed to file publish done", zap.Error(err))
+				logger.Error("failed to complete stream", zap.Error(err))
 				return
 			}
+		}
+	} else {
+		logger.Info("complete stream")
+
+		_, err := s.sc.Streams.Complete(ctx, &pstreamsv1.StreamRequest{Id: task.StreamID})
+		if err != nil {
+			logger.Error("failed to complete stream", zap.Error(err))
+			return
 		}
 	}
 }
