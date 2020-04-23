@@ -47,27 +47,15 @@ type Server struct {
 }
 
 func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
-	tracerOpts := []grpctracing.Option{
-		grpctracing.WithTracer(opentracing.GlobalTracer()),
-		grpctracing.WithFilterFunc(func(ctx context.Context, fullMethodName string) bool {
-			return fullMethodName != "/grpc.health.v1.Health/Check"
-		}),
-	}
-
-	logrusOpts := []grpclogrus.Option{
-		grpclogrus.WithDecider(
-			func(methodFullName string, err error) bool {
-				return methodFullName != "/grpc.health.v1.Health/Check"
-			},
-		),
-	}
-
 	grpcOpts := []grpc.ServerOption{
 		grpc.UnaryInterceptor(grpcmiddleware.ChainUnaryServer(
 			grpcctxtags.UnaryServerInterceptor(),
-			grpctracing.UnaryServerInterceptor(tracerOpts...),
+			grpctracing.UnaryServerInterceptor(
+				grpctracing.WithTracer(opentracing.GlobalTracer()),
+				grpctracing.WithFilterFunc(tracingFilter),
+			),
 			grpcprometheus.UnaryServerInterceptor,
-			grpclogrus.UnaryServerInterceptor(grpclogrus.Extract(ctx), logrusOpts...),
+			grpclogrus.UnaryServerInterceptor(grpclogrus.Extract(ctx), grpclogrus.WithDecider(logrusFilter)),
 			grpcauth.UnaryServerInterceptor(nopAuth),
 		)),
 	}
