@@ -15,10 +15,10 @@ require (
 	github.com/mailru/dbr v3.0.0+incompatible
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/prometheus/client_golang v1.3.0
+	github.com/sirupsen/logrus v1.4.2
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 	github.com/videocoin/cloud-api v0.2.15
 	github.com/videocoin/cloud-pkg v0.0.6
-	go.uber.org/zap v1.14.1
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	google.golang.org/grpc v1.28.1
 )

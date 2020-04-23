@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
+	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	clientv1 "github.com/videocoin/cloud-api/client/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
@@ -16,18 +17,17 @@ import (
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-pkg/mqmux"
 	tracerext "github.com/videocoin/cloud-pkg/tracer"
-	"go.uber.org/zap"
 )
 
 type EventBus struct {
-	logger *zap.Logger
+	logger *logrus.Entry
 	mq     *mqmux.WorkerMux
 	dm     *datastore.DataManager
 	sc     *clientv1.ServiceClient
 }
 
 func NewEventBus(ctx context.Context, uri, name string, dm *datastore.DataManager, sc *clientv1.ServiceClient) (*EventBus, error) {
-	logger := ctxzap.Extract(ctx).With(zap.String("system", "eventbus"))
+	logger := ctxlogrus.Extract(ctx).WithField("system", "eventbus")
 
 	mq, err := mqmux.NewWorkerMux(uri, name)
 	if err != nil {
@@ -70,7 +70,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	tracer := opentracing.GlobalTracer()
 	spanCtx, err := tracer.Extract(opentracing.TextMap, mqmux.RMQHeaderCarrier(d.Headers))
 
-	e.logger.Debug("handling body", zap.String("body", string(d.Body)))
+	e.logger.WithField("body", string(d.Body)).Debug("handling body")
 
 	if err != nil {
 		span = tracer.StartSpan("eventbus.handleStreamEvent")
@@ -90,10 +90,9 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 	span.SetTag("stream_id", req.StreamID)
 	span.SetTag("event_type", req.Type.String())
 
-	logger := e.logger.With(
-		zap.String("stream_id", req.StreamID),
-		zap.String("event_type", req.Type.String()),
-	)
+	logger := e.logger.
+		WithField("stream_id", req.StreamID).
+		WithField("event_type", req.Type.String())
 
 	ctx := opentracing.ContextWithSpan(context.Background(), span)
 
@@ -105,7 +104,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 			streamReq := &pstreamsv1.StreamRequest{Id: req.StreamID}
 			streamResp, err := e.sc.Streams.Get(ctx, streamReq)
 			if err != nil {
-				logger.Error("failed to get stream", zap.Error(err))
+				logger.WithError(err).Error("failed to get stream")
 				return nil
 			}
 
@@ -130,7 +129,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 			streamReq := &pstreamsv1.StreamRequest{Id: req.StreamID}
 			streamResp, err := e.sc.Streams.Get(ctx, streamReq)
 			if err != nil {
-				logger.Error("failed to get stream", zap.Error(err))
+				logger.WithError(err).Error("failed to get stream")
 				return nil
 			}
 
@@ -144,7 +143,7 @@ func (e *EventBus) handleStreamEvent(d amqp.Delivery) error {
 
 				_, err = e.sc.Miners.UnassignTask(context.Background(), atReq)
 				if err != nil {
-					logger.Error("failed to unassign task from miner", zap.Error(err))
+					logger.WithError(err).Error("failed to unassign task from miner")
 				}
 			}
 		}
@@ -160,7 +159,7 @@ func (e *EventBus) handleTaskEvent(d amqp.Delivery) error {
 	tracer := opentracing.GlobalTracer()
 	spanCtx, err := tracer.Extract(opentracing.TextMap, mqmux.RMQHeaderCarrier(d.Headers))
 
-	e.logger.Debug("handling body", zap.String("body", string(d.Body)))
+	e.logger.WithField("body", string(d.Body)).Debug("handling body")
 
 	if err != nil {
 		span = tracer.StartSpan("eventbus.handleTaskEvent")
@@ -180,10 +179,7 @@ func (e *EventBus) handleTaskEvent(d amqp.Delivery) error {
 	span.SetTag("task_id", req.TaskID)
 	span.SetTag("event_type", req.Type.String())
 
-	logger := e.logger.With(
-		zap.String("stream_id", req.TaskID),
-		zap.String("event_type", req.Type.String()),
-	)
+	logger := e.logger.WithField("stream_id", req.TaskID).WithField("event_type", req.Type.String())
 
 	ctx := opentracing.ContextWithSpan(context.Background(), span)
 
@@ -194,21 +190,21 @@ func (e *EventBus) handleTaskEvent(d amqp.Delivery) error {
 
 			task, err := e.dm.GetTaskByID(ctx, req.TaskID)
 			if err != nil {
-				logger.Error("failed to get task", zap.Error(err))
+				logger.WithError(err).Error("failed to get task")
 				return err
 			}
 
 			if req.Status == v1.TaskStatusPending {
 				err = e.dm.MarkTaskAsPending(ctx, task)
 				if err != nil {
-					logger.Error("failed to mark task as pending", zap.Error(err))
+					logger.WithError(err).Error("failed to mark task as pending")
 					return err
 				}
 			}
 
 			err = e.dm.ClearClientID(ctx, task)
 			if err != nil {
-				logger.Error("failed to clear client id", zap.Error(err))
+				logger.WithError(err).Error("failed to clear client id")
 				return err
 			}
 		}
@@ -226,12 +222,12 @@ func (e *EventBus) onStreamStatusPending(
 	span, spanCtx := opentracing.StartSpanFromContext(ctx, "onStreamStatusPending")
 	defer span.Finish()
 
-	logger := e.logger.With(zap.String("stream_id", stream.ID))
+	logger := e.logger.WithField("stream_id", stream.ID)
 
 	logger.Info("creating tasks")
 	_, err := e.dm.CreateTasksFromStreamResponse(spanCtx, stream)
 	if err != nil {
-		logger.Error("failed to creating tasks", zap.Error(err))
+		logger.WithError(err).Error("failed to creating tasks")
 		return err
 	}
 
@@ -245,7 +241,7 @@ func (e *EventBus) onStreamStatusCancelled(
 	span, spanCtx := opentracing.StartSpanFromContext(ctx, "onStreamStatusCancelled")
 	defer span.Finish()
 
-	logger := e.logger.With(zap.String("stream_id", stream.ID))
+	logger := e.logger.WithField("stream_id", stream.ID)
 
 	tasks, err := e.dm.GetTasksByStreamID(spanCtx, stream.ID)
 	if err != nil {
@@ -260,15 +256,14 @@ func (e *EventBus) onStreamStatusCancelled(
 				TaskID:   task.ID,
 			}
 
-			logger.Info(
-				"unassigning task",
-				zap.String("client_id", atReq.ClientID),
-				zap.String("task_id", atReq.TaskID),
-			)
+			logger.WithFields(logrus.Fields{
+				"client_id": atReq.ClientID,
+				"task_id":   atReq.TaskID,
+			}).Info("unassigning task")
 
 			_, err = e.sc.Miners.UnassignTask(context.Background(), atReq)
 			if err != nil {
-				logger.Error("failed to unassign task from miner", zap.Error(err))
+				logger.WithError(err).Error("failed to unassign task from miner")
 			}
 		}
 	}()
@@ -278,57 +273,13 @@ func (e *EventBus) onStreamStatusCancelled(
 	for _, task := range tasks {
 		err = e.dm.MarkTaskAsCanceled(ctx, task)
 		if err != nil {
-			logger.Error("failed to mark task as cancelled", zap.Error(err))
+			logger.WithError(err).Error("failed to mark task as cancelled")
 			continue
 		}
 	}
 
 	return nil
 }
-
-// func (e *EventBus) onStreamStatusCompleted(
-// 	ctx context.Context,
-// 	stream *pstreamsv1.StreamResponse,
-// ) error {
-// 	span, spanCtx := opentracing.StartSpanFromContext(ctx, "onStreamStatusCompleted")
-// 	defer span.Finish()
-
-// 	logger := e.logger.With(zap.String("stream_id", stream.ID))
-
-// 	task, err := e.dm.GetTaskByID(spanCtx, stream.ID)
-// 	if err != nil {
-// 		tracerext.SpanLogError(span, err)
-// 		return err
-// 	}
-
-// 	defer func() {
-// 		atReq := &minersv1.AssignTaskRequest{
-// 			ClientID: task.ClientID.String,
-// 			TaskID:   task.ID,
-// 		}
-
-// 		logger.Info(
-// 			"unassigning task",
-// 			zap.String("client_id", atReq.ClientID),
-// 			zap.String("task_id", atReq.TaskID),
-// 		)
-
-// 		_, err = e.sc.Miners.UnassignTask(context.Background(), atReq)
-// 		if err != nil {
-// 			logger.Error("failed to unassign task from miner", zap.Error(err))
-// 		}
-// 	}()
-
-// 	logger.Info("marking task as completed")
-
-// 	err = e.dm.MarkTaskAsCompleted(ctx, task)
-// 	if err != nil {
-// 		logger.Error("failed to mark task as completed", zap.Error(err))
-// 		return nil
-// 	}
-
-// 	return nil
-// }
 
 func (e *EventBus) EmitTaskCompleted(
 	ctx context.Context,
@@ -347,7 +298,7 @@ func (e *EventBus) EmitTaskCompleted(
 			mqmux.RMQHeaderCarrier(headers),
 		)
 		if err != nil {
-			e.logger.Error("failed to span inject", zap.Error(err))
+			e.logger.WithError(err).Error("failed to span inject")
 		}
 	}
 
@@ -407,7 +358,7 @@ func (e *EventBus) EmitSegmentTranscoded(
 			mqmux.RMQHeaderCarrier(headers),
 		)
 		if err != nil {
-			e.logger.Error("failed to span inject", zap.Error(err))
+			e.logger.WithError(err).Error("failed to span inject")
 		}
 	}
 

@@ -3,19 +3,19 @@ package service
 import (
 	"context"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
+	"github.com/sirupsen/logrus"
 	clientv1 "github.com/videocoin/cloud-api/client/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-dispatcher/metrics"
 	"github.com/videocoin/cloud-dispatcher/rpc"
 	"github.com/videocoin/cloud-pkg/consul"
-	"go.uber.org/zap"
 )
 
 type Service struct {
 	cfg    *Config
-	logger *zap.Logger
+	logger *logrus.Entry
 	rpc    *rpc.Server
 	eb     *eventbus.EventBus
 	mc     *metrics.Collector
@@ -72,7 +72,7 @@ func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 
 	svc := &Service{
 		cfg:    cfg,
-		logger: ctxzap.Extract(ctx),
+		logger: ctxlogrus.Extract(ctx),
 		rpc:    rpc,
 		eb:     eb,
 		mc:     mc,
@@ -84,7 +84,7 @@ func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 
 func (s *Service) Start(errCh chan error) {
 	go func() {
-		s.logger.Info("starting rpc server", zap.String("addr", s.cfg.RPCAddr))
+		s.logger.WithField("addr", s.cfg.RPCAddr).Info("starting rpc server")
 		errCh <- s.rpc.Start()
 	}()
 
@@ -94,7 +94,7 @@ func (s *Service) Start(errCh chan error) {
 	}()
 
 	go func() {
-		s.logger.Info("starting metrics server", zap.String("addr", s.cfg.MetricsAddr))
+		s.logger.WithField("addr", s.cfg.MetricsAddr).Info("starting metrics server")
 		errCh <- s.ms.Start()
 	}()
 

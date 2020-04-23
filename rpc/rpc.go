@@ -9,9 +9,10 @@ import (
 	"time"
 
 	prototypes "github.com/gogo/protobuf/types"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/mailru/dbr"
 	"github.com/opentracing/opentracing-go"
+	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
@@ -19,7 +20,6 @@ import (
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
-	"go.uber.org/zap"
 )
 
 func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
@@ -140,7 +140,7 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 		return nil, err
 	}
 
-	logger := s.logger.With(zap.String("task_id", task.ID))
+	logger := s.logger.WithField("task_id", task.ID)
 	logger.Info("marking task as completed")
 
 	defer func() {
@@ -150,23 +150,23 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 		}
 		_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
 		if err != nil {
-			logger.Error("failed to unassign task to miners service", zap.Error(err))
+			logger.WithError(err).Error("failed to unassign task to miners service")
 		}
 	}()
 
 	if task.Status < v1.TaskStatusCompleted {
 		err = s.dm.MarkTaskAsCompleted(ctx, task)
 		if err != nil {
-			logger.Error("failed to mark task as completed", zap.Error(err))
+			logger.WithError(err).Error("failed to mark task as completed")
 			return nil, rpc.ErrRpcInternal
 		}
 
 		err := s.eb.EmitTaskCompleted(context.Background(), task, miner)
 		if err != nil {
-			logger.Error("failed to emit task completed", zap.Error(err))
+			logger.WithError(err).Error("failed to emit task completed")
 		}
 
-		s.markStreamAsCompletedIfNeeded(ctxzap.ToContext(ctx, logger), task)
+		s.markStreamAsCompletedIfNeeded(ctxlogrus.ToContext(ctx, logger), task)
 	}
 
 	return toTaskResponse(task), nil
@@ -188,7 +188,7 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 			}
 			_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
 			if err != nil {
-				s.logger.Error("failed to unassign task to miners service", zap.Error(err))
+				s.logger.WithError(err).Error("failed to unassign task to miners service")
 			}
 
 			if !isRetryable {
@@ -197,7 +197,7 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 					&pstreamsv1.StreamRequest{Id: task.StreamID},
 				)
 				if err != nil {
-					s.logger.Error("failed to publish done", zap.Error(err))
+					s.logger.WithError(err).Error("failed to publish done")
 				}
 			}
 		}()
@@ -221,7 +221,7 @@ func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmen
 	go func() {
 		err := s.eb.EmitSegmentTranscoded(context.Background(), req, task, miner)
 		if err != nil {
-			s.logger.Error("failed to emit segment transcoded", zap.Error(err))
+			s.logger.WithError(err).Error("failed to emit segment transcoded")
 		}
 	}()
 
@@ -238,11 +238,11 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 	span.SetTag("chunk_id", chunkID)
 	span.SetTag("profile_id", profileID)
 
-	logger := s.logger.With(
-		zap.String("stream_contract_address", req.StreamContractAddress),
-		zap.Int64("chunk_id", chunkID),
-		zap.Int64("profile_id", profileID),
-	)
+	logger := s.logger.WithFields(logrus.Fields{
+		"stream_contract_address": req.StreamContractAddress,
+		"chunk_id":                chunkID,
+		"profile_id":              profileID,
+	})
 
 	logger.Info("validating proof")
 
@@ -259,9 +259,9 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 			ScrapProofTx:          resp.ScrapProofTx,
 			ScrapProofTxStatus:    resp.ScrapProofTxStatus,
 		}
-		err := s.dm.UpdateProof(ctxzap.ToContext(ctx, logger), data)
+		err := s.dm.UpdateProof(ctxlogrus.ToContext(ctx, logger), data)
 		if err != nil {
-			logger.Error("failed to update proof", zap.Error(err))
+			logger.WithError(err).Error("failed to update proof")
 		}
 	}
 
@@ -272,7 +272,7 @@ func (s *Server) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1
 	go func() {
 		_, err := s.sc.Miners.Ping(context.Background(), req)
 		if err != nil {
-			s.logger.With(zap.String("client_id", req.ClientID)).Error("failed to ping", zap.Error(err))
+			s.logger.WithError(err).WithField("client_id", req.ClientID).Error("failed to ping")
 		}
 	}()
 
@@ -352,8 +352,9 @@ func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRe
 						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
 					)
 					s.logger.
-						With(zap.String("task_id", minerResp.TaskId)).
-						Error("failed to unassign task", zap.Error(err))
+						WithError(err).
+						WithField("task_id", minerResp.TaskId).
+						Error("failed to unassign task")
 				}()
 
 				continue
@@ -368,8 +369,9 @@ func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRe
 						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
 					)
 					s.logger.
-						With(zap.String("task_id", minerResp.TaskId)).
-						Error("failed to unassign task", zap.Error(err))
+						WithError(err).
+						WithField("task_id", minerResp.TaskId).
+						Error("failed to unassign task")
 				}()
 
 				continue
@@ -399,12 +401,12 @@ func (s *Server) AddInputChunk(ctx context.Context, req *v1.AddInputChunkRequest
 	span.SetTag("chunk_id", req.ChunkId)
 	span.SetTag("reward", req.Reward)
 
-	logger := s.logger.With(
-		zap.String("stream_id", req.StreamId),
-		zap.Uint64("stream_contract_id", req.StreamContractId),
-		zap.Uint64("chunk_id", req.ChunkId),
-		zap.Float64("reward", req.Reward),
-	)
+	logger := s.logger.WithFields(logrus.Fields{
+		"stream_id":          req.StreamId,
+		"stream_contract_id": req.StreamContractId,
+		"chunk_id":           req.ChunkId,
+		"reward":             req.Reward,
+	})
 
 	logger.Info("add input chunk")
 
@@ -417,9 +419,9 @@ func (s *Server) AddInputChunk(ctx context.Context, req *v1.AddInputChunkRequest
 	aicResp, err := s.sc.Emitter.AddInputChunk(ctx, aicReq)
 	if err != nil {
 		if aicResp != nil {
-			logger = logger.With(zap.String("tx", aicResp.Tx))
+			logger = logger.WithField("tx", aicResp.Tx)
 		}
-		logger.Error("failed to add input chunk", zap.Error(err))
+		logger.WithError(err).Error("failed to add input chunk")
 		fmtErr := fmt.Errorf("failed to Emitter.AddInputChunk: %s", err)
 		return nil, rpc.NewRpcInternalError(fmtErr)
 	}
@@ -429,7 +431,10 @@ func (s *Server) AddInputChunk(ctx context.Context, req *v1.AddInputChunkRequest
 		Status: aicResp.Status,
 	}
 
-	logger = logger.With(zap.String("tx", resp.Tx), zap.String("tx_status", resp.Status.String()))
+	logger = logger.WithFields(logrus.Fields{
+		"tx":        resp.Tx,
+		"tx_status": resp.Status.String(),
+	})
 	logger.Info("add input chunk successful")
 
 	if aicResp != nil {
@@ -440,9 +445,9 @@ func (s *Server) AddInputChunk(ctx context.Context, req *v1.AddInputChunkRequest
 			AddInputChunkTx:       resp.Tx,
 			AddInputChunkTxStatus: resp.Status,
 		}
-		err := s.dm.AddInputChunk(ctxzap.ToContext(ctx, logger), data)
+		err := s.dm.AddInputChunk(ctxlogrus.ToContext(ctx, logger), data)
 		if err != nil {
-			logger.Error("failed to dm.AddInputChunk", zap.Error(err))
+			logger.WithError(err).Error("failed to dm.AddInputChunk")
 			fmtErr := fmt.Errorf("failed to dm.AddInputChunk: %s", err)
 			return resp, rpc.NewRpcInternalError(fmtErr)
 		}

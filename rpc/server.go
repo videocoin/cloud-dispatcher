@@ -6,18 +6,17 @@ import (
 
 	grpcmiddleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpcauth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
-	grpczap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	grpclogrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpcctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpctracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/opentracing/opentracing-go"
+	"github.com/sirupsen/logrus"
 	clientv1 "github.com/videocoin/cloud-api/client/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-pkg/consul"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
@@ -35,7 +34,7 @@ type ServerOpts struct {
 }
 
 type Server struct {
-	logger     *zap.Logger
+	logger     *logrus.Entry
 	addr       string
 	grpc       *grpc.Server
 	listen     net.Listener
@@ -48,9 +47,6 @@ type Server struct {
 }
 
 func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
-	// grpclogrus.ReplaceGrpcLogger(logger)
-	// grpczap.ReplaceGrpcLoggerV2(zapLogger)
-
 	tracerOpts := []grpctracing.Option{
 		grpctracing.WithTracer(opentracing.GlobalTracer()),
 		grpctracing.WithFilterFunc(func(ctx context.Context, fullMethodName string) bool {
@@ -58,8 +54,8 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 		}),
 	}
 
-	zapOpts := []grpczap.Option{
-		grpczap.WithDecider(
+	logrusOpts := []grpclogrus.Option{
+		grpclogrus.WithDecider(
 			func(methodFullName string, err error) bool {
 				return methodFullName != "/grpc.health.v1.Health/Check"
 			},
@@ -71,7 +67,7 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 			grpcctxtags.UnaryServerInterceptor(),
 			grpctracing.UnaryServerInterceptor(tracerOpts...),
 			grpcprometheus.UnaryServerInterceptor,
-			grpczap.UnaryServerInterceptor(ctxzap.Extract(ctx), zapOpts...),
+			grpclogrus.UnaryServerInterceptor(grpclogrus.Extract(ctx), logrusOpts...),
 			grpcauth.UnaryServerInterceptor(nopAuth),
 		)),
 	}
@@ -83,7 +79,7 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 	}
 
 	rpcServer := &Server{
-		logger:     ctxzap.Extract(ctx).With(zap.String("system", "rpc")),
+		logger:     grpclogrus.Extract(ctx).WithField("system", "rpc"),
 		addr:       opts.Addr,
 		sc:         opts.SC,
 		dm:         opts.DM,

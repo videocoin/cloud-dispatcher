@@ -3,19 +3,19 @@ package rpc
 import (
 	"context"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
+	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
-	"go.uber.org/zap"
 )
 
 func (s *Server) getTask(id string) (*datastore.Task, error) {
 	task, err := s.dm.GetTaskByID(context.Background(), id)
 	if err != nil {
-		s.logger.Error("failed to get task", zap.Error(err))
+		s.logger.WithError(err).Error("failed to get task")
 		return nil, rpc.ErrRpcInternal
 	}
 
@@ -27,14 +27,14 @@ func (s *Server) getTask(id string) (*datastore.Task, error) {
 }
 
 func (s *Server) markStreamAsCompletedIfNeeded(ctx context.Context, task *datastore.Task) {
-	logger := ctxzap.Extract(ctx).With(zap.String("stream_id", task.StreamID))
+	logger := ctxlogrus.Extract(ctx).WithField("stream_id", task.StreamID)
 
 	if task.ID != task.StreamID {
 		logger.Info("getting tasks by stream")
 
 		relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
 		if err != nil {
-			logger.Error("failed to get tasks by stream", zap.Error(err))
+			logger.WithError(err).Error("failed to get tasks by stream")
 			return
 		}
 
@@ -52,7 +52,7 @@ func (s *Server) markStreamAsCompletedIfNeeded(ctx context.Context, task *datast
 
 			_, err := s.sc.Streams.Complete(ctx, &pstreamsv1.StreamRequest{Id: task.StreamID})
 			if err != nil {
-				logger.Error("failed to complete stream", zap.Error(err))
+				logger.WithError(err).Error("failed to complete stream")
 				return
 			}
 		}
@@ -61,23 +61,23 @@ func (s *Server) markStreamAsCompletedIfNeeded(ctx context.Context, task *datast
 
 		_, err := s.sc.Streams.Complete(ctx, &pstreamsv1.StreamRequest{Id: task.StreamID})
 		if err != nil {
-			logger.Error("failed to complete stream", zap.Error(err))
+			logger.WithError(err).Error("failed to complete stream")
 			return
 		}
 	}
 }
 
 func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore.Task) {
-	logger := s.logger.With(
-		zap.String("id", task.ID),
-		zap.String("stream_id", task.StreamID),
-	)
+	logger := s.logger.WithFields(logrus.Fields{
+		"task_id":   task.ID,
+		"stream_id": task.StreamID,
+	})
 
 	if task.ID != task.StreamID {
 		logger.Info("getting tasks by stream")
 		relTasks, err := s.dm.GetTasksByStreamID(ctx, task.StreamID)
 		if err != nil {
-			logger.Error("get tasks by stream", zap.Error(err))
+			logger.WithError(err).Error("get tasks by stream")
 		} else {
 			for _, relTask := range relTasks {
 				if relTask.ID != task.ID {
@@ -87,7 +87,7 @@ func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore
 						relTask.Status == v1.TaskStatusEncoding {
 						err := s.dm.MarkTaskAsCanceled(ctx, relTask)
 						if err != nil {
-							logger.Error("failed to mark task as canceled", zap.Error(err))
+							logger.WithError(err).Error("failed to mark task as canceled")
 						}
 					}
 				}
@@ -101,7 +101,7 @@ func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore
 	}
 	_, err := s.sc.Streams.UpdateStatus(ctx, updateReq)
 	if err != nil {
-		logger.Error("failed to update stream status", zap.Error(err))
+		logger.WithError(err).Error("failed to update stream status")
 		return
 	}
 }
@@ -115,13 +115,14 @@ func (s *Server) markTaskAsRetryable(task *datastore.Task) bool {
 		if taskLogCount < 2 {
 			err := s.dm.MarkTaskAsPending(ctx, task)
 			if err != nil {
-				s.logger.Error("mark task as pending (failed)", zap.Error(err))
+				s.logger.WithError(err).Error("mark task as pending (failed)")
 			} else {
 				err := s.dm.ClearClientID(ctx, task)
 				if err != nil {
 					s.logger.
-						With(zap.String("task_id", task.ID)).
-						Error("failed to clear client id", zap.Error(err))
+						WithField("task_id", task.ID).
+						WithError(err).
+						Error("failed to clear client id")
 				}
 				isRetryable = true
 			}

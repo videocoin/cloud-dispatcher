@@ -5,11 +5,10 @@ import (
 	"strings"
 
 	grpcauth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	"github.com/videocoin/cloud-pkg/grpcutil"
-	"go.uber.org/zap"
 )
 
 func nopAuth(ctx context.Context) (context.Context, error) {
@@ -35,7 +34,7 @@ func (s *Server) AuthFuncOverride(ctx context.Context, fullMethodName string) (c
 			return nil, rpc.ErrRpcUnauthenticated
 		}
 
-		ctxzap.Extract(ctx).Error("failed to get miner", zap.Error(err))
+		ctxlogrus.Extract(ctx).WithError(err).Error("failed to get miner")
 
 		return nil, rpc.ErrRpcUnauthenticated
 	}

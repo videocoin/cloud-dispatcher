@@ -10,8 +10,9 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/grafov/m3u8"
-	"github.com/grpc-ecosystem/go-grpc-middleware/logging/zap/ctxzap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/mailru/dbr"
+	"github.com/sirupsen/logrus"
 	clientv1 "github.com/videocoin/cloud-api/client/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
@@ -21,25 +22,24 @@ import (
 	"github.com/videocoin/cloud-pkg/dbrutil"
 	"github.com/videocoin/cloud-pkg/hls"
 	"github.com/videocoin/cloud-pkg/uuid4"
-	"go.uber.org/zap"
 )
 
 type DataManager struct {
-	logger *zap.Logger
+	logger *logrus.Entry
 	ds     *Datastore
 	sc     *clientv1.ServiceClient
 }
 
 func NewDataManager(ctx context.Context, ds *Datastore, sc *clientv1.ServiceClient) (*DataManager, error) {
 	return &DataManager{
-		logger: ctxzap.Extract(ctx).With(zap.String("system", "datamanager")),
+		logger: ctxlogrus.Extract(ctx).WithField("system", "datamanager"),
 		ds:     ds,
 		sc:     sc,
 	}, nil
 }
 
 func (m *DataManager) NewContext(ctx context.Context) (context.Context, *dbr.Session, *dbr.Tx, error) {
-	sess := m.ds.conn.NewSession(dbrutil.NewZapLogger(m.logger))
+	sess := m.ds.conn.NewSession(dbrutil.NewLogrusLogger(m.logger))
 	tx, err := sess.Begin()
 	if err != nil {
 		return ctx, nil, nil, err
@@ -79,10 +79,10 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	ctx context.Context,
 	stream *pstreamsv1.StreamResponse,
 ) ([]*Task, error) {
-	logger := m.logger.With(
-		zap.String("stream_id", stream.ID),
-		zap.String("input_type", stream.InputType.String()),
-	)
+	logger := m.logger.WithFields(logrus.Fields{
+		"stream_id":  stream.ID,
+		"input_type": stream.InputType.String(),
+	})
 
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
@@ -104,7 +104,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	// File
 	if stream.InputType == streamsv1.InputTypeFile {
 		logger.Info("creating tasks from stream")
-		logger.Info("reading hls playlist", zap.String("url", stream.InputURL))
+		logger.WithField("url", stream.InputURL).Info("reading hls playlist")
 
 		pl, plType, err := hls.ParseHLSFromURL(stream.InputURL)
 		if err != nil {
@@ -583,7 +583,7 @@ func (m *DataManager) CreateTaskTx(ctx context.Context, taskTx *TaskTx) error {
 }
 
 func (m *DataManager) UpdateProof(ctx context.Context, data UpdateProof) error {
-	logger := ctxzap.Extract(ctx)
+	logger := ctxlogrus.Extract(ctx)
 
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
@@ -618,7 +618,7 @@ func (m *DataManager) UpdateProof(ctx context.Context, data UpdateProof) error {
 }
 
 func (m *DataManager) AddInputChunk(ctx context.Context, data AddInputChunk) error {
-	logger := ctxzap.Extract(ctx)
+	logger := ctxlogrus.Extract(ctx)
 
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
@@ -633,8 +633,7 @@ func (m *DataManager) AddInputChunk(ctx context.Context, data AddInputChunk) err
 		return failedTo("get task by stream id", err)
 	}
 
-	logger = logger.With(zap.String("task_id", task.ID))
-
+	logger = logger.WithField("task_id", task.ID)
 	logger.Info("getting task tx by stream contract id and chunk id")
 
 	_, err = m.ds.TaskTxs.GetByStreamContractIDAndChunkID(ctx, data.StreamContractID, data.ChunkID)
@@ -649,18 +648,11 @@ func (m *DataManager) AddInputChunk(ctx context.Context, data AddInputChunk) err
 				AddInputChunkTxStatus: dbr.NewNullString(data.AddInputChunkTxStatus.String()),
 			}
 
-			logger.Info("creating task tx",
-				zap.String("task_id", newTaskTx.ID),
-				zap.String("stream_contract_id", newTaskTx.StreamContractID),
-				zap.String("stream_contract_address", newTaskTx.StreamContractAddress),
-				zap.Int64("chunk_id", newTaskTx.ChunkID),
-				zap.String("add_input_chunk_tx", data.AddInputChunkTx),
-				zap.String("add_input_chunk_tx_status", data.AddInputChunkTxStatus.String()),
-			)
+			logger.Info("creating task tx")
 
 			createErr := m.CreateTaskTx(ctx, newTaskTx)
 			if createErr != nil {
-				logger.Error("failed to create tx", zap.Error(err))
+				logger.WithError(err).Error("failed to create tx")
 			}
 		} else {
 			return failedTo("get task tx by stream contract id and chunk id", err)
