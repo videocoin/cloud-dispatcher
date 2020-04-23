@@ -26,7 +26,6 @@ type ServiceClient struct {
 func NewServiceClientFromEnvconfig(ctx context.Context, config interface{}) (*ServiceClient, error) {
 	sc := &ServiceClient{}
 	opts := NewDefaultClientDialOption(ctx)
-	dispatcherOpts := NewDefaultClientDialOptionWithoutRetry(ctx)
 
 	info := gatherServiceClientInfo(config)
 	for _, item := range info {
@@ -81,7 +80,7 @@ func NewServiceClientFromEnvconfig(ctx context.Context, config interface{}) (*Se
 			}
 		case "dispatcher":
 			{
-				cli, err := NewDispatcherServiceClient(ctx, item.Addr, dispatcherOpts...)
+				cli, err := NewDispatcherServiceClient(ctx, item.Addr, opts...)
 				if err != nil {
 					return nil, err
 				}
