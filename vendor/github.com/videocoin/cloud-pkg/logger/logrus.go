@@ -9,7 +9,8 @@ import (
 )
 
 func NewLogrusLogger(serviceName string, serviceVersion string) *logrus.Entry {
-	sentryDSN = os.Getenv("SENTRY_DSN")
+	l := logrus.New()
+	logger := logrus.NewEntry(l)
 
 	loglevel = os.Getenv("LOGLEVEL")
 	if loglevel == "" {
@@ -20,14 +21,15 @@ func NewLogrusLogger(serviceName string, serviceVersion string) *logrus.Entry {
 		level = logrus.InfoLevel
 	}
 
-	logrus.SetLevel(level)
+	l.SetLevel(level)
 
 	if level == logrus.DebugLevel {
-		logrus.SetFormatter(&logrus.TextFormatter{TimestampFormat: time.RFC3339Nano})
+		l.SetFormatter(&logrus.TextFormatter{TimestampFormat: time.RFC3339Nano})
 	} else {
-		logrus.SetFormatter(&logrus.JSONFormatter{TimestampFormat: time.RFC3339Nano})
+		l.SetFormatter(&logrus.JSONFormatter{TimestampFormat: time.RFC3339Nano})
 	}
 
+	sentryDSN = os.Getenv("SENTRY_DSN")
 	if sentryDSN != "" {
 		sentryLevels := []logrus.Level{
 			logrus.PanicLevel,
@@ -48,14 +50,13 @@ func NewLogrusLogger(serviceName string, serviceVersion string) *logrus.Entry {
 		sentryHook.SetRelease(serviceVersion)
 
 		if err != nil {
-			logrus.Warning(err)
+			logger.Warning(err)
 		} else {
-			logrus.AddHook(sentryHook)
+			l.AddHook(sentryHook)
 		}
 	}
 
-	logger := logrus.NewEntry(logrus.New())
-	logrus.WithFields(logrus.Fields{
+	logger.WithFields(logrus.Fields{
 		"service": serviceName,
 		"version": serviceVersion,
 	})
