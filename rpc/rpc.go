@@ -87,6 +87,11 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 			return &v1.Task{}, nil
 		}
 
+		err = s.eb.EmitAddInputChunk(ctx, task, miner)
+		if err != nil {
+			logger.WithError(err).Error("failed to emit add input chunk")
+		}
+
 		taskTx := &datastore.TaskTx{
 			TaskID:                task.ID,
 			StreamContractID:      strconv.FormatInt(task.StreamContractID.Int64, 10),
@@ -131,8 +136,6 @@ func (s *Server) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, er
 }
 
 func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
-	miner, _ := MinerFromContext(ctx)
-
 	task, err := s.getTask(req.ID)
 	if err != nil {
 		return nil, err
@@ -157,11 +160,6 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 		if err != nil {
 			logger.WithError(err).Error("failed to mark task as completed")
 			return nil, rpc.ErrRpcInternal
-		}
-
-		err := s.eb.EmitTaskCompleted(context.Background(), task, miner)
-		if err != nil {
-			logger.WithError(err).Error("failed to emit task completed")
 		}
 
 		s.markStreamAsCompletedIfNeeded(ctxlogrus.ToContext(ctx, logger), task)

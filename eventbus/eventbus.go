@@ -281,6 +281,10 @@ func (e *EventBus) onStreamStatusCancelled(
 	return nil
 }
 
+func (e *EventBus) EmitAddInputChunk(ctx context.Context, task *datastore.Task, miner *minersv1.MinerResponse) error {
+	return e.EmitTaskCompleted(ctx, task, miner)
+}
+
 func (e *EventBus) EmitTaskCompleted(
 	ctx context.Context,
 	task *datastore.Task,
