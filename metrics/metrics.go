@@ -76,6 +76,9 @@ func (mc *Collector) collectMetrics() {
 	tasks, err := mc.dm.GetTasks(ctx)
 	if err == nil {
 		for _, task := range tasks {
+			if task.Status == v1.TaskStatusPending && task.IsLock {
+				continue
+			}
 			k := fmt.Sprintf("%s/%s", task.Status, task.MachineType.String)
 			tasksStat[k]++
 			mts = append(mts, task.MachineType.String)

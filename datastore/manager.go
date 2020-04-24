@@ -308,6 +308,26 @@ func (m *DataManager) GetPendingTask(ctx context.Context, excludeIds, excludePro
 	return task, nil
 }
 
+func (m *DataManager) UnlockTask(ctx context.Context, task *Task) error {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("unlock task", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.Tasks.Unlock(ctx, task)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *DataManager) GetTasks(ctx context.Context) ([]*Task, error) {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {

@@ -29,6 +29,7 @@ type Task struct {
 	MachineType           dbr.NullString         `db:"machine_type"`
 	IsLive                bool                   `db:"is_live"`
 	Capacity              *minersv1.CapacityInfo `db:"capacity"`
+	IsLock                bool                   `db:"is_lock"`
 }
 
 func TaskFromStreamResponse(s *pstreamsv1.StreamResponse) *Task {

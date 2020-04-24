@@ -9,7 +9,6 @@ import (
 	"github.com/opentracing/opentracing-go"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
-	"github.com/videocoin/cloud-api/rpc"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 )
 
@@ -19,13 +18,24 @@ func (s *Server) getPendingTask(ctx context.Context, miner *minersv1.MinerRespon
 	var err error
 	var task *datastore.Task
 
+	logger := s.logger.WithField("miner_id", miner.Id)
+
+	if hw, ok := miner.Tags["hw"]; ok {
+		span.SetTag("miner_hw", hw)
+		if hw == "raspberrypi" {
+			return nil, nil
+		}
+	}
+
 	if forceTaskID, ok := miner.Tags["force_task_id"]; ok {
 		span.LogKV("event", "miner has force task id")
 
 		task, err = s.dm.GetPendingTaskByID(ctx, forceTaskID)
 		if err != nil {
-			fmtErr := fmt.Errorf("failed to get force task: %s", err)
-			return nil, rpc.NewRpcInternalError(fmtErr)
+			if err != datastore.ErrTaskNotFound {
+				logger.WithError(err).Error("failed to get pending task by id")
+				return nil, err
+			}
 		}
 
 		if task.Status != v1.TaskStatusPending {
@@ -41,49 +51,26 @@ func (s *Server) getPendingTask(ctx context.Context, miner *minersv1.MinerRespon
 
 	ft, err := s.sc.Miners.GetForceTaskList(ctx, &prototypes.Empty{})
 	if err != nil {
-		fmtErr := fmt.Errorf("failed to get force task ids: %s", err)
-		return nil, rpc.NewRpcInternalError(fmtErr)
+		logger.WithError(err).Error("failed to get force task list")
+		return nil, err
 	}
 
 	span.SetTag("force_task_ids", ft.Ids)
+	span.SetTag("capacity_info", miner.CapacityInfo)
 	span.LogKV("event", "getting pending task")
 
 	task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false, miner.CapacityInfo)
 	if err != nil {
-		fmtErr := fmt.Errorf("failed to get pending task: %s", err)
-		return nil, rpc.NewRpcInternalError(fmtErr)
-	}
-	if task == nil {
+		if err != datastore.ErrTaskNotFound {
+			logger.WithError(err).Error("failed to pending task")
+			return nil, err
+		}
+
 		return nil, nil
 	}
 
-	// taskLogFound := false
-	// taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
-	// if err == nil {
-	// 	for _, taskLogItem := range taskLog {
-	// 		if taskLogItem.ID == task.ID {
-	// 			taskLogFound = true
-	// 		}
-	// 	}
-	// }
-
-	// if taskLogFound {
-	// 	ft.Ids = append(ft.Ids, task.ID)
-
-	// 	// logger.Info("getting pending task (exclude task ids)")
-
-	// 	task, err = s.dm.GetPendingTask(ctx, ft.Ids, nil, false, miner.CapacityInfo)
-	// 	if err != nil {
-	// 		// logFailedTo(s.logger, "get pending task (retry)", err)
-	// 		return nil, rpc.ErrRpcInternal
-	// 	}
-	// }
-
-	if hw, ok := miner.Tags["hw"]; ok {
-		span.SetTag("miner_hw", hw)
-		if hw == "raspberrypi" {
-			return nil, nil
-		}
+	if task == nil || task.ID == "" {
+		return nil, nil
 	}
 
 	// ok, err := s.isMinerQualify(ctx, miner, task)
@@ -119,11 +106,6 @@ func (s *Server) assignTask(ctx context.Context, task *datastore.Task, miner *mi
 	if err != nil {
 		return fmt.Errorf("failed to assign task to miner: %s", err)
 	}
-
-	// err = s.dm.LogTask(ctx, miner.Id, task.ID)
-	// if err != nil {
-	// 	logFailedTo(logger, "failed to log task", err)
-	// }
 
 	return nil
 }

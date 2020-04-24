@@ -26,48 +26,37 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 	miner, _ := MinerFromContext(ctx)
 
 	span := opentracing.SpanFromContext(ctx)
-	span.SetTag("miner_id", miner.Id)
-	span.SetTag("miner_status", miner.Status.String())
-	span.SetTag("miner_user_id", miner.UserID)
-	span.SetTag("miner_address", miner.Address)
-	span.SetTag("miner_tags", miner.Tags)
-	if miner.CapacityInfo != nil {
-		span.SetTag("miner_capacity_info_encode", miner.CapacityInfo.Encode)
-		span.SetTag("miner_capacity_info_cpu", miner.CapacityInfo.Cpu)
-	}
+	minerResponseToSpan(span, miner)
+	logger := s.logger.WithField("miner_id", miner.Id)
 
 	task, err := s.getPendingTask(ctx, miner)
 	if err != nil {
-		span.SetTag("error", true)
-		span.LogKV("event", "no task", "message", err)
+		spanErr(span, err, "no task")
 		return &v1.Task{}, nil
 	}
-
 	if task == nil {
 		span.LogKV("event", "no task")
 		return &v1.Task{}, nil
 	}
 
-	span.SetTag("task_id", task.ID)
-	if task.Input != nil {
-		span.SetTag("input", task.Input.URI)
-	}
-	span.SetTag("created_at", task.CreatedAt)
-	span.SetTag("cmdline", task.Cmdline)
-	span.SetTag("user_id", task.UserID.String)
-	span.SetTag("stream_id", task.StreamID)
-	span.SetTag("stream_contract_id", task.StreamContractID.Int64)
-	span.SetTag("stream_contract_address", task.StreamContractAddress.String)
-	span.SetTag("chunk_num", task.Output.Num)
-	span.SetTag("profile_id", task.ProfileID)
+	logger = logger.WithField("task_id", task.ID)
+
+	defer func() {
+		err := s.dm.UnlockTask(ctx, task)
+		if err != nil {
+			logger.WithField("task_id", task.ID).Error("failed to unlock task")
+		}
+	}()
+
+	taskToSpan(span, task)
 
 	if task.IsOutputFile() {
-		span.SetTag("vod", true)
-
 		profile, err := s.dm.GetProfile(ctx, task.ProfileID)
 		if err != nil {
-			span.SetTag("error", true)
-			span.LogKV("event", "failed to get profile", "message", err)
+			errMsg := "failed to get profile"
+			spanErr(span, err, errMsg)
+			logger.WithError(err).Error(errMsg)
+
 			return &v1.Task{}, nil
 		}
 
@@ -82,8 +71,16 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 		}
 		aicResp, err := s.sc.Emitter.AddInputChunk(ctx, achReq)
 		if err != nil {
-			span.SetTag("error", true)
-			span.LogKV("event", "failed to add input chunk", "message", err)
+			if aicResp != nil {
+				logger = logger.WithFields(logrus.Fields{
+					"tx":        aicResp.Tx,
+					"tx_status": aicResp.Status,
+				})
+			}
+
+			errMsg := "failed to add input chunk"
+			spanErr(span, err, errMsg)
+			logger.WithError(err).Error(errMsg)
 
 			s.markTaskAsFailed(ctx, task)
 
@@ -100,23 +97,24 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 		}
 		err = s.dm.CreateTaskTx(ctx, taskTx)
 		if err != nil {
-			span.SetTag("error", true)
-			span.LogKV("event", "failed to create task tx", "message", err)
+			errMsg := "failed to create task tx"
+			spanErr(span, err, errMsg)
+			logger.WithError(err).Error(errMsg)
 
 			s.markTaskAsFailed(ctx, task)
 
 			return &v1.Task{}, nil
 		}
-	} else {
-		span.SetTag("live", true)
 	}
 
 	span.LogKV("event", "assigning task")
 
 	err = s.assignTask(ctx, task, miner)
 	if err != nil {
-		span.SetTag("error", true)
-		span.LogKV("event", "failed to assign task", "message", err)
+		errMsg := "failed to assign task"
+		spanErr(span, err, errMsg)
+		logger.WithError(err).Error(errMsg)
+
 		return &v1.Task{}, nil
 	}
 

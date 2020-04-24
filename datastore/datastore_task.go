@@ -59,7 +59,7 @@ func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
 
 	cols := []string{
 		"id", "stream_id", "owner_id", "user_id", "created_at", "status", "profile_id", "input", "output", "cmdline",
-		"machine_type", "stream_contract_id", "stream_contract_address", "capacity", "is_live"}
+		"machine_type", "stream_contract_id", "stream_contract_address", "capacity", "is_live", "is_lock"}
 	_, err := tx.InsertInto(ds.table).Columns(cols...).Record(task).Exec()
 	if err != nil {
 		return err
@@ -191,13 +191,26 @@ func (ds *TaskDatastore) GetPendingByID(ctx context.Context, id string) (*Task, 
 	}
 
 	task := new(Task)
-	_, err := tx.Select("*").From(ds.table).Where("id = ?", id).Where("status = ?", v1.TaskStatusPending.String()).Load(task)
+	err := tx.
+		Select("*").
+		From(ds.table).
+		Where("id = ? AND status = ? AND is_lock = ?", id, v1.TaskStatusPending.String(), false).
+		ForUpdate().
+		Limit(1).
+		LoadStruct(task)
 	if err != nil {
 		if err == dbr.ErrNotFound {
-			return nil, nil
+			return nil, ErrTaskNotFound
 		}
 		return nil, err
 	}
+
+	_, err = tx.Update(ds.table).Where("id = ?", task.ID).Set("is_lock", true).Exec()
+	if err != nil {
+		return nil, err
+	}
+
+	task.IsLock = true
 
 	return task, nil
 }
@@ -226,8 +239,7 @@ func (ds *TaskDatastore) GetPendingTask(
 	qs := tx.
 		Select("*", "JSON_EXTRACT(output, \"$.num\") AS num").
 		From(ds.table).
-		Where("status = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)]).
-		Where("client_id IS NULL")
+		Where("status = ? AND client_id IS NULL AND is_lock = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)], false)
 
 	if len(excludeIds) > 0 {
 		qs = qs.Where("id NOT IN ?", excludeIds)
@@ -253,14 +265,22 @@ func (ds *TaskDatastore) GetPendingTask(
 		OrderDir("created_at", true).
 		OrderDir("num", true).
 		Limit(1).
+		ForUpdate().
 		LoadStruct(task)
 
 	if err != nil {
 		if err == dbr.ErrNotFound {
-			return nil, nil
+			return nil, ErrTaskNotFound
 		}
 		return nil, err
 	}
+
+	_, err = tx.Update(ds.table).Where("id = ?", task.ID).Set("is_lock", true).Exec()
+	if err != nil {
+		return nil, err
+	}
+
+	task.IsLock = true
 
 	return task, nil
 }
@@ -447,6 +467,35 @@ func (ds *TaskDatastore) ClearClientID(ctx context.Context, task *Task) error {
 		Update(ds.table).
 		Where("id = ?", task.ID).
 		Set("client_id", task.ClientID)
+
+	_, err := builder.Exec()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ds *TaskDatastore) Unlock(ctx context.Context, task *Task) error {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
+		tx, err := sess.Begin()
+		if err != nil {
+			return err
+		}
+
+		defer func() {
+			err = tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	task.IsLock = false
+	builder := tx.
+		Update(ds.table).
+		Where("id = ?", task.ID).
+		Set("is_lock", task.IsLock)
 
 	_, err := builder.Exec()
 	if err != nil {
