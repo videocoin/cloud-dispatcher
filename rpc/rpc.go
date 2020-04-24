@@ -242,23 +242,28 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 
 	logger.Info("validating proof")
 
+	data := datastore.UpdateProof{
+		StreamContractAddress: req.StreamContractAddress,
+		ChunkID:               chunkID,
+		ProfileID:             profileID,
+		SubmitProofTx:         req.SubmitProofTx,
+		SubmitProofTxStatus:   req.SubmitProofTxStatus,
+	}
+
 	resp, err := s.sc.Validator.ValidateProof(ctx, req)
 	if resp != nil {
-		data := datastore.UpdateProof{
-			StreamContractAddress: req.StreamContractAddress,
-			ChunkID:               chunkID,
-			ProfileID:             profileID,
-			SubmitProofTx:         req.SubmitProofTx,
-			SubmitProofTxStatus:   req.SubmitProofTxStatus,
-			ValidateProofTx:       resp.ValidateProofTx,
-			ValidateProofTxStatus: resp.ValidateProofTxStatus,
-			ScrapProofTx:          resp.ScrapProofTx,
-			ScrapProofTxStatus:    resp.ScrapProofTxStatus,
-		}
-		err := s.dm.UpdateProof(ctxlogrus.ToContext(ctx, logger), data)
-		if err != nil {
-			logger.WithError(err).Error("failed to update proof")
-		}
+		data.ValidateProofTx = resp.ValidateProofTx
+		data.ValidateProofTxStatus = resp.ValidateProofTxStatus
+		data.ScrapProofTx = resp.ScrapProofTx
+		data.ScrapProofTxStatus = resp.ScrapProofTxStatus
+	}
+	upErr := s.dm.UpdateProof(ctxlogrus.ToContext(ctx, logger), data)
+	if upErr != nil {
+		logger.WithError(upErr).Error("failed to update proof")
+	}
+
+	if err != nil {
+		logger.WithError(err).Error("failed to validate proof")
 	}
 
 	return resp, err
