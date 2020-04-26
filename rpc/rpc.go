@@ -17,7 +17,6 @@ import (
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
-	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 )
@@ -174,33 +173,21 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 		return nil, err
 	}
 
-	if task.Status < v1.TaskStatusCompleted {
-		isRetryable := s.markTaskAsRetryable(task)
+	if task.Status == v1.TaskStatusCompleted ||
+		task.Status == v1.TaskStatusFailed ||
+		task.Status == v1.TaskStatusCanceled {
+		return toTaskResponse(task), nil
+	}
 
-		defer func() {
-			atReq := &minersv1.AssignTaskRequest{
-				ClientID: task.ClientID.String,
-				TaskID:   task.ID,
-			}
-			_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
-			if err != nil {
-				s.logger.WithError(err).Error("failed to unassign task to miners service")
-			}
+	s.markTaskAsFailed(context.Background(), task)
 
-			if !isRetryable {
-				_, err = s.sc.Streams.PublishDone(
-					context.Background(),
-					&pstreamsv1.StreamRequest{Id: task.StreamID},
-				)
-				if err != nil {
-					s.logger.WithError(err).Error("failed to publish done")
-				}
-			}
-		}()
-
-		if !isRetryable {
-			s.markTaskAsFailed(ctx, task)
-		}
+	atReq := &minersv1.AssignTaskRequest{
+		ClientID: task.ClientID.String,
+		TaskID:   task.ID,
+	}
+	_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
+	if err != nil {
+		s.logger.WithError(err).Error("failed to unassign task")
 	}
 
 	return toTaskResponse(task), nil

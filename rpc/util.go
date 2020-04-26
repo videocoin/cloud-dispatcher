@@ -106,31 +106,31 @@ func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore
 	}
 }
 
-func (s *Server) markTaskAsRetryable(task *datastore.Task) bool {
-	isRetryable := false
-	ctx := context.Background()
-	taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
-	if err == nil {
-		taskLogCount := len(taskLog)
-		if taskLogCount < 2 {
-			err := s.dm.MarkTaskAsPending(ctx, task)
-			if err != nil {
-				s.logger.WithError(err).Error("mark task as pending (failed)")
-			} else {
-				err := s.dm.ClearClientID(ctx, task)
-				if err != nil {
-					s.logger.
-						WithField("task_id", task.ID).
-						WithError(err).
-						Error("failed to clear client id")
-				}
-				isRetryable = true
-			}
-		}
-	}
+// func (s *Server) markTaskAsRetryable(task *datastore.Task) bool {
+// 	isRetryable := false
+// 	ctx := context.Background()
+// 	taskLog, err := s.dm.GetTaskLog(ctx, task.ID)
+// 	if err == nil {
+// 		taskLogCount := len(taskLog)
+// 		if taskLogCount < 2 {
+// 			err := s.dm.MarkTaskAsPending(ctx, task)
+// 			if err != nil {
+// 				s.logger.WithError(err).Error("mark task as pending (failed)")
+// 			} else {
+// 				err := s.dm.ClearClientID(ctx, task)
+// 				if err != nil {
+// 					s.logger.
+// 						WithField("task_id", task.ID).
+// 						WithError(err).
+// 						Error("failed to clear client id")
+// 				}
+// 				isRetryable = true
+// 			}
+// 		}
+// 	}
 
-	return isRetryable
-}
+// 	return isRetryable
+// }
 
 // func (s *Server) isMinerQualify(ctx context.Context, miner *minersv1.MinerResponse, task *datastore.Task) (bool, error) {
 // 	resp, err := s.miners.GetMinersCandidates(ctx, &minersv1.MinersCandidatesRequest{
