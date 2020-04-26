@@ -40,8 +40,10 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 
 	logger = logger.WithField("task_id", task.ID)
 
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+
 	defer func() {
-		err := s.dm.UnlockTask(ctx, task)
+		err := s.dm.UnlockTask(otCtx, task)
 		if err != nil {
 			logger.WithField("task_id", task.ID).Error("failed to unlock task")
 		}
@@ -50,7 +52,7 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 	taskToSpan(span, task)
 
 	if task.IsOutputFile() {
-		profile, err := s.dm.GetProfile(ctx, task.ProfileID)
+		profile, err := s.dm.GetProfile(otCtx, task.ProfileID)
 		if err != nil {
 			errMsg := "failed to get profile"
 			spanErr(span, err, errMsg)
@@ -68,7 +70,7 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 			ChunkId:          uint64(task.Output.Num),
 			Reward:           reward,
 		}
-		aicResp, err := s.sc.Emitter.AddInputChunk(ctx, achReq)
+		aicResp, err := s.sc.Emitter.AddInputChunk(otCtx, achReq)
 		if err != nil {
 			if aicResp != nil {
 				logger = logger.WithFields(logrus.Fields{
@@ -81,12 +83,12 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 			spanErr(span, err, errMsg)
 			logger.WithError(err).Error(errMsg)
 
-			s.markTaskAsFailed(ctx, task)
+			s.markTaskAsFailed(otCtx, task)
 
 			return &v1.Task{}, nil
 		}
 
-		err = s.eb.EmitAddInputChunk(ctx, task, miner)
+		err = s.eb.EmitAddInputChunk(otCtx, task, miner)
 		if err != nil {
 			logger.WithError(err).Error("failed to emit add input chunk")
 		}
@@ -99,13 +101,13 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 			AddInputChunkTx:       dbr.NewNullString(aicResp.Tx),
 			AddInputChunkTxStatus: dbr.NewNullString(aicResp.Status.String()),
 		}
-		err = s.dm.CreateTaskTx(ctx, taskTx)
+		err = s.dm.CreateTaskTx(otCtx, taskTx)
 		if err != nil {
 			errMsg := "failed to create task tx"
 			spanErr(span, err, errMsg)
 			logger.WithError(err).Error(errMsg)
 
-			s.markTaskAsFailed(ctx, task)
+			s.markTaskAsFailed(otCtx, task)
 
 			return &v1.Task{}, nil
 		}
@@ -113,7 +115,7 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 
 	span.LogKV("event", "assigning task")
 
-	err = s.assignTask(ctx, task, miner)
+	err = s.assignTask(otCtx, task, miner)
 	if err != nil {
 		errMsg := "failed to assign task"
 		spanErr(span, err, errMsg)
@@ -135,43 +137,57 @@ func (s *Server) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, er
 }
 
 func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+	miner, _ := MinerFromContext(ctx)
+	span := opentracing.SpanFromContext(ctx)
+	minerResponseToSpan(span, miner)
+
 	task, err := s.getTask(req.ID)
 	if err != nil {
 		return nil, err
 	}
 
+	taskToSpan(span, task)
+
 	logger := s.logger.WithField("task_id", task.ID)
 	logger.Info("marking task as completed")
+
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
 	defer func() {
 		atReq := &minersv1.AssignTaskRequest{
 			ClientID: task.ClientID.String,
 			TaskID:   task.ID,
 		}
-		_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
+		_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
 		if err != nil {
 			logger.WithError(err).Error("failed to unassign task to miners service")
 		}
 	}()
 
 	if task.Status < v1.TaskStatusCompleted {
-		err = s.dm.MarkTaskAsCompleted(ctx, task)
+		err = s.dm.MarkTaskAsCompleted(otCtx, task)
 		if err != nil {
 			logger.WithError(err).Error("failed to mark task as completed")
 			return nil, rpc.ErrRpcInternal
 		}
 
-		s.markStreamAsCompletedIfNeeded(ctxlogrus.ToContext(ctx, logger), task)
+		s.markStreamAsCompletedIfNeeded(ctxlogrus.ToContext(otCtx, logger), task)
 	}
 
 	return toTaskResponse(task), nil
 }
 
 func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+	miner, _ := MinerFromContext(ctx)
+	span := opentracing.SpanFromContext(ctx)
+	minerResponseToSpan(span, miner)
+
 	task, err := s.getTask(req.ID)
 	if err != nil {
 		return nil, err
 	}
+
+	taskToSpan(span, task)
 
 	if task.Status == v1.TaskStatusCompleted ||
 		task.Status == v1.TaskStatusFailed ||
@@ -179,13 +195,14 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 		return toTaskResponse(task), nil
 	}
 
-	s.markTaskAsFailed(context.Background(), task)
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+	s.markTaskAsFailed(otCtx, task)
 
 	atReq := &minersv1.AssignTaskRequest{
 		ClientID: task.ClientID.String,
 		TaskID:   task.ID,
 	}
-	_, err = s.sc.Miners.UnassignTask(context.Background(), atReq)
+	_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
 	if err != nil {
 		s.logger.WithError(err).Error("failed to unassign task")
 	}
@@ -195,14 +212,19 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 
 func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmentRequest) (*prototypes.Empty, error) {
 	miner, _ := MinerFromContext(ctx)
+	span := opentracing.SpanFromContext(ctx)
+	minerResponseToSpan(span, miner)
 
 	task, err := s.getTask(req.ID)
 	if err != nil {
 		return nil, err
 	}
 
+	taskToSpan(span, task)
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+
 	go func() {
-		err := s.eb.EmitSegmentTranscoded(context.Background(), req, task, miner)
+		err := s.eb.EmitSegmentTranscoded(otCtx, req, task, miner)
 		if err != nil {
 			s.logger.WithError(err).Error("failed to emit segment transcoded")
 		}
@@ -212,7 +234,9 @@ func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmen
 }
 
 func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidateProofRequest) (*validatorv1.ValidateProofResponse, error) {
+	miner, _ := MinerFromContext(ctx)
 	span := opentracing.SpanFromContext(ctx)
+	minerResponseToSpan(span, miner)
 
 	chunkID := new(big.Int).SetBytes(req.ChunkId).Int64()
 	profileID := new(big.Int).SetBytes(req.ProfileId).Int64()
@@ -237,14 +261,15 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 		SubmitProofTxStatus:   req.SubmitProofTxStatus,
 	}
 
-	resp, err := s.sc.Validator.ValidateProof(ctx, req)
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+	resp, err := s.sc.Validator.ValidateProof(otCtx, req)
 	if resp != nil {
 		data.ValidateProofTx = resp.ValidateProofTx
 		data.ValidateProofTxStatus = resp.ValidateProofTxStatus
 		data.ScrapProofTx = resp.ScrapProofTx
 		data.ScrapProofTxStatus = resp.ScrapProofTxStatus
 	}
-	upErr := s.dm.UpdateProof(ctxlogrus.ToContext(ctx, logger), data)
+	upErr := s.dm.UpdateProof(ctxlogrus.ToContext(otCtx, logger), data)
 	if upErr != nil {
 		logger.WithError(upErr).Error("failed to update proof")
 	}
@@ -404,7 +429,8 @@ func (s *Server) AddInputChunk(ctx context.Context, req *v1.AddInputChunkRequest
 		Reward:           req.Reward,
 	}
 
-	aicResp, err := s.sc.Emitter.AddInputChunk(ctx, aicReq)
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+	aicResp, err := s.sc.Emitter.AddInputChunk(otCtx, aicReq)
 	if err != nil {
 		if aicResp != nil {
 			logger = logger.WithField("tx", aicResp.Tx)
@@ -433,7 +459,7 @@ func (s *Server) AddInputChunk(ctx context.Context, req *v1.AddInputChunkRequest
 			AddInputChunkTx:       resp.Tx,
 			AddInputChunkTxStatus: resp.Status,
 		}
-		err := s.dm.AddInputChunk(ctxlogrus.ToContext(ctx, logger), data)
+		err := s.dm.AddInputChunk(ctxlogrus.ToContext(otCtx, logger), data)
 		if err != nil {
 			logger.WithError(err).Error("failed to dm.AddInputChunk")
 			fmtErr := fmt.Errorf("failed to dm.AddInputChunk: %s", err)
