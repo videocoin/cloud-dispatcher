@@ -262,7 +262,7 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 	}
 
 	otCtx := opentracing.ContextWithSpan(context.Background(), span)
-	resp, err := s.sc.Validator.ValidateProof(otCtx, req)
+	resp, _ := s.sc.Validator.ValidateProof(otCtx, req)
 	if resp != nil {
 		data.ValidateProofTx = resp.ValidateProofTx
 		data.ValidateProofTxStatus = resp.ValidateProofTxStatus
@@ -274,20 +274,13 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 		logger.WithError(upErr).Error("failed to update proof")
 	}
 
-	if err != nil {
-		logger.WithError(err).Error("failed to validate proof")
-	}
-
-	return resp, err
+	return resp, nil
 }
 
 func (s *Server) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1.PingResponse, error) {
-	go func() {
-		_, err := s.sc.Miners.Ping(context.Background(), req)
-		if err != nil {
-			s.logger.WithError(err).WithField("client_id", req.ClientID).Error("failed to ping")
-		}
-	}()
+	go func(req *minersv1.PingRequest) {
+		_, _ = s.sc.Miners.Ping(context.Background(), req)
+	}(req)
 
 	return &minersv1.PingResponse{}, nil
 }
