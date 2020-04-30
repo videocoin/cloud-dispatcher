@@ -54,6 +54,7 @@ message ConfigRequest {}
 message ConfigResponse {
     string rpc_node_url = 1 [(gogoproto.customname) = "RPCNodeURL"];
     string syncer_url = 2 [(gogoproto.customname) = "SyncerURL"];
+    string access_key = 3;
 }
 
 message TaskSegmentRequest {

@@ -14,7 +14,7 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/mailru/dbr v3.0.0+incompatible
 	github.com/opentracing/opentracing-go v1.1.0
-	github.com/prometheus/client_golang v1.3.0
+	github.com/prometheus/client_golang v1.4.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 	github.com/videocoin/cloud-api v0.2.15

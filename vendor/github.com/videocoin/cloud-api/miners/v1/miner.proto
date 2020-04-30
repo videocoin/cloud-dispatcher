@@ -34,12 +34,6 @@ message SystemInfo {
     string hw = 14;
 }
 
-message CryptoInfo {
-    string address = 1;
-    string balance = 2;
-    string stake = 3;
-}
-
 message CapacityInfo {
     double encode = 1;
     double cpu = 2;
