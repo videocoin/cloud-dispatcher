@@ -354,7 +354,8 @@ func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRe
 	if miners != nil && len(miners.Items) > 0 {
 		for _, miner := range miners.Items {
 			if miner.Status == minersv1.MinerStatusIdle ||
-				miner.Status == minersv1.MinerStatusBusy {
+				miner.Status == minersv1.MinerStatusBusy ||
+				miner.UserID != "6b7a9f95-b6e6-4609-55f2-da4aef36184e" {
 				excludeClientIds = append(excludeClientIds, miner.Id)
 			}
 		}
