@@ -239,7 +239,11 @@ func (ds *TaskDatastore) GetPendingTask(
 	qs := tx.
 		Select("*", "JSON_EXTRACT(output, \"$.num\") AS num").
 		From(ds.table).
-		Where("status = ? AND client_id IS NULL AND is_lock = ?", v1.TaskStatus_name[int32(v1.TaskStatusPending)], false)
+		Where(
+			"status IN ? AND client_id IS NULL AND is_lock = ?",
+			[]string{v1.TaskStatusPaused.String(), v1.TaskStatusPending.String()},
+			false,
+		)
 
 	if len(excludeIds) > 0 {
 		qs = qs.Where("id NOT IN ?", excludeIds)

@@ -52,64 +52,66 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 	taskToSpan(span, task)
 
 	if task.IsOutputFile() {
-		profile, err := s.dm.GetProfile(otCtx, task.ProfileID)
-		if err != nil {
-			errMsg := "failed to get profile"
-			spanErr(span, err, errMsg)
-			logger.WithError(err).Error(errMsg)
+		if task.Status == v1.TaskStatusPending {
+			profile, err := s.dm.GetProfile(otCtx, task.ProfileID)
+			if err != nil {
+				errMsg := "failed to get profile"
+				spanErr(span, err, errMsg)
+				logger.WithError(err).Error(errMsg)
 
-			return &v1.Task{}, nil
-		}
-
-		reward := profile.Cost / 60 * task.Output.Duration
-
-		span.SetTag("reward", reward)
-
-		achReq := &emitterv1.AddInputChunkRequest{
-			StreamContractId: uint64(task.StreamContractID.Int64),
-			ChunkId:          uint64(task.Output.Num),
-			Reward:           reward,
-		}
-		aicResp, err := s.sc.Emitter.AddInputChunk(otCtx, achReq)
-		if err != nil {
-			if aicResp != nil {
-				logger = logger.WithFields(logrus.Fields{
-					"tx":        aicResp.Tx,
-					"tx_status": aicResp.Status,
-				})
+				return &v1.Task{}, nil
 			}
 
-			errMsg := "failed to add input chunk"
-			spanErr(span, err, errMsg)
-			logger.WithError(err).Error(errMsg)
+			reward := profile.Cost / 60 * task.Output.Duration
 
-			s.markTaskAsFailed(otCtx, task)
+			span.SetTag("reward", reward)
 
-			return &v1.Task{}, nil
-		}
+			achReq := &emitterv1.AddInputChunkRequest{
+				StreamContractId: uint64(task.StreamContractID.Int64),
+				ChunkId:          uint64(task.Output.Num),
+				Reward:           reward,
+			}
+			aicResp, err := s.sc.Emitter.AddInputChunk(otCtx, achReq)
+			if err != nil {
+				if aicResp != nil {
+					logger = logger.WithFields(logrus.Fields{
+						"tx":        aicResp.Tx,
+						"tx_status": aicResp.Status,
+					})
+				}
 
-		err = s.eb.EmitAddInputChunk(otCtx, task, miner)
-		if err != nil {
-			logger.WithError(err).Error("failed to emit add input chunk")
-		}
+				errMsg := "failed to add input chunk"
+				spanErr(span, err, errMsg)
+				logger.WithError(err).Error(errMsg)
 
-		taskTx := &datastore.TaskTx{
-			TaskID:                task.ID,
-			StreamContractID:      strconv.FormatInt(task.StreamContractID.Int64, 10),
-			StreamContractAddress: task.StreamContractAddress.String,
-			ChunkID:               task.Output.Num,
-			AddInputChunkTx:       dbr.NewNullString(aicResp.Tx),
-			AddInputChunkTxStatus: dbr.NewNullString(aicResp.Status.String()),
-		}
-		err = s.dm.CreateTaskTx(otCtx, taskTx)
-		if err != nil {
-			errMsg := "failed to create task tx"
-			spanErr(span, err, errMsg)
-			logger.WithError(err).Error(errMsg)
+				s.markTaskAsFailed(otCtx, task)
 
-			s.markTaskAsFailed(otCtx, task)
+				return &v1.Task{}, nil
+			}
 
-			return &v1.Task{}, nil
+			err = s.eb.EmitAddInputChunk(otCtx, task, miner)
+			if err != nil {
+				logger.WithError(err).Error("failed to emit add input chunk")
+			}
+
+			taskTx := &datastore.TaskTx{
+				TaskID:                task.ID,
+				StreamContractID:      strconv.FormatInt(task.StreamContractID.Int64, 10),
+				StreamContractAddress: task.StreamContractAddress.String,
+				ChunkID:               task.Output.Num,
+				AddInputChunkTx:       dbr.NewNullString(aicResp.Tx),
+				AddInputChunkTxStatus: dbr.NewNullString(aicResp.Status.String()),
+			}
+			err = s.dm.CreateTaskTx(otCtx, taskTx)
+			if err != nil {
+				errMsg := "failed to create task tx"
+				spanErr(span, err, errMsg)
+				logger.WithError(err).Error(errMsg)
+
+				s.markTaskAsFailed(otCtx, task)
+
+				return &v1.Task{}, nil
+			}
 		}
 	}
 
@@ -164,7 +166,7 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 		}
 	}()
 
-	if task.Status < v1.TaskStatusCompleted {
+	if task.Status < v1.TaskStatusCompleted || task.Status == v1.TaskStatusPaused {
 		err = s.dm.MarkTaskAsCompleted(otCtx, task)
 		if err != nil {
 			logger.WithError(err).Error("failed to mark task as completed")
@@ -230,9 +232,23 @@ func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1
 	}
 
 	logger := s.logger.WithField("task_id", task.ID)
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+
+	if task.IsOutputHLS() {
+		logger.Info("marking task as completed (paused)")
+
+		err = s.dm.MarkTaskAsCompleted(otCtx, task)
+		if err != nil {
+			logger.WithError(err).Error("failed to mark task as completed")
+			return nil, rpc.ErrRpcInternal
+		}
+
+		s.markStreamAsCompletedIfNeeded(ctxlogrus.ToContext(otCtx, logger), task)
+		return toTaskResponse(task), nil
+	}
+
 	logger.Info("marking task as paused")
 
-	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 	err = s.dm.MarkTaskAsPaused(otCtx, task)
 	if err != nil {
 		logger.WithError(err).Error("failed to mark task as paused")
