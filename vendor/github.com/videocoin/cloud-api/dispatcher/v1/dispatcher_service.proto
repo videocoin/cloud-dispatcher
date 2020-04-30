@@ -28,6 +28,7 @@ service DispatcherService {
   rpc GetTask(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
   rpc MarkTaskAsCompleted(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
   rpc MarkTaskAsFailed(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
+  rpc MarkTaskAsPaused(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
   rpc MarkSegmentAsTranscoded(TaskSegmentRequest) returns (google.protobuf.Empty) {}
     
   rpc ValidateProof(cloud.api.validator.v1.ValidateProofRequest) returns (cloud.api.validator.v1.ValidateProofResponse) {}

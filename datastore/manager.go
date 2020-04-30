@@ -448,6 +448,26 @@ func (m *DataManager) MarkTaskAsFailed(ctx context.Context, task *Task) error {
 	return nil
 }
 
+func (m *DataManager) MarkTaskAsPaused(ctx context.Context, task *Task) error {
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return failedTo("mark task as paused", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	err = m.ds.Tasks.MarkTaskAsPaused(ctx, task)
+	if err != nil {
+		return err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *DataManager) MarkTaskAsCanceled(ctx context.Context, task *Task) error {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {

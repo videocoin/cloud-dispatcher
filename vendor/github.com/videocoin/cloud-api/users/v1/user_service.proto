@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package cloud.api.users.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+import "users/v1/user.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+service UserService {
+    rpc Create(CreateUserRequest) returns (TokenResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/users",
+            body: "*"
+        };
+	}
+
+    rpc Login(LoginUserRequest) returns (TokenResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/auth",
+            body: "*"
+        };
+    }
+
+    rpc Logout(google.protobuf.Empty) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/api/v1/auth"
+        };
+    }
+
+    rpc ResetPassword(ResetPasswordUserRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/api/v1/auth/reset",
+            body: "*"
+        };
+    }
+
+    rpc Get(google.protobuf.Empty) returns (UserProfile) {
+        option (google.api.http) = {
+            get: "/api/v1/user"
+        };
+    }
+
+    rpc GetById(UserRequest) returns (UserProfile) {}
+
+    rpc StartRecovery(StartRecoveryUserRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/api/v1/recovery/start",
+            body: "*"
+        };
+    }
+
+    rpc Recover(RecoverUserRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/api/v1/recover",
+            body: "*"
+        };
+    }
+
+    rpc StartConfirmation(google.protobuf.Empty) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/api/v1/user/confirm/start",
+            body: "*"
+        };
+    }
+
+    rpc Confirm(ConfirmUserRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: "/api/v1/user/confirm",
+            body: "*"
+        };
+    }
+
+    rpc ListApiTokens(google.protobuf.Empty) returns (UserApiListResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/tokens"
+        };
+    }
+
+    rpc CreateApiToken(UserApiTokenRequest) returns (CreateUserApiTokenResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/tokens",
+            body: "*"
+        };
+    }
+
+    rpc DeleteApiToken(UserApiTokenRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/api/v1/tokens/{id}"
+        };
+    }
+
+    rpc GetApiToken(ApiTokenRequest) returns (UserApiTokenResponse) {}
+}
+
+message CreateUserRequest {
+    string email = 1 [
+        (gogoproto.moretags) = "validate:\"required,email\""
+    ];
+
+    string password = 2 [
+        (gogoproto.moretags) = "validate:\"secure-password\""
+    ];
+
+    string name = 3 [
+        (gogoproto.moretags) = "validate:\"min=2,max=100\""
+    ];
+
+    string confirm_password = 4 [
+        (gogoproto.moretags) = "validate:\"confirm-password=Password\""
+    ];
+}
+
+message LoginUserRequest {
+    string email = 1 [
+        (gogoproto.moretags) = "validate:\"required,email\""
+    ];
+
+    string password = 2 [
+        (gogoproto.moretags) = "validate:\"required\""
+    ];
+}
+
+message TokenResponse {
+    string token = 1;
+}
+
+message UserRequest {
+    string id = 1;
+}
+
+message ResetPasswordUserRequest {
+    string password = 1 [
+        (gogoproto.moretags) = "validate:\"secure-password\""
+    ];
+    string confirm_password = 2 [
+        (gogoproto.moretags) = "validate:\"confirm-password=Password\""
+    ];
+}
+
+message StartRecoveryUserRequest {
+    string email = 1 [
+        (gogoproto.moretags) = "validate:\"required,email\""
+    ];
+}
+
+message RecoverUserRequest {
+    string token = 1 [
+        (gogoproto.moretags) = "validate:\"required\""
+    ];
+    string password = 2 [
+        (gogoproto.moretags) = "validate:\"secure-password\""
+    ];
+    string confirm_password = 3 [
+        (gogoproto.moretags) = "validate:\"confirm-password=Password\""
+    ];
+}
+
+message ConfirmUserRequest {
+    string token = 1 [
+        (gogoproto.moretags) = "validate:\"required\""
+    ];
+}
+
+message UserApiTokenRequest {
+    string id = 1;
+    string name = 2;
+}
+
+message CreateUserApiTokenResponse {
+    string id = 1;
+    string name = 2;
+    string token = 3;
+}
+
+message ApiTokenRequest {
+    string token = 1;
+}
+
+message UserApiTokenResponse {
+    string id = 1;
+    string name = 2;
+}
+
+message UserApiListResponse {
+    repeated UserApiTokenResponse items = 1;
+}

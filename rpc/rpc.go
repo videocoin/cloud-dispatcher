@@ -210,6 +210,38 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 	return toTaskResponse(task), nil
 }
 
+func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
+	miner, _ := MinerFromContext(ctx)
+	span := opentracing.SpanFromContext(ctx)
+	minerResponseToSpan(span, miner)
+
+	task, err := s.getTask(req.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskToSpan(span, task)
+
+	if task.Status == v1.TaskStatusCompleted ||
+		task.Status == v1.TaskStatusFailed ||
+		task.Status == v1.TaskStatusCanceled ||
+		task.Status == v1.TaskStatusPaused {
+		return toTaskResponse(task), nil
+	}
+
+	logger := s.logger.WithField("task_id", task.ID)
+	logger.Info("marking task as paused")
+
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+	err = s.dm.MarkTaskAsPaused(otCtx, task)
+	if err != nil {
+		logger.WithError(err).Error("failed to mark task as paused")
+		return nil, rpc.ErrRpcInternal
+	}
+
+	return toTaskResponse(task), nil
+}
+
 func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmentRequest) (*prototypes.Empty, error) {
 	miner, _ := MinerFromContext(ctx)
 	span := opentracing.SpanFromContext(ctx)

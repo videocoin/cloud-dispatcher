@@ -330,6 +330,15 @@ func (ds *TaskDatastore) MarkTaskAsCanceled(ctx context.Context, task *Task) err
 	return nil
 }
 
+func (ds *TaskDatastore) MarkTaskAsPaused(ctx context.Context, task *Task) error {
+	err := ds.markTaskStatusAs(ctx, task, v1.TaskStatusPaused)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (ds *TaskDatastore) markTaskStatusAs(
 	ctx context.Context,
 	task *Task,
@@ -359,6 +368,10 @@ func (ds *TaskDatastore) markTaskStatusAs(
 		builder = builder.
 			Where("status = ?", v1.TaskStatusPending).
 			Set("client_id", task.ClientID)
+	}
+
+	if status == v1.TaskStatusPaused {
+		builder = builder.Set("client_id", dbr.NewNullString(nil))
 	}
 
 	r, err := builder.Exec()

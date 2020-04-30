@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package cloud.api.billing.private.v1;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/videocoin/cloud-api/billing/v1/billing_service.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+service BillingService {
+    rpc GetProfileByUserID(ProfileRequest) returns (cloud.api.billing.v1.ProfileResponse) {}
+    rpc GetCharges(ChargesRequest) returns (cloud.api.billing.v1.ChargesResponse) {}
+}
+
+message ProfileRequest {
+    string user_id = 1 [(gogoproto.customname) = "UserID"];
+}
+
+message ChargesRequest {
+    string user_id = 1 [(gogoproto.customname) = "UserID"];
+}

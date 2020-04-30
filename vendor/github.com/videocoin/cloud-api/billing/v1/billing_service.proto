@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package cloud.api.billing.v1;
+
+import "google/protobuf/empty.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "billing/v1/billing.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+service BillingService {
+    rpc GetProfile(google.protobuf.Empty) returns (ProfileResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/billing/profile"
+        };
+    }
+
+    rpc MakePayment(MakePaymentRequest) returns (MakePaymentResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/billing/pay"
+            body: "*"
+        };
+    }
+
+    rpc GetCharges(google.protobuf.Empty) returns (ChargesResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/billing/charges"
+        };
+    }
+
+    rpc GetTransactions(google.protobuf.Empty) returns (TransactionsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/billing/transactions"
+        };
+    }
+
+    rpc GetChartCharges(google.protobuf.Empty) returns (ChartChargesResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/billing/charts/charges"
+        };
+    }
+}
+
+message MakePaymentRequest {
+    int64 amount = 1;
+}
+
+message MakePaymentResponse {
+    string client_secret = 1;
+}
+
+message ProfileResponse {
+    double balance = 1;
+}
+
+message ChargeResponse {
+    string stream_id = 1 [(gogoproto.customname) = "StreamID"];
+    string stream_name = 2;
+    bool stream_is_live = 3;
+    string stream_profile_id = 4 [(gogoproto.customname) = "StreamProfileID"];
+    string stream_profile_name = 5;
+    google.protobuf.Timestamp created_at = 6 [(gogoproto.stdtime) = true];
+    double duration = 7;
+    double cost = 8;
+    double total_cost = 9;
+}
+
+message ChargesResponse {
+    repeated ChargeResponse items = 1;
+}
+
+message TransactionResponse {
+    string id = 1 [(gogoproto.customname) = "ID"];
+    TransactionType type = 2;
+    TransactionStatus status = 3;
+    google.protobuf.Timestamp created_at = 4 [(gogoproto.stdtime) = true];
+    double amount = 5;
+}
+
+message TransactionsResponse {
+    repeated TransactionResponse items = 1;
+}
+
+message ChartChargeResponse {
+    string name = 1;
+    double live = 2;
+    double vod = 3;
+}
+
+message ChartChargesResponse {
+    repeated ChartChargeResponse items = 1;
+}

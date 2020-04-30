@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package cloud.api.billing.v1;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+enum TransactionStatus {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "TransactionStatus";
+
+    PENDING = 0 [(gogoproto.enumvalue_customname) = "TransactionStatusPending"];
+    PROCESSING = 1 [(gogoproto.enumvalue_customname) = "TransactionStatusProcesing"];
+    SUCCESS = 2 [(gogoproto.enumvalue_customname) = "TransactionStatusSuccess"];
+    FAILED = 3 [(gogoproto.enumvalue_customname) = "TransactionStatusFailed"];
+    CANCELED = 4 [(gogoproto.enumvalue_customname) = "TransactionStatusCanceled"];
+}
+
+enum TransactionType {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "TransactionType";
+
+    UNKNOWN_TYPE = 0 [(gogoproto.enumvalue_customname) = "TransactionTypeUnknown"];
+    DEPOSIT = 1 [(gogoproto.enumvalue_customname) = "TransactionTypeDeposit"];
+    PAYMENT = 2 [(gogoproto.enumvalue_customname) = "TransactionTypePayment"];
+}

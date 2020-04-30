@@ -24,6 +24,7 @@ enum TaskStatus {
     COMPLETED = 4 [(gogoproto.enumvalue_customname) = "TaskStatusCompleted"];
     FAILED = 5 [(gogoproto.enumvalue_customname) = "TaskStatusFailed"];
     CANCELED = 6 [(gogoproto.enumvalue_customname) = "TaskStatusCanceled"];
+    PAUSED = 7 [(gogoproto.enumvalue_customname) = "TaskStatusPaused"];
 }
 
 message TaskInput {

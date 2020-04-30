@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package cloud.api.users.v1;
+
+import "github.com/videocoin/cloud-api/accounts/v1/account.proto";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+enum TokenType {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "TokenType";
+
+    TOKEN_TYPE_REGULAR = 0 [(gogoproto.enumvalue_customname) = "TokenTypeRegular"];
+    TOKEN_TYPE_API     = 1 [(gogoproto.enumvalue_customname) = "TokenTypeAPI"];
+}
+
+enum UserRole {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "UserRole";
+
+    USER_ROLE_REGULAR = 0 [(gogoproto.enumvalue_customname) = "UserRoleRegular"];
+    USER_ROLE_MINER   = 1 [(gogoproto.enumvalue_customname) = "UserRoleMiner"];
+    USER_ROLE_QA      = 3 [(gogoproto.enumvalue_customname) = "UserRoleQa"];
+    USER_ROLE_MANAGER = 6 [(gogoproto.enumvalue_customname) = "UserRoleManager"];
+    USER_ROLE_SUPER   = 9 [(gogoproto.enumvalue_customname) = "UserRoleSuper"];
+}
+
+message UserProfile {
+    string id = 1 [
+		(gogoproto.customname) = "ID"
+	];
+    string email = 2;
+    string name = 3;
+    bool is_active = 4;
+    cloud.api.account.v1.AccountProfile account = 5;
+    UserRole role = 6;
+}
