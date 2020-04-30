@@ -443,9 +443,18 @@ func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRe
 }
 
 func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.ConfigResponse, error) {
+	miner, _ := MinerFromContext(ctx)
+	keyReq := &minersv1.KeyRequest{ClientID: miner.Id}
+	keyResp, err := s.sc.Miners.GetKey(ctx, keyReq)
+	if err != nil {
+		s.logger.WithField("client_id", miner.Id).WithError(err).Error("failed to get miner key")
+		return nil, rpc.ErrRpcInternal
+	}
+
 	return &v1.ConfigResponse{
 		RPCNodeURL: s.rpcNodeURL,
 		SyncerURL:  s.syncerURL,
+		AccessKey:  keyResp.Key,
 	}, nil
 }
 
