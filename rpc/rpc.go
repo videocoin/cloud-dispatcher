@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
-	"math/rand"
 	"strconv"
-	"time"
 
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
@@ -19,6 +17,8 @@ import (
 	"github.com/videocoin/cloud-api/rpc"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
@@ -336,105 +336,46 @@ func (s *Server) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1
 func (s *Server) Register(ctx context.Context, req *minersv1.RegistrationRequest) (*prototypes.Empty, error) {
 	_, err := s.sc.Miners.Register(ctx, req)
 	if err != nil {
-		return nil, err
+		s.logger.
+			WithField("client_id", req.ClientID).
+			WithField("address", req.Address).
+			WithError(err).
+			Error("failed to register miner")
+		return nil, status.Error(codes.Internal, "failed to register miner")
 	}
 
 	return new(prototypes.Empty), nil
 }
 
 func (s *Server) GetInternalConfig(ctx context.Context, req *v1.InternalConfigRequest) (*v1.InternalConfigResponse, error) {
-	resp := &v1.InternalConfigResponse{}
-
-	miners, err := s.sc.Miners.All(context.Background(), &prototypes.Empty{})
+	miner, err := s.sc.Miners.GetInternalMiner(ctx, &minersv1.InternalMinerRequest{})
 	if err != nil {
-		return nil, err
+		s.logger.WithError(err).Error("failed to get internal miner")
+		return nil, status.Error(codes.FailedPrecondition, "no available internal miners")
 	}
 
-	excludeClientIds := []string{}
-	if miners != nil && len(miners.Items) > 0 {
-		for _, miner := range miners.Items {
-			if miner.Status == minersv1.MinerStatusIdle ||
-				miner.Status == minersv1.MinerStatusBusy {
-				excludeClientIds = append(excludeClientIds, miner.Id)
-			}
-		}
+	resp := &v1.InternalConfigResponse{
+		ClientId: miner.ID,
+		Key:      miner.Key,
+		Secret:   miner.Secret,
 	}
 
-	clientIds, err := s.consul.GetTranscoderClientIds()
-	if err != nil {
-		return nil, err
-	}
+	if miner.TaskID != "" {
+		emptyCtx := context.Background()
+		atReq := &minersv1.AssignTaskRequest{TaskID: miner.TaskID}
 
-	if len(clientIds) > 0 {
-		for {
-			rand.Seed(time.Now().Unix())
-			found := false
-			resp.ClientId = clientIds[rand.Intn(len(clientIds))]
-			for _, exludeClientID := range excludeClientIds {
-				if resp.ClientId == exludeClientID {
-					found = true
-					break
-				}
-			}
-			if !found {
-				break
-			}
-		}
-
-	}
-
-	ksPairs, err := s.consul.GetTranscoderKeyAndSecret()
-	if err != nil {
-		return nil, err
-	}
-
-	if len(ksPairs) > 0 {
-		rand.Seed(time.Now().Unix())
-		ksPair := ksPairs[rand.Intn(len(ksPairs))]
-		resp.Key = string(ksPair.Value)
-		resp.Secret = ksPair.Key
-	}
-
-	minersResp, _ := s.sc.Miners.GetMinersWithForceTask(context.Background(), &prototypes.Empty{})
-	if minersResp != nil {
-		for _, minerResp := range minersResp.Items {
-			task, err := s.dm.GetTaskByID(context.Background(), minerResp.TaskId)
-			if err == datastore.ErrTaskNotFound {
-				go func() {
-					_, err := s.sc.Miners.UnassignTask(
-						context.Background(),
-						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
-					)
-					s.logger.
-						WithError(err).
-						WithField("task_id", minerResp.TaskId).
-						Error("failed to unassign task")
-				}()
-
-				continue
-			}
-
-			if task.Status == v1.TaskStatusCompleted ||
-				task.Status == v1.TaskStatusFailed ||
-				task.Status == v1.TaskStatusCanceled {
-				go func() {
-					_, err := s.sc.Miners.UnassignTask(
-						context.Background(),
-						&minersv1.AssignTaskRequest{TaskID: minerResp.TaskId},
-					)
-					s.logger.
-						WithError(err).
-						WithField("task_id", minerResp.TaskId).
-						Error("failed to unassign task")
-				}()
-
-				continue
-			}
-
-			if task.Status == v1.TaskStatusPending {
-				resp.ClientId = minerResp.Id
-				break
-			}
+		task, err := s.dm.GetTaskByID(context.Background(), miner.TaskID)
+		if err == datastore.ErrTaskNotFound ||
+			task.Status == v1.TaskStatusCompleted ||
+			task.Status == v1.TaskStatusFailed ||
+			task.Status == v1.TaskStatusCanceled {
+			go func() {
+				_, err := s.sc.Miners.UnassignTask(emptyCtx, atReq)
+				s.logger.
+					WithError(err).
+					WithField("task_id", miner.TaskID).
+					Error("failed to unassign task")
+			}()
 		}
 	}
 

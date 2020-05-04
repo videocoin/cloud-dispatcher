@@ -120,6 +120,7 @@ service MinersService {
     rpc GetMinersWithForceTask(google.protobuf.Empty) returns (MinersWithForceTaskResponse) {}
     rpc GetMinersCandidates(MinersCandidatesRequest) returns (MinersCandidatesResponse) {}
     rpc GetKey(KeyRequest) returns (KeyResponse) {}
+    rpc GetInternalMiner(InternalMinerRequest) returns (InternalMinerResponse) {}
 }
 
 message RegistrationRequest {
@@ -207,4 +208,13 @@ message KeyRequest {
 
 message KeyResponse {
     string key = 1;
+}
+
+message InternalMinerRequest {}
+
+message InternalMinerResponse {
+    string id = 1 [(gogoproto.customname) = "ID"];
+    string key = 2;
+    string secret = 3;
+    string task_id = 4 [(gogoproto.customname) = "TaskID"];
 }

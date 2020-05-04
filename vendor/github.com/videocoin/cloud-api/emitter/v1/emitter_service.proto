@@ -23,6 +23,7 @@ service EmitterService {
     rpc ValidateProof(ValidateProofRequest) returns (ValidateProofResponse) {}
     rpc ScrapProof(ScrapProofRequest) returns (ScrapProofResponse) {}
     rpc ListWorkers(google.protobuf.Empty) returns (ListWorkersResponse) {}
+    rpc AddFunds(AddFundsRequest) returns (AddFundsResponse) {}
 }
 
 message Tx {
@@ -138,3 +139,10 @@ message WorkerResponse {
 message ListWorkersResponse {
     repeated WorkerResponse items = 1;
 }
+
+message AddFundsRequest {
+    string user_id = 1 [(gogoproto.customname) = "UserID"];
+    double amount_usd = 2;
+}
+
+message AddFundsResponse {}
