@@ -10,7 +10,6 @@ import (
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-dispatcher/metrics"
 	"github.com/videocoin/cloud-dispatcher/rpc"
-	"github.com/videocoin/cloud-pkg/consul"
 )
 
 type Service struct {
@@ -24,11 +23,6 @@ type Service struct {
 
 func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 	sc, err := clientv1.NewServiceClientFromEnvconfig(ctx, cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	consulCli, err := consul.NewClient(cfg.Env, cfg.ConsulAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +46,6 @@ func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 		Addr:       cfg.RPCAddr,
 		RPCNodeURL: cfg.RPCNodeURL,
 		SyncerURL:  cfg.SyncerURL,
-		Consul:     consulCli,
 		SC:         sc,
 		DM:         dm,
 		EB:         eb,

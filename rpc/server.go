@@ -16,7 +16,6 @@ import (
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
-	"github.com/videocoin/cloud-pkg/consul"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
@@ -28,7 +27,6 @@ type ServerOpts struct {
 	DM         *datastore.DataManager
 	EB         *eventbus.EventBus
 	SC         *clientv1.ServiceClient
-	Consul     *consul.Client
 	SyncerURL  string
 	RPCNodeURL string
 }
@@ -41,7 +39,6 @@ type Server struct {
 	sc         *clientv1.ServiceClient
 	dm         *datastore.DataManager
 	eb         *eventbus.EventBus
-	consul     *consul.Client
 	syncerURL  string
 	rpcNodeURL string
 }
@@ -72,7 +69,6 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 		sc:         opts.SC,
 		dm:         opts.DM,
 		eb:         opts.EB,
-		consul:     opts.Consul,
 		syncerURL:  opts.SyncerURL,
 		rpcNodeURL: opts.RPCNodeURL,
 		grpc:       grpcServer,

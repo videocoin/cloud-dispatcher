@@ -12,8 +12,6 @@ type Config struct {
 	ValidatorRPCAddr string `envconfig:"VALIDATOR_RPC_ADDR" default:"0.0.0.0:5020"`
 	MinersRPCAddr    string `envconfig:"MINERS_RPC_ADDR" default:"0.0.0.0:5011"`
 	MetricsAddr      string `envconfig:"METRICS_ADDR" default:"0.0.0.0:15008"`
-	ConsulAddr       string `envconfig:"CONSUL_ADDR" default:"127.0.0.1:8500"`
-	Env              string `default:"dev"`
 	BaseInputURL     string `envconfig:"BASE_INPUT_URL" default:""`
 	BaseOutputURL    string `envconfig:"BASE_OUTPUT_URL" default:""`
 	DBURI            string `envconfig:"DBURI" default:"root:@/videocoin?charset=utf8&parseTime=True&loc=Local"`
