@@ -222,6 +222,20 @@ func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1
 		return nil, err
 	}
 
+	logger := s.logger.WithField("task_id", task.ID)
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+
+	defer func() {
+		atReq := &minersv1.AssignTaskRequest{
+			ClientID: task.ClientID.String,
+			TaskID:   task.ID,
+		}
+		_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
+		if err != nil {
+			logger.WithError(err).Error("failed to unassign task to miners service")
+		}
+	}()
+
 	taskToSpan(span, task)
 
 	if task.Status == v1.TaskStatusCompleted ||
@@ -230,9 +244,6 @@ func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1
 		task.Status == v1.TaskStatusPaused {
 		return toTaskResponse(task), nil
 	}
-
-	logger := s.logger.WithField("task_id", task.ID)
-	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
 	if task.IsOutputHLS() {
 		logger.Info("marking task as completed (paused)")
