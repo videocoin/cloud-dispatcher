@@ -6,6 +6,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
+	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
@@ -85,6 +86,18 @@ func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore
 						relTask.Status == v1.TaskStatusPending ||
 						relTask.Status == v1.TaskStatusAssigned ||
 						relTask.Status == v1.TaskStatusEncoding {
+
+						go func() {
+							atReq := &minersv1.AssignTaskRequest{
+								ClientID: relTask.ClientID.String,
+								TaskID:   relTask.ID,
+							}
+							_, err = s.sc.Miners.UnassignTask(ctx, atReq)
+							if err != nil {
+								logger.WithError(err).Error("failed to unassign task to miners service")
+							}
+						}()
+
 						err := s.dm.MarkTaskAsCanceled(ctx, relTask)
 						if err != nil {
 							logger.WithError(err).Error("failed to mark task as canceled")

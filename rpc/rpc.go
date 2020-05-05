@@ -189,6 +189,21 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 		return nil, err
 	}
 
+	logger := s.logger.WithField("task_id", task.ID)
+	logger.Info("marking task as failed")
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+
+	defer func() {
+		atReq := &minersv1.AssignTaskRequest{
+			ClientID: task.ClientID.String,
+			TaskID:   task.ID,
+		}
+		_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
+		if err != nil {
+			logger.WithError(err).Error("failed to unassign task to miners service")
+		}
+	}()
+
 	taskToSpan(span, task)
 
 	if task.Status == v1.TaskStatusCompleted ||
@@ -197,17 +212,7 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 		return toTaskResponse(task), nil
 	}
 
-	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 	s.markTaskAsFailed(otCtx, task)
-
-	atReq := &minersv1.AssignTaskRequest{
-		ClientID: task.ClientID.String,
-		TaskID:   task.ID,
-	}
-	_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
-	if err != nil {
-		s.logger.WithError(err).Error("failed to unassign task")
-	}
 
 	return toTaskResponse(task), nil
 }
