@@ -155,16 +155,14 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 
 	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
-	defer func() {
-		atReq := &minersv1.AssignTaskRequest{
-			ClientID: task.ClientID.String,
-			TaskID:   task.ID,
-		}
-		_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
-		if err != nil {
-			logger.WithError(err).Error("failed to unassign task to miners service")
-		}
-	}()
+	atReq := &minersv1.AssignTaskRequest{
+		ClientID: task.ClientID.String,
+		TaskID:   task.ID,
+	}
+	_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
+	if err != nil {
+		logger.WithError(err).Error("failed to unassign task to miners service")
+	}
 
 	if task.Status < v1.TaskStatusCompleted || task.Status == v1.TaskStatusPaused {
 		err = s.dm.MarkTaskAsCompleted(otCtx, task)
@@ -193,16 +191,14 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 	logger.Info("marking task as failed")
 	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
-	defer func() {
-		atReq := &minersv1.AssignTaskRequest{
-			ClientID: task.ClientID.String,
-			TaskID:   task.ID,
-		}
-		_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
-		if err != nil {
-			logger.WithError(err).Error("failed to unassign task to miners service")
-		}
-	}()
+	atReq := &minersv1.AssignTaskRequest{
+		ClientID: task.ClientID.String,
+		TaskID:   task.ID,
+	}
+	_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
+	if err != nil {
+		logger.WithError(err).Error("failed to unassign task to miners service")
+	}
 
 	taskToSpan(span, task)
 
@@ -230,16 +226,14 @@ func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1
 	logger := s.logger.WithField("task_id", task.ID)
 	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
-	defer func() {
-		atReq := &minersv1.AssignTaskRequest{
-			ClientID: task.ClientID.String,
-			TaskID:   task.ID,
-		}
-		_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
-		if err != nil {
-			logger.WithError(err).Error("failed to unassign task to miners service")
-		}
-	}()
+	atReq := &minersv1.AssignTaskRequest{
+		ClientID: task.ClientID.String,
+		TaskID:   task.ID,
+	}
+	_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
+	if err != nil {
+		logger.WithError(err).Error("failed to unassign task to miners service")
+	}
 
 	taskToSpan(span, task)
 
