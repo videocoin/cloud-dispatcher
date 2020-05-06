@@ -159,7 +159,7 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
 	atReq := &minersv1.AssignTaskRequest{
-		ClientID: task.ClientID.String,
+		ClientID: miner.Id,
 		TaskID:   task.ID,
 	}
 	_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
@@ -195,7 +195,7 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
 	atReq := &minersv1.AssignTaskRequest{
-		ClientID: task.ClientID.String,
+		ClientID: miner.Id,
 		TaskID:   task.ID,
 	}
 	_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
@@ -230,7 +230,7 @@ func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1
 	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
 	atReq := &minersv1.AssignTaskRequest{
-		ClientID: task.ClientID.String,
+		ClientID: miner.Id,
 		TaskID:   task.ID,
 	}
 	_, err = s.sc.Miners.UnassignTask(otCtx, atReq)
@@ -313,6 +313,8 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 	})
 
 	logger.Info("validating proof")
+
+	// taskTx, err := m.ds.TaskTxs.GetByStreamContractAddressAndChunkID(ctx, data.StreamContractAddress, data.ChunkID)
 
 	data := datastore.UpdateProof{
 		StreamContractAddress: req.StreamContractAddress,
