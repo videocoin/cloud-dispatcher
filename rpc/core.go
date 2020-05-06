@@ -99,7 +99,7 @@ func (s *Server) assignTask(ctx context.Context, task *datastore.Task, miner *mi
 	span.LogKV("event", "assigning task to miner")
 
 	atReq := &minersv1.AssignTaskRequest{
-		ClientID: task.ClientID.String,
+		ClientID: miner.Id,
 		TaskID:   task.ID,
 	}
 	_, err = s.sc.Miners.AssignTask(ctx, atReq)

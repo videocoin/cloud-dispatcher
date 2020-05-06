@@ -370,7 +370,7 @@ func (ds *TaskDatastore) markTaskStatusAs(
 
 	if status == v1.TaskStatusAssigned {
 		builder = builder.
-			Where("status = ?", v1.TaskStatusPending).
+			Where("status IN ?", []string{v1.TaskStatusPending.String(), v1.TaskStatusPaused.String()}).
 			Set("client_id", task.ClientID)
 	}
 
