@@ -241,7 +241,7 @@ func (ds *TaskDatastore) GetPendingTask(
 		From(ds.table).
 		Where(
 			"status IN ? AND client_id IS NULL AND is_lock = ?",
-			[]string{v1.TaskStatusPaused.String(), v1.TaskStatusPending.String()},
+			[]string{v1.TaskStatusPending.String(), v1.TaskStatusPaused.String()},
 			false,
 		)
 
@@ -279,12 +279,12 @@ func (ds *TaskDatastore) GetPendingTask(
 		return nil, err
 	}
 
-	_, err = tx.Update(ds.table).Where("id = ?", task.ID).Set("is_lock", true).Exec()
+	task.IsLock = true
+
+	_, err = tx.Update(ds.table).Where("id = ?", task.ID).Set("is_lock", task.IsLock).Exec()
 	if err != nil {
 		return nil, err
 	}
-
-	task.IsLock = true
 
 	return task, nil
 }
