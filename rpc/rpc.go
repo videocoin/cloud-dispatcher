@@ -411,6 +411,19 @@ func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.Conf
 	}, nil
 }
 
+func (s *Server) GetDelegatorConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.ConfigResponse, error) {
+	key, err := s.getSymphonyAccessKey(s.delegatorUserID, fmt.Sprintf("Bearer %s", s.delegatorToken))
+	if err != nil {
+		s.logger.Errorf("failed to get symphony access key: %s", err)
+		return nil, rpc.ErrRpcInternal
+	}
+
+	return &v1.ConfigResponse{
+		RPCNodeURL: s.rpcNodeURL,
+		AccessKey:  string(key),
+	}, nil
+}
+
 func (s *Server) AddInputChunk(ctx context.Context, req *v1.AddInputChunkRequest) (*v1.AddInputChunkResponse, error) {
 	span := opentracing.SpanFromContext(ctx)
 	span.SetTag("stream_id", req.StreamId)

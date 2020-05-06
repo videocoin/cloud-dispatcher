@@ -23,24 +23,30 @@ import (
 )
 
 type ServerOpts struct {
-	Addr       string
-	DM         *datastore.DataManager
-	EB         *eventbus.EventBus
-	SC         *clientv1.ServiceClient
-	SyncerURL  string
-	RPCNodeURL string
+	Addr            string
+	DM              *datastore.DataManager
+	EB              *eventbus.EventBus
+	SC              *clientv1.ServiceClient
+	SyncerURL       string
+	RPCNodeURL      string
+	IamEndpoint     string
+	DelegatorUserID string
+	DelegatorToken  string
 }
 
 type Server struct {
-	logger     *logrus.Entry
-	addr       string
-	grpc       *grpc.Server
-	listen     net.Listener
-	sc         *clientv1.ServiceClient
-	dm         *datastore.DataManager
-	eb         *eventbus.EventBus
-	syncerURL  string
-	rpcNodeURL string
+	logger          *logrus.Entry
+	addr            string
+	grpc            *grpc.Server
+	listen          net.Listener
+	sc              *clientv1.ServiceClient
+	dm              *datastore.DataManager
+	eb              *eventbus.EventBus
+	syncerURL       string
+	rpcNodeURL      string
+	iamEndpoint     string
+	delegatorUserID string
+	delegatorToken  string
 }
 
 func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
@@ -64,15 +70,18 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 	}
 
 	rpcServer := &Server{
-		logger:     grpclogrus.Extract(ctx).WithField("system", "rpc"),
-		addr:       opts.Addr,
-		sc:         opts.SC,
-		dm:         opts.DM,
-		eb:         opts.EB,
-		syncerURL:  opts.SyncerURL,
-		rpcNodeURL: opts.RPCNodeURL,
-		grpc:       grpcServer,
-		listen:     listen,
+		logger:          grpclogrus.Extract(ctx).WithField("system", "rpc"),
+		addr:            opts.Addr,
+		sc:              opts.SC,
+		dm:              opts.DM,
+		eb:              opts.EB,
+		syncerURL:       opts.SyncerURL,
+		rpcNodeURL:      opts.RPCNodeURL,
+		iamEndpoint:     opts.IamEndpoint,
+		delegatorUserID: opts.DelegatorUserID,
+		delegatorToken:  opts.DelegatorToken,
+		grpc:            grpcServer,
+		listen:          listen,
 	}
 
 	healthSrv := health.NewServer()

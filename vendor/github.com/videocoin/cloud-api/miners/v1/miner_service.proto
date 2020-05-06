@@ -146,6 +146,10 @@ message MinerResponse {
     CapacityInfo capacity_info = 6;
     string user_id = 7 [(gogoproto.customname) = "UserID"];
     string address = 8;
+    double reward = 9;
+	double total_stake = 10;           
+	double self_stake = 11;     
+	double delegated_stake = 12;
 }
 
 message MinerListResponse {

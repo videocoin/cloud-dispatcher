@@ -20,6 +20,7 @@ option (gogoproto.messagename_all) = true;
 service DispatcherService {
   rpc GetInternalConfig(InternalConfigRequest) returns (InternalConfigResponse) {}
   rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
+  rpc GetDelegatorConfig(ConfigRequest) returns (ConfigResponse) {}
 
   rpc Register(cloud.api.miners.v1.RegistrationRequest) returns (google.protobuf.Empty) {}
   rpc Ping(cloud.api.miners.v1.PingRequest) returns (cloud.api.miners.v1.PingResponse) {}

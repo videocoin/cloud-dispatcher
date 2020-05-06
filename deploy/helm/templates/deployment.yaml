@@ -98,6 +98,21 @@ spec:
                 secretKeyRef:
                   name: {{ .Chart.Name }}
                   key: blockchainUrl
+            - name: DELEGATOR_USER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: delegatorUserId
+            - name: DELEGATOR_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: delegatorToken
+            - name: IAM_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: iamEndpoint
             - name: DBURI
               valueFrom:
                 secretKeyRef:

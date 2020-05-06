@@ -62,8 +62,10 @@ function get_vars() {
     readonly BASE_OUTPUT_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/baseOutputUrl`
     readonly LB_IP=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/loadBalancerIP`
     readonly SYNCER_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/syncerHttpUrl`
-
     readonly BLOCKCHAIN_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/blockchainUrl`
+    readonly IAM_ENDPOINT=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/iamEndpoint`
+    readonly DELEGATOR_USER_ID=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/delegatorUserId`
+    readonly DELEGATOR_TOKEN=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/delegatorToken`
     readonly DB_URI=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/dbUri`
     readonly MQ_URI=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/mqUri`
     readonly AUTH_TOKEN_SECRET=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/authTokenSecret`
@@ -92,6 +94,9 @@ function deploy() {
         --set secrets.dbUri="${DB_URI}" \
         --set secrets.mqUri="${MQ_URI}" \
         --set secrets.authTokenSecret="${AUTH_TOKEN_SECRET}" \
+        --set secrets.iamEndpoint="${IAM_ENDPOINT}" \
+        --set secrets.delegatorUserId="${DELEGATOR_USER_ID}" \
+        --set secrets.delegatorToken="${DELEGATOR_TOKEN}" \
         --set secrets.sentryDsn="${SENTRY_DSN}" \
         --wait ${CHART_NAME} ${CHART_DIR}
 }

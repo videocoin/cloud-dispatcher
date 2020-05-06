@@ -19,4 +19,7 @@ type Config struct {
 	AuthTokenSecret  string `envconfig:"AUTH_TOKEN_SECRET" default:""`
 	RPCNodeURL       string `envconfig:"RPC_NODE_URL" default:"https://dev1:D6msEL93LJT5RaPk@rpc.dev.kili.videocoin.network"`
 	SyncerURL        string `envconfig:"SYNCER_URL" default:"https://dev.videocoin.network/api/v1/sync"`
+	IamEndpoint      string `envconfig:"IAM_ENDPOINT" default:"https://iam.dev.videocoinapis.com"`
+	DelegatorUserID  string `envconfig:"DELEGATOR_USER_ID" default:"113a66d2-c75e-4885-4371-2d54bbaf3144"`
+	DelegatorToken   string `envconfig:"DELEGATOR_TOKEN" default:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoxLCJleHAiOjE2MTEyNTk3NzIsInN1YiI6IjExM2E2NmQyLWM3NWUtNDg4NS00MzcxLTJkNTRiYmFmMzE0NCJ9.7tKmeJR2LNMSeoziGcApxL9ek9mXbw-Rqb5SOXzaWsc"`
 }

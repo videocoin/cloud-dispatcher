@@ -43,12 +43,15 @@ func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 	}
 
 	rpcConfig := &rpc.ServerOpts{
-		Addr:       cfg.RPCAddr,
-		RPCNodeURL: cfg.RPCNodeURL,
-		SyncerURL:  cfg.SyncerURL,
-		SC:         sc,
-		DM:         dm,
-		EB:         eb,
+		Addr:            cfg.RPCAddr,
+		RPCNodeURL:      cfg.RPCNodeURL,
+		SyncerURL:       cfg.SyncerURL,
+		IamEndpoint:     cfg.IamEndpoint,
+		DelegatorUserID: cfg.DelegatorUserID,
+		DelegatorToken:  cfg.DelegatorToken,
+		SC:              sc,
+		DM:              dm,
+		EB:              eb,
 	}
 
 	rpc, err := rpc.NewServer(ctx, rpcConfig)
