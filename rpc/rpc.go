@@ -335,6 +335,10 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 		logger.WithError(upErr).Error("failed to update proof")
 	}
 
+	if resp == nil {
+		resp = &validatorv1.ValidateProofResponse{}
+	}
+
 	return resp, nil
 }
 
