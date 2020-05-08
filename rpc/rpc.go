@@ -327,8 +327,6 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 
 	logger.Info("validating proof")
 
-	// taskTx, err := m.ds.TaskTxs.GetByStreamContractAddressAndChunkID(ctx, data.StreamContractAddress, data.ChunkID)
-
 	data := datastore.UpdateProof{
 		StreamContractAddress: req.StreamContractAddress,
 		ChunkID:               chunkID,
@@ -338,7 +336,10 @@ func (s *Server) ValidateProof(ctx context.Context, req *validatorv1.ValidatePro
 	}
 
 	otCtx := opentracing.ContextWithSpan(context.Background(), span)
-	resp, _ := s.sc.Validator.ValidateProof(otCtx, req)
+	resp, err := s.sc.Validator.ValidateProof(otCtx, req)
+	if err != nil {
+		logger.WithError(err).Error("failed to validate proof")
+	}
 	if resp != nil {
 		data.ValidateProofTx = resp.ValidateProofTx
 		data.ValidateProofTxStatus = resp.ValidateProofTxStatus

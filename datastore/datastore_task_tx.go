@@ -252,12 +252,20 @@ func (ds *TaskTxDatastore) UpdateProof(ctx context.Context, taskTx *TaskTx, data
 		}()
 	}
 
-	taskTx.SubmitProofTx = dbr.NewNullString(data.SubmitProofTx)
-	taskTx.SubmitProofTxStatus = dbr.NewNullString(data.SubmitProofTxStatus.String())
-	taskTx.ValidateProofTx = dbr.NewNullString(data.ValidateProofTx)
-	taskTx.ValidateProofTxStatus = dbr.NewNullString(data.ValidateProofTxStatus.String())
-	taskTx.ScrapProofTx = dbr.NewNullString(data.ScrapProofTx)
-	taskTx.ScrapProofTxStatus = dbr.NewNullString(data.ScrapProofTxStatus.String())
+	if data.SubmitProofTx != "" {
+		taskTx.SubmitProofTx = dbr.NewNullString(data.SubmitProofTx)
+		taskTx.SubmitProofTxStatus = dbr.NewNullString(data.SubmitProofTxStatus.String())
+	}
+
+	if data.ValidateProofTx != "" {
+		taskTx.ValidateProofTx = dbr.NewNullString(data.ValidateProofTx)
+		taskTx.ValidateProofTxStatus = dbr.NewNullString(data.ValidateProofTxStatus.String())
+	}
+
+	if data.ScrapProofTx != "" {
+		taskTx.ScrapProofTx = dbr.NewNullString(data.ScrapProofTx)
+		taskTx.ScrapProofTxStatus = dbr.NewNullString(data.ScrapProofTxStatus.String())
+	}
 
 	builder := tx.
 		Update(ds.table).
