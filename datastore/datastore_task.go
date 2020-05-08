@@ -3,6 +3,7 @@ package datastore
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -60,9 +61,26 @@ func (ds *TaskDatastore) Create(ctx context.Context, task *Task) error {
 	cols := []string{
 		"id", "stream_id", "owner_id", "user_id", "created_at", "status", "profile_id", "input", "output", "cmdline",
 		"machine_type", "stream_contract_id", "stream_contract_address", "capacity", "is_live", "is_lock"}
-	_, err := tx.InsertInto(ds.table).Columns(cols...).Record(task).Exec()
-	if err != nil {
-		return err
+
+	insertCount := 0
+	var insertErr error
+
+	for {
+		if insertCount == 3 {
+			return insertErr
+		}
+		insertCount++
+
+		_, err := tx.InsertInto(ds.table).Columns(cols...).Record(task).Exec()
+		if err != nil {
+			insertErr = err
+			if strings.HasPrefix(err.Error(), "Error 1213") {
+				continue
+			}
+			return err
+		}
+
+		break
 	}
 
 	return nil
