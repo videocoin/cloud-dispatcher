@@ -67,4 +67,7 @@ message Task {
     string stream_id = 13 [
         (gogoproto.customname) = "StreamID"
     ];
+    bool has_submit_proof = 14;
+    bool has_validate_proof = 15;
+    bool has_scrap_proof = 16;
 }

@@ -139,10 +139,37 @@ func (ds *TaskTxDatastore) GetByID(ctx context.Context, id string) (*TaskTx, err
 	}
 
 	taskTx := new(TaskTx)
-	_, err := tx.Select("*").From(ds.table).Where("id = ?", id).Load(taskTx)
+	err := tx.Select("*").From(ds.table).Where("id = ?", id).LoadStruct(taskTx)
 	if err != nil {
 		if err == dbr.ErrNotFound {
-			return nil, nil
+			return nil, ErrTaskTxNotFound
+		}
+		return nil, err
+	}
+
+	return taskTx, nil
+}
+
+func (ds *TaskTxDatastore) GetByTaskID(ctx context.Context, taskID string) (*TaskTx, error) {
+	tx, ok := dbrutil.DbTxFromContext(ctx)
+	if !ok {
+		sess := ds.conn.NewSession(nil)
+		tx, err := sess.Begin()
+		if err != nil {
+			return nil, err
+		}
+
+		defer func() {
+			err = tx.Commit()
+			tx.RollbackUnlessCommitted()
+		}()
+	}
+
+	taskTx := new(TaskTx)
+	err := tx.Select("*").From(ds.table).Where("task_id = ?", taskID).LoadStruct(taskTx)
+	if err != nil {
+		if err == dbr.ErrNotFound {
+			return nil, ErrTaskTxNotFound
 		}
 		return nil, err
 	}

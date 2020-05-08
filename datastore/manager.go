@@ -622,6 +622,30 @@ func (m *DataManager) CreateTaskTx(ctx context.Context, taskTx *TaskTx) error {
 	return nil
 }
 
+func (m *DataManager) GetTaskTxByTaskID(ctx context.Context, taskID string) (*TaskTx, error) {
+	logger := m.logger
+
+	logger.Info("get task tx by task id")
+
+	ctx, _, tx, err := m.NewContext(ctx)
+	if err != nil {
+		return nil, failedTo("get task tx by task id", err)
+	}
+	defer tx.RollbackUnlessCommitted()
+
+	taskTx, err := m.ds.TaskTxs.GetByTaskID(ctx, taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return taskTx, nil
+}
+
 func (m *DataManager) UpdateProof(ctx context.Context, data UpdateProof) error {
 	logger := ctxlogrus.Extract(ctx)
 

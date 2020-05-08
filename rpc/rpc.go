@@ -53,6 +53,8 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 
 	taskToSpan(span, task)
 
+	var taskTx *datastore.TaskTx
+
 	if task.IsOutputFile() {
 		if task.Status == v1.TaskStatusPending {
 			profile, err := s.dm.GetProfile(otCtx, task.ProfileID)
@@ -114,7 +116,18 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 
 				return &v1.Task{}, nil
 			}
+		} else if task.Status == v1.TaskStatusPaused {
+			taskTx, err = s.dm.GetTaskTxByTaskID(ctx, task.ID)
+			if err != nil {
+				if err != datastore.ErrTaskTxNotFound {
+					logger.WithError(err).Error("failed to get task tx by task id")
+				}
+			} else {
+				taskTx = nil
+			}
 		}
+	} else {
+		taskTx = nil
 	}
 
 	span.LogKV("event", "assigning task")
@@ -129,7 +142,7 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 		return &v1.Task{}, nil
 	}
 
-	return toTaskResponse(task), nil
+	return toTaskResponse(task, taskTx), nil
 }
 
 func (s *Server) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
@@ -138,7 +151,7 @@ func (s *Server) GetTask(ctx context.Context, req *v1.TaskRequest) (*v1.Task, er
 		return nil, err
 	}
 
-	return toTaskResponse(task), nil
+	return toTaskResponse(task, nil), nil
 }
 
 func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
@@ -177,7 +190,7 @@ func (s *Server) MarkTaskAsCompleted(ctx context.Context, req *v1.TaskRequest) (
 		s.markStreamAsCompletedIfNeeded(ctxlogrus.ToContext(otCtx, logger), task)
 	}
 
-	return toTaskResponse(task), nil
+	return toTaskResponse(task, nil), nil
 }
 
 func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
@@ -208,12 +221,12 @@ func (s *Server) MarkTaskAsFailed(ctx context.Context, req *v1.TaskRequest) (*v1
 	if task.Status == v1.TaskStatusCompleted ||
 		task.Status == v1.TaskStatusFailed ||
 		task.Status == v1.TaskStatusCanceled {
-		return toTaskResponse(task), nil
+		return toTaskResponse(task, nil), nil
 	}
 
 	s.markTaskAsFailed(otCtx, task)
 
-	return toTaskResponse(task), nil
+	return toTaskResponse(task, nil), nil
 }
 
 func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1.Task, error) {
@@ -244,7 +257,7 @@ func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1
 		task.Status == v1.TaskStatusFailed ||
 		task.Status == v1.TaskStatusCanceled ||
 		task.Status == v1.TaskStatusPaused {
-		return toTaskResponse(task), nil
+		return toTaskResponse(task, nil), nil
 	}
 
 	if task.IsOutputHLS() {
@@ -257,7 +270,7 @@ func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1
 		}
 
 		s.markStreamAsCompletedIfNeeded(ctxlogrus.ToContext(otCtx, logger), task)
-		return toTaskResponse(task), nil
+		return toTaskResponse(task, nil), nil
 	}
 
 	logger.Info("marking task as paused")
@@ -268,7 +281,7 @@ func (s *Server) MarkTaskAsPaused(ctx context.Context, req *v1.TaskRequest) (*v1
 		return nil, rpc.ErrRpcInternal
 	}
 
-	return toTaskResponse(task), nil
+	return toTaskResponse(task, nil), nil
 }
 
 func (s *Server) MarkSegmentAsTranscoded(ctx context.Context, req *v1.TaskSegmentRequest) (*prototypes.Empty, error) {
