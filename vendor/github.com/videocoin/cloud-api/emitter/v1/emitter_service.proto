@@ -24,6 +24,8 @@ service EmitterService {
     rpc ScrapProof(ScrapProofRequest) returns (ScrapProofResponse) {}
     rpc ListWorkers(google.protobuf.Empty) returns (ListWorkersResponse) {}
     rpc AddFunds(AddFundsRequest) returns (AddFundsResponse) {}
+    rpc GetWorker(WorkerRequest) returns (WorkerResponse) {}
+    rpc GetReward(RewardRequest) returns (RewardResponse) {}
 }
 
 message Tx {
@@ -127,6 +129,10 @@ enum WorkerState {
     UNBONDING = 3 [(gogoproto.enumvalue_customname) = "WorkerStateUnbonding"];
 }
 
+message WorkerRequest {
+    string address = 1;
+}
+
 message WorkerResponse {
     string address = 1;
     WorkerState state = 2;
@@ -146,3 +152,11 @@ message AddFundsRequest {
 }
 
 message AddFundsResponse {}
+
+message RewardRequest {
+    string address = 1;
+}
+
+message RewardResponse {
+    double reward = 1;
+}

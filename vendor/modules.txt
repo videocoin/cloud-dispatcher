@@ -155,6 +155,7 @@ github.com/videocoin/cloud-api/validator/v1
 github.com/videocoin/cloud-pkg/dbrutil
 github.com/videocoin/cloud-pkg/grpcutil
 github.com/videocoin/cloud-pkg/hls
+github.com/videocoin/cloud-pkg/iam
 github.com/videocoin/cloud-pkg/logger
 github.com/videocoin/cloud-pkg/mqmux
 github.com/videocoin/cloud-pkg/tracer

@@ -2,9 +2,6 @@ package rpc
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
-	"net/http"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/sirupsen/logrus"
@@ -191,46 +188,3 @@ func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore
 
 // 	return true, nil
 // }
-
-func (s *Server) getSymphonyAccessKey(userID, authHeader string) ([]byte, error) {
-	type Key struct {
-		Type         string `json:"type"`
-		ClientID     string `json:"client_id"`
-		PrivateKeyID string `json:"private_key_id"`
-		PrivateKey   string `json:"private_key"`
-	}
-
-	key := &Key{
-		Type:     "service_account",
-		ClientID: userID,
-	}
-
-	req, err := http.NewRequest("POST", s.iamEndpoint+"/v1/keys", nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Authorization", authHeader)
-	req.Header.Add("Accept", "application/json")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	values := map[string]interface{}{}
-	if err := json.NewDecoder(resp.Body).Decode(&values); err != nil {
-		return nil, err
-	}
-
-	privateKeyData := values["private_key_data"].(string)
-	privateKeyID := values["id"].(string)
-	pemBytes, err := base64.StdEncoding.DecodeString(privateKeyData)
-	if err != nil {
-		return nil, err
-	}
-
-	key.PrivateKey = string(pemBytes)
-	key.PrivateKeyID = privateKeyID
-
-	return json.Marshal(key)
-}

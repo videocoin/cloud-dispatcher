@@ -16,6 +16,7 @@ import (
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
+	"github.com/videocoin/cloud-pkg/iam"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
@@ -24,29 +25,29 @@ import (
 
 type ServerOpts struct {
 	Addr            string
+	SyncerURL       string
+	RPCNodeURL      string
+	DelegatorUserID string
+	DelegatorToken  string
 	DM              *datastore.DataManager
 	EB              *eventbus.EventBus
 	SC              *clientv1.ServiceClient
-	SyncerURL       string
-	RPCNodeURL      string
-	IamEndpoint     string
-	DelegatorUserID string
-	DelegatorToken  string
+	IAM             *iam.Client
 }
 
 type Server struct {
 	logger          *logrus.Entry
 	addr            string
+	syncerURL       string
+	rpcNodeURL      string
+	delegatorUserID string
+	delegatorToken  string
 	grpc            *grpc.Server
 	listen          net.Listener
 	sc              *clientv1.ServiceClient
 	dm              *datastore.DataManager
 	eb              *eventbus.EventBus
-	syncerURL       string
-	rpcNodeURL      string
-	iamEndpoint     string
-	delegatorUserID string
-	delegatorToken  string
+	iam             *iam.Client
 }
 
 func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
@@ -72,14 +73,14 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 	rpcServer := &Server{
 		logger:          grpclogrus.Extract(ctx).WithField("system", "rpc"),
 		addr:            opts.Addr,
+		syncerURL:       opts.SyncerURL,
+		rpcNodeURL:      opts.RPCNodeURL,
+		delegatorUserID: opts.DelegatorUserID,
+		delegatorToken:  opts.DelegatorToken,
 		sc:              opts.SC,
 		dm:              opts.DM,
 		eb:              opts.EB,
-		syncerURL:       opts.SyncerURL,
-		rpcNodeURL:      opts.RPCNodeURL,
-		iamEndpoint:     opts.IamEndpoint,
-		delegatorUserID: opts.DelegatorUserID,
-		delegatorToken:  opts.DelegatorToken,
+		iam:             opts.IAM,
 		grpc:            grpcServer,
 		listen:          listen,
 	}

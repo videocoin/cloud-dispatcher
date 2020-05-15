@@ -42,6 +42,5 @@ message UserProfile {
     string email = 2;
     string name = 3;
     bool is_active = 4;
-    cloud.api.account.v1.AccountProfile account = 5;
     UserRole role = 6;
 }

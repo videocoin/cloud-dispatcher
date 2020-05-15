@@ -10,6 +10,7 @@ import (
 	"github.com/videocoin/cloud-dispatcher/eventbus"
 	"github.com/videocoin/cloud-dispatcher/metrics"
 	"github.com/videocoin/cloud-dispatcher/rpc"
+	"github.com/videocoin/cloud-pkg/iam"
 )
 
 type Service struct {
@@ -42,16 +43,21 @@ func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 		return nil, err
 	}
 
+	iamCli, err := iam.NewClient(cfg.IamEndpoint)
+	if err != nil {
+		return nil, err
+	}
+
 	rpcConfig := &rpc.ServerOpts{
 		Addr:            cfg.RPCAddr,
 		RPCNodeURL:      cfg.RPCNodeURL,
 		SyncerURL:       cfg.SyncerURL,
-		IamEndpoint:     cfg.IamEndpoint,
 		DelegatorUserID: cfg.DelegatorUserID,
 		DelegatorToken:  cfg.DelegatorToken,
 		SC:              sc,
 		DM:              dm,
 		EB:              eb,
+		IAM:             iamCli,
 	}
 
 	rpc, err := rpc.NewServer(ctx, rpcConfig)
