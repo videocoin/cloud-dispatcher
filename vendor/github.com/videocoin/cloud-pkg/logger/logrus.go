@@ -5,12 +5,12 @@ import (
 	"time"
 
 	logrussentry "github.com/evalphobia/logrus_sentry"
+	logrusloki "github.com/schoentoon/logrus-loki"
 	"github.com/sirupsen/logrus"
 )
 
-func NewLogrusLogger(serviceName string, serviceVersion string) *logrus.Entry {
+func NewLogrusLogger(serviceName string, serviceVersion string, lokiURL *string) *logrus.Entry {
 	l := logrus.New()
-	logger := logrus.NewEntry(l)
 
 	loglevel = os.Getenv("LOGLEVEL")
 	if loglevel == "" {
@@ -22,12 +22,7 @@ func NewLogrusLogger(serviceName string, serviceVersion string) *logrus.Entry {
 	}
 
 	l.SetLevel(level)
-
-	if level == logrus.DebugLevel {
-		l.SetFormatter(&logrus.TextFormatter{TimestampFormat: time.RFC3339Nano})
-	} else {
-		l.SetFormatter(&logrus.JSONFormatter{TimestampFormat: time.RFC3339Nano})
-	}
+	l.SetFormatter(&logrus.JSONFormatter{TimestampFormat: time.RFC3339Nano})
 
 	sentryDSN = os.Getenv("SENTRY_DSN")
 	if sentryDSN != "" {
@@ -50,16 +45,29 @@ func NewLogrusLogger(serviceName string, serviceVersion string) *logrus.Entry {
 		sentryHook.SetRelease(serviceVersion)
 
 		if err != nil {
-			logger.Warning(err)
+			l.Warning(err)
 		} else {
 			l.AddHook(sentryHook)
 		}
 	}
 
-	logger.WithFields(logrus.Fields{
-		"service": serviceName,
-		"version": serviceVersion,
-	})
+	if lokiURL != nil {
+		lokiHook, err := logrusloki.NewLoki(*lokiURL, 1024, 2)
+		lokiHook.AddData("app", serviceName)
+		lokiHook.AddData("version", serviceVersion)
+		if err != nil {
+			l.Warning(err)
+		} else {
+			l.AddHook(lokiHook)
+		}
+	}
+
+	logger := logrus.
+		NewEntry(l).
+		WithFields(logrus.Fields{
+			"service": serviceName,
+			"version": serviceVersion,
+		})
 
 	return logger
 }

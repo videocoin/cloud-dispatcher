@@ -19,7 +19,7 @@ var (
 )
 
 func main() {
-	logger := pkglogger.NewLogrusLogger(ServiceName, Version)
+	logger := pkglogger.NewLogrusLogger(ServiceName, Version, nil)
 
 	closer, err := tracer.NewTracer(ServiceName)
 	if err != nil {

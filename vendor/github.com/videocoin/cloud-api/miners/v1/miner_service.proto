@@ -204,7 +204,8 @@ message MinersCandidatesRequest {
 
 message MinerCandidateResponse {
     string id = 1 [(gogoproto.customname) = "ID"];
-    int32 stake = 2;
+    double stake = 2;
+    bool is_internal = 3;
 }
 
 message MinersCandidatesResponse {

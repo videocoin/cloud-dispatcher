@@ -3,12 +3,17 @@ package rpc
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"sort"
+	"strings"
+	"time"
 
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/mailru/dbr"
 	"github.com/opentracing/opentracing-go"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
+	"github.com/videocoin/cloud-api/rpc"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 )
 
@@ -73,15 +78,15 @@ func (s *Server) getPendingTask(ctx context.Context, miner *minersv1.MinerRespon
 		return nil, nil
 	}
 
-	// ok, err := s.isMinerQualify(ctx, miner, task)
-	// if err != nil {
-	// 	// logFailedTo(logger, "qualify miner", err)
-	// 	return nil, rpc.ErrRpcInternal
-	// }
+	ok, err := s.isMinerQualify(ctx, miner, task)
+	if err != nil {
+		logger.WithError(err).Error("failed to qualify miner")
+		return nil, rpc.ErrRpcInternal
+	}
 
-	// if !ok {
-	// 	return nil, rpc.ErrRpcNotFound
-	// }
+	if !ok {
+		return nil, rpc.ErrRpcNotFound
+	}
 
 	return task, nil
 }
@@ -118,4 +123,58 @@ func (s *Server) markTaskAsFailed(ctx context.Context, task *datastore.Task) {
 	}
 
 	s.markStreamAsFailedIfNeeded(ctx, task)
+}
+
+func (s *Server) isMinerQualify(ctx context.Context, miner *minersv1.MinerResponse, task *datastore.Task) (bool, error) {
+	resp, err := s.sc.Miners.GetMinersCandidates(ctx, &minersv1.MinersCandidatesRequest{
+		EncodeCapacity: task.Capacity.Encode,
+		CpuCapacity:    task.Capacity.Cpu,
+	})
+	if err != nil {
+		return false, err
+	}
+
+	candidates := []*minersv1.MinerCandidateResponse{}
+	for _, item := range resp.Items {
+		if !item.IsInternal {
+			candidates = append(candidates, item)
+		}
+	}
+
+	if len(candidates) == 0 {
+		return true, nil
+	}
+
+	if strings.HasPrefix(miner.Name, "zone0-") {
+		return false, nil
+	}
+
+	sort.Slice(candidates[:], func(i, j int) bool {
+		return candidates[i].Stake > candidates[j].Stake
+	})
+
+	var qStake float64
+	for _, m := range candidates {
+		qStake += m.Stake
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	r := rand.Float64()
+
+	var choosenMinerID string
+	for _, candidate := range candidates {
+		weight := candidate.Stake / qStake
+		if weight > r {
+			choosenMinerID = candidate.ID
+			break
+		} else {
+			r = r - weight
+		}
+	}
+
+	if choosenMinerID != miner.Id {
+		return false, nil
+	}
+
+	return true, nil
 }
