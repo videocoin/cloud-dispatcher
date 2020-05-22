@@ -54,10 +54,14 @@ func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 		SyncerURL:       cfg.SyncerURL,
 		DelegatorUserID: cfg.DelegatorUserID,
 		DelegatorToken:  cfg.DelegatorToken,
-		SC:              sc,
-		DM:              dm,
-		EB:              eb,
-		IAM:             iamCli,
+		Mode: &rpc.Mode{
+			OnlyInternal:   cfg.ModeOnlyInternal,
+			MinimalVersion: cfg.ModeMinimalVersion,
+		},
+		SC:  sc,
+		DM:  dm,
+		EB:  eb,
+		IAM: iamCli,
 	}
 
 	rpc, err := rpc.NewServer(ctx, rpcConfig)

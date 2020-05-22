@@ -29,14 +29,21 @@ type ServerOpts struct {
 	RPCNodeURL      string
 	DelegatorUserID string
 	DelegatorToken  string
+	Mode            *Mode
 	DM              *datastore.DataManager
 	EB              *eventbus.EventBus
 	SC              *clientv1.ServiceClient
 	IAM             *iam.Client
 }
 
+type Mode struct {
+	OnlyInternal   bool
+	MinimalVersion string
+}
+
 type Server struct {
 	logger          *logrus.Entry
+	mode            *Mode
 	addr            string
 	syncerURL       string
 	rpcNodeURL      string
@@ -77,6 +84,7 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 		rpcNodeURL:      opts.RPCNodeURL,
 		delegatorUserID: opts.DelegatorUserID,
 		delegatorToken:  opts.DelegatorToken,
+		mode:            opts.Mode,
 		sc:              opts.SC,
 		dm:              opts.DM,
 		eb:              opts.EB,

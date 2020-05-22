@@ -93,6 +93,16 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: syncerUrl
+            - name: MODE_ONLY_INTERNAL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: modeOnlyInternal
+            - name: MODE_MINIMAL_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: modeMinimalVersion
             - name: RPC_NODE_URL
               valueFrom:
                 secretKeyRef:
