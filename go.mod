@@ -19,6 +19,7 @@ require (
 	github.com/streadway/amqp v0.0.0-20190827072141-edfb9018d271
 	github.com/videocoin/cloud-api v0.2.15
 	github.com/videocoin/cloud-pkg v0.0.6
+	golang.org/x/mod v0.1.1-0.20191105210325-c90efee705ee
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	google.golang.org/grpc v1.28.1
 )

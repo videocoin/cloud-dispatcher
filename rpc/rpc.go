@@ -17,6 +17,7 @@ import (
 	"github.com/videocoin/cloud-api/rpc"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
+	"golang.org/x/mod/semver"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -31,7 +32,7 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 
 	logger := s.logger.WithField("miner_id", miner.Id)
 
-	task, err := s.getPendingTask(ctx, miner)
+	task, err := s.getPendingTask(ctx, req, miner)
 	if err != nil {
 		spanErr(span, err, "no task")
 
@@ -378,6 +379,20 @@ func (s *Server) Ping(ctx context.Context, req *minersv1.PingRequest) (*minersv1
 }
 
 func (s *Server) Register(ctx context.Context, req *minersv1.RegistrationRequest) (*prototypes.Empty, error) {
+	if s.mode != nil && s.mode.MinimalVersion != "" {
+		if semver.IsValid(s.mode.MinimalVersion) {
+			if !semver.IsValid(req.Version) {
+				return nil, status.Error(codes.FailedPrecondition, "unable to detect miner version")
+			}
+
+			if semver.Compare(s.mode.MinimalVersion, req.Version) > 0 {
+				return nil, status.Error(codes.FailedPrecondition, "miner version is deprecated")
+			}
+		} else {
+			s.logger.WithField("version", s.mode.MinimalVersion).Error("minimal version is not valid")
+		}
+	}
+
 	_, err := s.sc.Miners.Register(ctx, req)
 	if err != nil {
 		s.logger.

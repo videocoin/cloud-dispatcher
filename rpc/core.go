@@ -15,15 +15,44 @@ import (
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	"github.com/videocoin/cloud-dispatcher/datastore"
+	"golang.org/x/mod/semver"
 )
 
-func (s *Server) getPendingTask(ctx context.Context, miner *minersv1.MinerResponse) (*datastore.Task, error) {
+func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest, miner *minersv1.MinerResponse) (*datastore.Task, error) {
 	span := opentracing.SpanFromContext(ctx)
 
 	var err error
 	var task *datastore.Task
 
 	logger := s.logger.WithField("miner_id", miner.Id)
+
+	if miner.IsBlock {
+		logger.Warning("miner is blocked")
+		return nil, nil
+	}
+
+	if s.mode != nil {
+		if s.mode.OnlyInternal && !strings.HasPrefix("zone0-", miner.Name) {
+			logger.Warning("miner is not internal")
+			return nil, nil
+		}
+
+		if s.mode.MinimalVersion != "" {
+			if semver.IsValid(s.mode.MinimalVersion) {
+				if !semver.IsValid(req.Version) {
+					logger.Warning("no valid miner version")
+					return nil, nil
+				}
+
+				if semver.Compare(s.mode.MinimalVersion, req.Version) > 0 {
+					logger.Warning("miner version is deprecated")
+					return nil, nil
+				}
+			} else {
+				logger.WithField("version", s.mode.MinimalVersion).Error("minimal version is not valid")
+			}
+		}
+	}
 
 	if hw, ok := miner.Tags["hw"]; ok {
 		span.SetTag("miner_hw", hw)
