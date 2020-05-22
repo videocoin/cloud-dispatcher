@@ -90,7 +90,7 @@ function deploy() {
         --set config.minersRpcAddr="${MINERS_RPC_ADDR}" \
         --set config.baseInputUrl="${BASE_INPUT_URL}" \
         --set config.baseOutputUrl="${BASE_OUTPUT_URL}" \
-        --set config.modeOnlyInternal="${MODE_ONLY_INTERNAL}" \
+        --set-string config.modeOnlyInternal="${MODE_ONLY_INTERNAL}" \
         --set config.modeMinimalVersion="${MODE_MINIMAL_VERSION}" \
         --set service.loadBalancerIP="${LB_IP}" \
         --set config.syncerUrl="${SYNCER_URL}" \
