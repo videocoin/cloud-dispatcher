@@ -81,11 +81,11 @@ func (s *Server) getPendingTask(ctx context.Context, miner *minersv1.MinerRespon
 	ok, err := s.isMinerQualify(ctx, miner, task)
 	if err != nil {
 		logger.WithError(err).Error("failed to qualify miner")
-		return nil, rpc.ErrRpcInternal
+		return task, rpc.ErrRpcInternal
 	}
 
 	if !ok {
-		return nil, rpc.ErrRpcNotFound
+		return task, rpc.ErrRpcNotFound
 	}
 
 	return task, nil

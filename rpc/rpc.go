@@ -25,22 +25,33 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 	miner, _ := MinerFromContext(ctx)
 
 	span := opentracing.SpanFromContext(ctx)
+	otCtx := opentracing.ContextWithSpan(context.Background(), span)
+
 	minerResponseToSpan(span, miner)
+
 	logger := s.logger.WithField("miner_id", miner.Id)
 
 	task, err := s.getPendingTask(ctx, miner)
 	if err != nil {
 		spanErr(span, err, "no task")
+
+		if task != nil {
+			logger.Info("unlocking task")
+			err := s.dm.UnlockTask(otCtx, task)
+			if err != nil {
+				logger.Error("failed to unlock task")
+			}
+		}
+
 		return &v1.Task{}, nil
 	}
+
 	if task == nil {
 		span.LogKV("event", "no task")
 		return &v1.Task{}, nil
 	}
 
 	logger = logger.WithField("task_id", task.ID).WithField("status", task.Status.String())
-
-	otCtx := opentracing.ContextWithSpan(context.Background(), span)
 
 	defer func() {
 		logger.Info("unlocking task")
