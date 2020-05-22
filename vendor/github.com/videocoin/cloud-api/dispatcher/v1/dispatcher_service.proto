@@ -36,7 +36,13 @@ service DispatcherService {
   rpc AddInputChunk(AddInputChunkRequest) returns (AddInputChunkResponse) {}
 }
 
-message TaskPendingRequest {}
+message TaskPendingRequest {
+  double total_stake = 1;
+  double capacity_encode = 2;
+  double capacity_cpu = 3;
+  string worker_state = 4;
+  string version = 5;
+}
 
 message TaskRequest {
   string id = 1 [(gogoproto.customname) = "ID"];

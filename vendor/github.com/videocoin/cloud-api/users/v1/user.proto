@@ -35,12 +35,30 @@ enum UserRole {
     USER_ROLE_SUPER   = 9 [(gogoproto.enumvalue_customname) = "UserRoleSuper"];
 }
 
+enum UserUIRole {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "UserUIRole";
+
+    USER_ROLE_UI_BOTH      = 0 [(gogoproto.enumvalue_customname) = "UserUIRoleBoth"];
+    USER_ROLE_UI_MINER     = 1 [(gogoproto.enumvalue_customname) = "UserUIRoleMiner"];
+    USER_ROLE_UI_PUBLISHER = 2 [(gogoproto.enumvalue_customname) = "UserUIRolePublisher"];
+}
+
 message UserProfile {
     string id = 1 [
 		(gogoproto.customname) = "ID"
 	];
     string email = 2;
-    string name = 3;
-    bool is_active = 4;
+    string first_name = 3;
+    string last_name = 4;
+
+    bool is_active = 5;
     UserRole role = 6;
+    UserUIRole ui_role = 7;
+    string country = 8;
+    string region = 9;
+    string city = 10;
+    string zip = 11;
+    string address_1 = 12;
+    string address_2 = 13;
 }

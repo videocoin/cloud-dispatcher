@@ -126,6 +126,7 @@ service MinersService {
 message RegistrationRequest {
     string client_id = 1 [(gogoproto.customname) = "ClientID"];
     string address = 2;
+    string version = 3;
 }
 
 message MinerRequest {
