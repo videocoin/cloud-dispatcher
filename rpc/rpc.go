@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
+	"strings"
 
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
@@ -31,6 +32,25 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 	minerResponseToSpan(span, miner)
 
 	logger := s.logger.WithField("miner_id", miner.Id)
+
+	if !strings.HasPrefix("zone0-", miner.Name) {
+		err := s.checkWorkerState(ctx, miner)
+		if err != nil {
+			if err == ErrWorkerStateIsBonding ||
+				err == ErrWorkerStateIsUnbonded ||
+				err == ErrWorkerStateIsUnbonding {
+				return &v1.Task{}, status.Error(codes.FailedPrecondition, "worker state must be BONDED")
+			}
+
+			if err == ErrWorkerAddressIsEmpty {
+				logger.Warning(err)
+				return &v1.Task{}, nil
+			}
+
+			logger.WithError(err).Error("failed to check worker state")
+			return &v1.Task{}, nil
+		}
+	}
 
 	task, err := s.getPendingTask(ctx, req, miner)
 	if err != nil {

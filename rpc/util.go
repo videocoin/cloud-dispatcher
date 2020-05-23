@@ -6,6 +6,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
+	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	"github.com/videocoin/cloud-api/rpc"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
@@ -117,4 +118,31 @@ func (s *Server) markStreamAsFailedIfNeeded(ctx context.Context, task *datastore
 		logger.WithError(err).Error("failed to update stream status")
 		return
 	}
+}
+
+func (s *Server) checkWorkerState(ctx context.Context, miner *minersv1.MinerResponse) error {
+	if miner.Address == "" {
+		return ErrWorkerAddressIsEmpty
+	}
+
+	req := &emitterv1.WorkerRequest{Address: miner.Address}
+	worker, err := s.sc.Emitter.GetWorker(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if worker.State != emitterv1.WorkerStateBonded {
+		switch worker.State {
+		case emitterv1.WorkerStateBonding:
+			return ErrWorkerStateIsBonding
+		case emitterv1.WorkerStateUnbonded:
+			return ErrWorkerStateIsUnbonded
+		case emitterv1.WorkerStateUnbonding:
+			return ErrWorkerStateIsUnbonding
+		default:
+			return ErrWrongWorkerState
+		}
+	}
+
+	return nil
 }

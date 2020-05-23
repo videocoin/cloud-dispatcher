@@ -51,7 +51,7 @@ func NewLogrusLogger(serviceName string, serviceVersion string, lokiURL *string)
 		}
 	}
 
-	if lokiURL != nil {
+	if lokiURL != nil && *lokiURL != "" {
 		lokiHook, err := logrusloki.NewLoki(*lokiURL, 1024, 2)
 		lokiHook.AddData("app", serviceName)
 		lokiHook.AddData("version", serviceVersion)
