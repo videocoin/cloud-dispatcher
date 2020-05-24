@@ -126,9 +126,25 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 			inputURL := fmt.Sprintf("%s/%s", baseInputURL, segment.URI)
 			outputPath := fmt.Sprintf("$OUTPUT/%s", stream.ID)
 
-			components := []*profilesv1.Component{}
+			var components []*profilesv1.Component
 			for _, component := range p.Components {
 				if component.Type == profilesv1.ComponentTypeEncoder {
+					index := -1
+
+					// dirty workaround to remove framerate option setting
+					// in case of file workload
+					for i, par := range component.Params {
+						if par.Key == "-r" {
+							index = i
+							break
+						}
+					}
+
+					if index > 0 {
+						params := append(component.Params[:index], component.Params[index+1:]...)
+						component.Params = params
+					}
+
 					components = append(components, component)
 				}
 			}
