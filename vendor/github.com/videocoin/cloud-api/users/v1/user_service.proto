@@ -156,9 +156,7 @@ message CreateUserRequest {
         (gogoproto.moretags) = "validate:\"required\""
     ];
 
-    string region = 7 [
-        (gogoproto.moretags) = "validate:\"required\""
-    ];
+    string region = 7;
 
     string city = 8 [
         (gogoproto.moretags) = "validate:\"required\""
@@ -172,13 +170,9 @@ message CreateUserRequest {
         (gogoproto.moretags) = "validate:\"required\""
     ];
 
-    string address_2 = 11 [
-        (gogoproto.moretags) = "validate:\"required\""
-    ];
+    string address_2 = 11;
 
-    UserUIRole ui_role = 12 [
-        (gogoproto.moretags) = "validate:\"required\""
-    ];
+    UserUIRole ui_role = 12;
 
 }
 

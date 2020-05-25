@@ -157,6 +157,7 @@ message MinerResponse {
 	double self_stake = 11;     
     double delegated_stake = 12;
     bool is_block = 13;
+    bool is_internal = 14;
 }
 
 message MinerListResponse {
