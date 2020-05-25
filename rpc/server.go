@@ -24,16 +24,17 @@ import (
 )
 
 type ServerOpts struct {
-	Addr            string
-	SyncerURL       string
-	RPCNodeURL      string
-	DelegatorUserID string
-	DelegatorToken  string
-	Mode            *Mode
-	DM              *datastore.DataManager
-	EB              *eventbus.EventBus
-	SC              *clientv1.ServiceClient
-	IAM             *iam.Client
+	Addr               string
+	SyncerURL          string
+	RPCNodeURL         string
+	DelegatorUserID    string
+	DelegatorToken     string
+	StakingManagerAddr string
+	Mode               *Mode
+	DM                 *datastore.DataManager
+	EB                 *eventbus.EventBus
+	SC                 *clientv1.ServiceClient
+	IAM                *iam.Client
 }
 
 type Mode struct {
@@ -42,19 +43,20 @@ type Mode struct {
 }
 
 type Server struct {
-	logger          *logrus.Entry
-	mode            *Mode
-	addr            string
-	syncerURL       string
-	rpcNodeURL      string
-	delegatorUserID string
-	delegatorToken  string
-	grpc            *grpc.Server
-	listen          net.Listener
-	sc              *clientv1.ServiceClient
-	dm              *datastore.DataManager
-	eb              *eventbus.EventBus
-	iam             *iam.Client
+	logger             *logrus.Entry
+	mode               *Mode
+	addr               string
+	syncerURL          string
+	rpcNodeURL         string
+	stakingManagerAddr string
+	delegatorUserID    string
+	delegatorToken     string
+	grpc               *grpc.Server
+	listen             net.Listener
+	sc                 *clientv1.ServiceClient
+	dm                 *datastore.DataManager
+	eb                 *eventbus.EventBus
+	iam                *iam.Client
 }
 
 func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
@@ -78,19 +80,20 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 	}
 
 	rpcServer := &Server{
-		logger:          grpclogrus.Extract(ctx).WithField("system", "rpc"),
-		addr:            opts.Addr,
-		syncerURL:       opts.SyncerURL,
-		rpcNodeURL:      opts.RPCNodeURL,
-		delegatorUserID: opts.DelegatorUserID,
-		delegatorToken:  opts.DelegatorToken,
-		mode:            opts.Mode,
-		sc:              opts.SC,
-		dm:              opts.DM,
-		eb:              opts.EB,
-		iam:             opts.IAM,
-		grpc:            grpcServer,
-		listen:          listen,
+		logger:             grpclogrus.Extract(ctx).WithField("system", "rpc"),
+		addr:               opts.Addr,
+		syncerURL:          opts.SyncerURL,
+		rpcNodeURL:         opts.RPCNodeURL,
+		stakingManagerAddr: opts.StakingManagerAddr,
+		delegatorUserID:    opts.DelegatorUserID,
+		delegatorToken:     opts.DelegatorToken,
+		mode:               opts.Mode,
+		sc:                 opts.SC,
+		dm:                 opts.DM,
+		eb:                 opts.EB,
+		iam:                opts.IAM,
+		grpc:               grpcServer,
+		listen:             listen,
 	}
 
 	healthSrv := health.NewServer()

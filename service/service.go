@@ -49,11 +49,12 @@ func NewService(ctx context.Context, cfg *Config) (*Service, error) {
 	}
 
 	rpcConfig := &rpc.ServerOpts{
-		Addr:            cfg.RPCAddr,
-		RPCNodeURL:      cfg.RPCNodeURL,
-		SyncerURL:       cfg.SyncerURL,
-		DelegatorUserID: cfg.DelegatorUserID,
-		DelegatorToken:  cfg.DelegatorToken,
+		Addr:               cfg.RPCAddr,
+		RPCNodeURL:         cfg.RPCNodeURL,
+		SyncerURL:          cfg.SyncerURL,
+		DelegatorUserID:    cfg.DelegatorUserID,
+		DelegatorToken:     cfg.DelegatorToken,
+		StakingManagerAddr: cfg.StakingManagerAddr,
 		Mode: &rpc.Mode{
 			OnlyInternal:   cfg.ModeOnlyInternal,
 			MinimalVersion: cfg.ModeMinimalVersion,

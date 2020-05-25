@@ -62,6 +62,7 @@ function get_vars() {
     readonly BASE_OUTPUT_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/baseOutputUrl`
     readonly MODE_ONLY_INTERNAL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/modeOnlyInternal`
     readonly MODE_MINIMAL_VERSION=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/modeMinimalVersion`
+    readonly STAKING_MANAGER_ADDR=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/stakingManagerAddr`
     readonly LB_IP=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/loadBalancerIP`
     readonly SYNCER_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/syncerHttpUrl`
     readonly BLOCKCHAIN_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/secrets/blockchainUrl`
@@ -90,6 +91,7 @@ function deploy() {
         --set config.minersRpcAddr="${MINERS_RPC_ADDR}" \
         --set config.baseInputUrl="${BASE_INPUT_URL}" \
         --set config.baseOutputUrl="${BASE_OUTPUT_URL}" \
+        --set config.stakingManagerAddr="${STAKING_MANAGER_ADDR}" \
         --set-string config.modeOnlyInternal="${MODE_ONLY_INTERNAL}" \
         --set config.modeMinimalVersion="${MODE_MINIMAL_VERSION}" \
         --set service.loadBalancerIP="${LB_IP}" \

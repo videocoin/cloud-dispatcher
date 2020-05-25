@@ -24,4 +24,5 @@ type Config struct {
 	DelegatorToken     string `envconfig:"DELEGATOR_TOKEN" default:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoxLCJleHAiOjE2MTEyNTk3NzIsInN1YiI6IjExM2E2NmQyLWM3NWUtNDg4NS00MzcxLTJkNTRiYmFmMzE0NCJ9.7tKmeJR2LNMSeoziGcApxL9ek9mXbw-Rqb5SOXzaWsc"`
 	ModeOnlyInternal   bool   `envconfig:"MODE_ONLY_INTERNAL" default:"false"`
 	ModeMinimalVersion string `envconfig:"MODE_MINIMAL_VERSION" default:""`
+	StakingManagerAddr string `envconfig:"STAKING_MANAGER_ADDR" default:"0x74feC37C1CEe00F2EA987080D27e370d79cb46dd"`
 }

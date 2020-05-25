@@ -471,9 +471,10 @@ func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.Conf
 	}
 
 	return &v1.ConfigResponse{
-		RPCNodeURL: s.rpcNodeURL,
-		SyncerURL:  s.syncerURL,
-		AccessKey:  keyResp.Key,
+		RPCNodeURL:            s.rpcNodeURL,
+		SyncerURL:             s.syncerURL,
+		AccessKey:             keyResp.Key,
+		StakingManagerAddress: s.stakingManagerAddr,
 	}, nil
 }
 
