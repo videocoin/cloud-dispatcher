@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
-	"strings"
 	"time"
 
 	prototypes "github.com/gogo/protobuf/types"
@@ -32,7 +31,7 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 	}
 
 	if s.mode != nil {
-		if s.mode.OnlyInternal && !strings.HasPrefix("zone0-", miner.Name) {
+		if s.mode.OnlyInternal && !miner.IsInternal {
 			logger.Warning("miner is not internal")
 			return nil, nil
 		}
@@ -174,7 +173,7 @@ func (s *Server) isMinerQualify(ctx context.Context, miner *minersv1.MinerRespon
 		return true, nil
 	}
 
-	if strings.HasPrefix(miner.Name, "zone0-") {
+	if miner.IsInternal {
 		return false, nil
 	}
 

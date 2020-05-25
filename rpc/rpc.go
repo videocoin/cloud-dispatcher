@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
-	"strings"
 
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
@@ -33,7 +32,7 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 
 	logger := s.logger.WithField("miner_id", miner.Id)
 
-	if !strings.HasPrefix("zone0-", miner.Name) {
+	if !miner.IsInternal {
 		err := s.checkWorkerState(ctx, miner)
 		if err != nil {
 			if err == ErrWorkerStateIsBonding ||
