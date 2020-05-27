@@ -103,6 +103,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: modeMinimalVersion
+            - name: STAKING_MANAGER_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: stakingManagerAddr
             - name: RPC_NODE_URL
               valueFrom:
                 secretKeyRef:
