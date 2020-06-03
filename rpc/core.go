@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"sort"
@@ -98,6 +99,24 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 
 	if task == nil || task.ID == "" {
 		return nil, nil
+	}
+
+	if miner.IsInternal {
+		if task.IsOutputHLS() {
+			if req.Type == v1.TaskTypeLive {
+				return task, nil
+			}
+			return task, errors.New("don't allow assign live task to vod worker")
+		} else if task.IsOutputFile() {
+			if req.Type == v1.TaskTypeVOD {
+				return task, nil
+			}
+			return task, errors.New("don't allow assign vod task to live worker")
+		}
+	} else {
+		if task.IsOutputHLS() {
+			return task, errors.New("don't allow assign live task to external worker")
+		}
 	}
 
 	ok, err := s.isMinerQualify(ctx, miner, task)

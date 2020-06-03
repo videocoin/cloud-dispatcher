@@ -56,6 +56,7 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 		spanErr(span, err, "no task")
 
 		if task != nil {
+			logger.Warning(err)
 			logger.Info("unlocking task")
 			err := s.dm.UnlockTask(otCtx, task)
 			if err != nil {

@@ -23,7 +23,7 @@ func NewMetrics(namespace string) *Metrics {
 				Name:      "tasks_total",
 				Help:      "Total count of tasks",
 			},
-			[]string{"status", "machine_type"},
+			[]string{"status", "machine_type", "type"},
 		),
 	}
 }
@@ -73,13 +73,18 @@ func (mc *Collector) collectMetrics() {
 	ctx := context.Background()
 
 	mts := []string{""}
+	types := []string{v1.TaskTypeVOD.String(), v1.TaskTypeLive.String()}
 	tasks, err := mc.dm.GetTasks(ctx)
 	if err == nil {
 		for _, task := range tasks {
 			if task.Status == v1.TaskStatusPending && task.IsLock {
 				continue
 			}
-			k := fmt.Sprintf("%s/%s", task.Status, task.MachineType.String)
+			taskType := v1.TaskTypeVOD
+			if task.IsOutputHLS() {
+				taskType = v1.TaskTypeLive
+			}
+			k := fmt.Sprintf("%s/%s/%s", task.Status, task.MachineType.String, taskType.String())
 			tasksStat[k]++
 			mts = append(mts, task.MachineType.String)
 		}
@@ -89,8 +94,10 @@ func (mc *Collector) collectMetrics() {
 
 	for _, status := range statuses {
 		for _, mt := range mts {
-			k := fmt.Sprintf("%s/%s", status, mt)
-			mc.metrics.tasksTotalCount.WithLabelValues(status, mt).Set(tasksStat[k])
+			for _, t := range types {
+				k := fmt.Sprintf("%s/%s/%s", status, mt, t)
+				mc.metrics.tasksTotalCount.WithLabelValues(status, mt, t).Set(tasksStat[k])
+			}
 		}
 	}
 }
