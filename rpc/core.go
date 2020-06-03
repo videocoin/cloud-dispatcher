@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"strings"
 	"time"
 
 	prototypes "github.com/gogo/protobuf/types"
@@ -50,13 +51,6 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 			} else {
 				logger.WithField("version", s.mode.MinimalVersion).Error("minimal version is not valid")
 			}
-		}
-	}
-
-	if hw, ok := miner.Tags["hw"]; ok {
-		span.SetTag("miner_hw", hw)
-		if hw == "raspberrypi" {
-			return nil, nil
 		}
 	}
 
@@ -114,6 +108,22 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 
 	if !ok {
 		return task, rpc.ErrRpcNotFound
+	}
+
+	if hw, ok := miner.Tags["hw"]; ok {
+		span.SetTag("miner_hw", hw)
+		if hw == "raspberrypi" {
+			if task.IsOutputFile() {
+				cmdline := strings.Replace(task.Cmdline, "-c:v libx264", "-c:v h264_omx", -1)
+				err := s.dm.UpdateTaskCommandLine(ctx, task, cmdline)
+				if err != nil {
+					logger.WithError(err).Error("update command line for raspberrypi")
+					return task, rpc.ErrRpcInternal
+				}
+			} else {
+				return task, rpc.ErrRpcNotFound
+			}
+		}
 	}
 
 	return task, nil
