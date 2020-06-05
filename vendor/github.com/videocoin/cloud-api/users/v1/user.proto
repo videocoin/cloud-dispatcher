@@ -54,8 +54,10 @@ message UserProfile {
 
     bool is_active = 5;
     UserRole role = 6;
-    UserUIRole ui_role = 7;
-    string country = 8;
+    UserUIRole ui_role = 7 [
+		(gogoproto.customname) = "UIRole"
+	];
+	string country = 8;
     string region = 9;
     string city = 10;
     string zip = 11;

@@ -27,6 +27,15 @@ enum TaskStatus {
     PAUSED = 7 [(gogoproto.enumvalue_customname) = "TaskStatusPaused"];
 }
 
+enum TaskType {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "TaskType";
+
+    VOD = 0 [(gogoproto.enumvalue_customname) = "TaskTypeVOD"];
+    LIVE = 1 [(gogoproto.enumvalue_customname) = "TaskTypeLive"];
+    ANY = 2 [(gogoproto.enumvalue_customname) = "TaskTypeAny"];
+}
+
 message TaskInput {
     string uri = 1 [(gogoproto.customname) = "URI"];
 }

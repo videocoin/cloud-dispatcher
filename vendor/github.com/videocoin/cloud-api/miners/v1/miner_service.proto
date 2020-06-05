@@ -127,6 +127,8 @@ message RegistrationRequest {
     string client_id = 1 [(gogoproto.customname) = "ClientID"];
     string address = 2;
     string version = 3;
+    bool is_raspberry = 4;
+    bool is_jetson = 5;
 }
 
 message MinerRequest {

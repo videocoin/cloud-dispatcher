@@ -42,6 +42,7 @@ message TaskPendingRequest {
   double capacity_cpu = 3;
   string worker_state = 4;
   string version = 5;
+  TaskType type = 6;
 }
 
 message TaskRequest {
