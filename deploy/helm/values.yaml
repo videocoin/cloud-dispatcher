@@ -1,27 +1,65 @@
-replicasCount: 3
+replicasCount: 1
 maxUnavailableCount: 0
 
 image:
-  repository: gcr.io/videocoin-network/dispatcher
+  repository: registry.videocoin.net/cloud/dispatcher
   tag: latest
   pullPolicy: Always
+  pullSecrets: 
+  - name: regcred
 
-config: {}
+serviceAccount:
+  name: default
 
 service:
-  type: ClusterIP
-  externalRpcPort: 5008
-  internalRpcPort: 5008
-  metricsHttpPort: 15008
+  loadBalancerIP: "35.223.13.150"
+  ports:
+    grpc: 5008
+    metrics: 15008
+
+resources:
+  limits:
+   cpu: 500m
+   memory: 512Mi
+  requests:
+   cpu: 500m
+   memory: 512Mi
 
 autoscaler:
   minCount: 1
-  maxCount: 10
+  maxCount: 5
   targets:
     targetCPUUtilizationPercentage: 70
 
-secrets:
-  dbUri: ""
-  mqUri: ""
-  secret: ""
-  sentryDsn: ""
+config:
+  ACCOUNTS_RPC_ADDR: "accounts.console.svc.cluster.local:5001"
+  STREAMS_RPC_ADDR: "streams.console.svc.cluster.local:5102"
+  EMITTER_RPC_ADDR: "emitter.console.svc.cluster.local:5003"
+  PROFILES_RPC_ADDR: "profiles.console.svc.cluster.local:5004"
+  VALIDATOR_RPC_ADDR: "validator.console.svc.cluster.local:5020"
+  MINERS_RPC_ADDR: "miners.console.svc.cluster.local:5011"
+
+ingress:
+  enabled: false
+  host: d.dev.videocoinapis.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-dns-prod
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+  secret: tls-cert-cloud-dispatcher
+
+annotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "15008"
+  vault.hashicorp.com/agent-inject: "true"
+  vault.hashicorp.com/role: "console-dispatcher"
+  vault.hashicorp.com/agent-inject-secret-common: "videocoin/v1/networks/everest-dev/console/common"
+  vault.hashicorp.com/agent-inject-secret-config: "videocoin/v1/networks/everest-dev/console/dispatcher"
+  vault.hashicorp.com/agent-inject-template-common: |
+    {{ with secret "videocoin/v1/networks/everest-dev/console/common" }}{{ range $k, $v := .Data }}
+    export {{ $k }}="{{ $v }}"
+    {{ end }}{{ end }}
+  vault.hashicorp.com/agent-inject-template-config: |
+    {{ with secret "videocoin/v1/networks/everest-dev/console/dispatcher" }}{{ range $k, $v := .Data }}
+    export {{ $k }}="{{ $v }}"
+    {{ end }}{{ end }}

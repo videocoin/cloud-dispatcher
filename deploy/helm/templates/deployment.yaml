@@ -16,23 +16,31 @@ spec:
       name: {{ .Release.Name }}
       labels:
         app: {{ .Release.Name }}
+    {{- with .Values.annotations }}
       annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "{{ .Values.service.metricsHttpPort }}"
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
     spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      automountServiceAccountToken: true
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["bash", "-c", "source /vault/secrets/common && source /vault/secrets/config && /goose -dir /migrations -table dispatcher mysql $DBURI up && /dispatcher"]
           ports:
-            - containerPort: {{ .Values.service.internalRpcPort }}
+            - containerPort: {{ .Values.service.ports.grpc }}
           readinessProbe:
             exec:
-              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.service.internalRpcPort }}"]
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.service.ports.grpc }}"]
             initialDelaySeconds: 5
           livenessProbe:
             exec:
-              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.service.internalRpcPort }}"]
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.service.ports.grpc }}"]
             initialDelaySeconds: 10
           env:
             - name: JAEGER_AGENT_HOST
@@ -41,118 +49,9 @@ spec:
                   fieldPath: status.hostIP
             - name: JAEGER_AGENT_PORT
               value: "6831"
-            - name: RPC_ADDR
-              value: 0.0.0.0:{{ .Values.service.internalRpcPort }}
-            - name: ACCOUNTS_RPC_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: accountsRpcAddr
-            - name: EMITTER_RPC_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: emitterRpcAddr
-            - name: STREAMS_RPC_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: streamsRpcAddr
-            - name: PROFILES_RPC_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: profilesRpcAddr
-            - name: VALIDATOR_RPC_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: validatorRpcAddr
-            - name: SYNCER_RPC_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: syncerRpcAddr
-            - name: MEDIASERVER_RPC_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: mediaServerRpcAddr
-            - name: MINERS_RPC_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: minersRpcAddr
-            - name: BASE_INPUT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: baseInputUrl
-            - name: BASE_OUTPUT_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: baseOutputUrl
-            - name: SYNCER_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: syncerUrl
-            - name: MODE_ONLY_INTERNAL
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: modeOnlyInternal
-            - name: MODE_MINIMAL_VERSION
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: modeMinimalVersion
-            - name: STAKING_MANAGER_ADDR
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: stakingManagerAddr
-            - name: RPC_NODE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: blockchainUrl
-            - name: DELEGATOR_USER_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: delegatorUserId
-            - name: DELEGATOR_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: delegatorToken
-            - name: IAM_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: iamEndpoint
-            - name: DBURI
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: dbUri
-            - name: MQURI
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: mqUri
-            - name: AUTH_TOKEN_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: authTokenSecret
-            - name: SENTRY_DSN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Chart.Name }}
-                  key: sentryDsn
+          envFrom:
+            - configMapRef:
+                name: {{ .Chart.Name }}
           {{- if .Values.resources }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
@@ -161,8 +60,7 @@ spec:
         - name: config
           configMap:
             name: {{ .Release.Name }}
-        - name: secrets
-          secret:
-            secretName: {{ .Release.Name }}
+    {{- with .Values.nodeSelector }}
       nodeSelector:
-        cloud.google.com/gke-nodepool: api
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

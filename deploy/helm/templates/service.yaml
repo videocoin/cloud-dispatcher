@@ -7,17 +7,13 @@ metadata:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     heritage: {{ .Release.Service }}
 spec:
-  type: {{ .Values.service.type }}
-{{ if eq .Values.service.type "ClusterIP" }}
-  clusterIP: {{ .Values.service.clusterIP | default "None" | quote }}
-{{ end }}
   ports:
-    - port: {{ .Values.service.externalRpcPort }}
-      targetPort: {{ .Values.service.internalRpcPort }}
+    - port: {{ .Values.service.ports.grpc }}
+      targetPort: {{ .Values.service.ports.grpc }}
       protocol: TCP
       name: grpc
-    - port: {{ .Values.service.metricsHttpPort }}
-      targetPort: {{ .Values.service.metricsHttpPort }}
+    - port: {{ .Values.service.ports.metrics }}
+      targetPort: {{ .Values.service.ports.metrics }}
       protocol: TCP
       name: metrics-http
   selector:
@@ -35,8 +31,8 @@ spec:
   type: LoadBalancer
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
   ports:
-  - port: {{ .Values.service.externalRpcPort }}
-    targetPort: {{ .Values.service.internalRpcPort }}
+  - port: {{ .Values.service.ports.grpc }}
+    targetPort: {{ .Values.service.ports.grpc }}
     name: grpclb
     protocol: TCP
   selector:
