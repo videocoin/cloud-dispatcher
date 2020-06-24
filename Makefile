@@ -1,11 +1,11 @@
 GOOS?=linux
 GOARCH?=amd64
 
-GCP_PROJECT=videocoin-network
+GCP_PROJECT?=videocoin-network
 ENV?=dev
 
 NAME=dispatcher
-VERSION=$$(git describe --abbrev=0)-$$(git rev-parse --abbrev-ref HEAD)-$$(git rev-parse --short HEAD)
+VERSION?=$$(git describe --abbrev=0)-$$(git rev-parse --abbrev-ref HEAD)-$$(git rev-parse --short HEAD)
 
 .PHONY: deploy
 
