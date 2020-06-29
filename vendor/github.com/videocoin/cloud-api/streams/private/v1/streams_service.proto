@@ -64,6 +64,7 @@ message StreamResponse {
   string user_id = 14 [(gogoproto.customname) = "UserID"];
 
   streams.v1.InputType input_type = 15;
+  streams.v1.OutputType output_type = 18;
 }
 
 message UpdateStatusRequest {

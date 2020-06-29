@@ -6,8 +6,8 @@ import "google/protobuf/empty.proto";
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "protoc-gen-swagger/options/annotations.proto";
-
 import "miners/v1/miner.proto";
+import "github.com/videocoin/cloud-api/emitter/v1/emitter_service.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = false;
@@ -160,6 +160,7 @@ message MinerResponse {
     double delegated_stake = 12;
     bool is_block = 13;
     bool is_internal = 14;
+    cloud.api.emitter.v1.WorkerState worker_state = 15;
 }
 
 message MinerListResponse {

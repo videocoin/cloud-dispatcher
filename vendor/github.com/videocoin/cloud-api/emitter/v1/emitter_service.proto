@@ -127,6 +127,7 @@ enum WorkerState {
     BONDED    = 1 [(gogoproto.enumvalue_customname) = "WorkerStateBonded"];
     UNBONDED  = 2 [(gogoproto.enumvalue_customname) = "WorkerStateUnbonded"];
     UNBONDING = 3 [(gogoproto.enumvalue_customname) = "WorkerStateUnbonding"];
+    UNREGISTERED = 4 [(gogoproto.enumvalue_customname) = "WorkerStateUnregistered"];
 }
 
 message WorkerRequest {

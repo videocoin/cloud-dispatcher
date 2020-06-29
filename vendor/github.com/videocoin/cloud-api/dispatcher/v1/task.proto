@@ -36,6 +36,14 @@ enum TaskType {
     ANY = 2 [(gogoproto.enumvalue_customname) = "TaskTypeAny"];
 }
 
+enum TaskOutputType {
+    option (gogoproto.goproto_enum_prefix) = false;
+    option (gogoproto.enum_customname) = "TaskOutputType";
+
+    TASK_OUTPUT_TYPE_HLS = 0 [ (gogoproto.enumvalue_customname) = "TaskOutputTypeHLS" ];
+    TASK_OUTPUT_TYPE_FILE = 1 [ (gogoproto.enumvalue_customname) = "TaskOutputTypeFile" ];
+}
+
 message TaskInput {
     string uri = 1 [(gogoproto.customname) = "URI"];
 }
@@ -45,6 +53,7 @@ message TaskOutput {
     string name = 2;
     int64 num = 3;
     double duration = 4;
+    TaskOutputType type = 5;
 }
 
 message Task {

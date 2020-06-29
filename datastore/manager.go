@@ -172,6 +172,11 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				return nil, failedTo("render profile", err)
 			}
 
+			taskOutputType := v1.TaskOutputTypeHLS
+			if stream.OutputType == streamsv1.OutputTypeFile {
+				taskOutputType = v1.TaskOutputTypeFile
+			}
+
 			task := &Task{
 				ID:        taskID,
 				StreamID:  stream.ID,
@@ -185,6 +190,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 					Name:     newSegmentURI,
 					Num:      newSegmentNum,
 					Duration: segment.Duration,
+					Type:     taskOutputType,
 				},
 				StreamContractID:      dbr.NewNullInt64(stream.StreamContractID),
 				StreamContractAddress: dbr.NewNullString(stream.StreamContractAddress),

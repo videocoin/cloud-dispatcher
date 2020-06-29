@@ -68,4 +68,5 @@ enum OutputType {
     option (gogoproto.enum_customname) = "OutputType";
 
     OUTPUT_TYPE_HLS = 0 [ (gogoproto.enumvalue_customname) = "OutputTypeHLS" ];
+    OUTPUT_TYPE_FILE = 1 [ (gogoproto.enumvalue_customname) = "OutputTypeFile" ];
 }
