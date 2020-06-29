@@ -73,6 +73,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: syncerRpcAddr
+            - name: MEDIASERVER_RPC_ADDR
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: mediaServerRpcAddr
             - name: MINERS_RPC_ADDR
               valueFrom:
                 configMapKeyRef:

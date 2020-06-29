@@ -7,6 +7,7 @@ import (
 	billingv1 "github.com/videocoin/cloud-api/billing/private/v1"
 	dispatcherv1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
+	mediaserverv1 "github.com/videocoin/cloud-api/mediaserver/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
 	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
@@ -16,15 +17,16 @@ import (
 )
 
 type ServiceClient struct {
-	Accounts   accountsv1.AccountServiceClient
-	Billing    billingv1.BillingServiceClient
-	Dispatcher dispatcherv1.DispatcherServiceClient
-	Emitter    emitterv1.EmitterServiceClient
-	Miners     minersv1.MinersServiceClient
-	Profiles   profilesv1.ProfilesServiceClient
-	Streams    streamsv1.StreamsServiceClient
-	Users      usersv1.UserServiceClient
-	Validator  validatorv1.ValidatorServiceClient
+	Accounts    accountsv1.AccountServiceClient
+	Billing     billingv1.BillingServiceClient
+	Dispatcher  dispatcherv1.DispatcherServiceClient
+	Emitter     emitterv1.EmitterServiceClient
+	MediaServer mediaserverv1.MediaServerServiceClient
+	Miners      minersv1.MinersServiceClient
+	Profiles    profilesv1.ProfilesServiceClient
+	Streams     streamsv1.StreamsServiceClient
+	Users       usersv1.UserServiceClient
+	Validator   validatorv1.ValidatorServiceClient
 }
 
 func NewServiceClientFromEnvconfig(ctx context.Context, config interface{}) (*ServiceClient, error) {
@@ -65,6 +67,14 @@ func NewServiceClientFromEnvconfig(ctx context.Context, config interface{}) (*Se
 					return nil, err
 				}
 				sc.Emitter = cli
+			}
+		case "mediaserver":
+			{
+				cli, err := NewMediaServerServiceClient(ctx, item.Addr, opts...)
+				if err != nil {
+					return nil, err
+				}
+				sc.MediaServer = cli
 			}
 		case "miners":
 			{
@@ -142,6 +152,14 @@ func NewEmitterServiceClient(ctx context.Context, addr string, opts ...grpc.Dial
 		return nil, err
 	}
 	return emitterv1.NewEmitterServiceClient(conn), nil
+}
+
+func NewMediaServerServiceClient(ctx context.Context, addr string, opts ...grpc.DialOption) (mediaserverv1.MediaServerServiceClient, error) {
+	conn, err := grpc.DialContext(ctx, addr, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return mediaserverv1.NewMediaServerServiceClient(conn), nil
 }
 
 func NewMinersServiceClient(ctx context.Context, addr string, opts ...grpc.DialOption) (minersv1.MinersServiceClient, error) {

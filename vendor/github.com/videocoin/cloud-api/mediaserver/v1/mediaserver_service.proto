@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package cloud.api.mediaserver.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+service MediaServerService {
+    rpc CreateWebRTCStream(StreamRequest) returns (WebRTCStreamResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/ms/streams/webrtc"
+            body: "*"
+          };
+    }
+
+    rpc Mux(MuxRequest) returns (MuxResponse) {}
+}
+
+message StreamRequest {
+    string stream_id = 1 [(gogoproto.moretags) = "validate:\"required\""];
+    string sdp = 2 [(gogoproto.moretags) = "validate:\"required\""];
+}
+
+message WebRTCStreamResponse {
+    string sdp = 1;
+}
+
+message MuxRequest {
+    string stream_id = 1;
+    string input_url = 2;
+}
+
+message MuxResponse {}

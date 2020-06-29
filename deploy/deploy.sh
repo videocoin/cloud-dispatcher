@@ -58,6 +58,7 @@ function get_vars() {
     readonly VALIDATOR_RPC_ADDR=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/validatorRpcAddr`
     readonly SYNCER_RPC_ADDR=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/syncerRpcAddr`
     readonly PROFILES_RPC_ADDR=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/profilesRpcAddr`
+    readonly MEDIASERVER_RPC_ADDR=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/mediaServerRpcAddr`
     readonly MINERS_RPC_ADDR=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/minersRpcAddr`
     readonly BASE_INPUT_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/baseInputUrl`
     readonly BASE_OUTPUT_URL=`consul kv get -http-addr=${CONSUL_ADDR} config/${ENV}/services/${CHART_NAME}/vars/baseOutputUrl`
@@ -90,6 +91,7 @@ function deploy() {
         --set config.syncerRpcAddr="${SYNCER_RPC_ADDR}" \
         --set config.validatorRpcAddr="${VALIDATOR_RPC_ADDR}" \
         --set config.profilesRpcAddr="${PROFILES_RPC_ADDR}" \
+        --set config.mediaServerRpcAddr="${MEDIASERVER_RPC_ADDR}" \
         --set config.minersRpcAddr="${MINERS_RPC_ADDR}" \
         --set config.baseInputUrl="${BASE_INPUT_URL}" \
         --set config.baseOutputUrl="${BASE_OUTPUT_URL}" \

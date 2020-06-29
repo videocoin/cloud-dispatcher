@@ -11,6 +11,7 @@ type Config struct {
 	ProfilesRPCAddr    string `envconfig:"PROFILES_RPC_ADDR" default:"0.0.0.0:5004"`
 	ValidatorRPCAddr   string `envconfig:"VALIDATOR_RPC_ADDR" default:"0.0.0.0:5020"`
 	MinersRPCAddr      string `envconfig:"MINERS_RPC_ADDR" default:"0.0.0.0:5011"`
+	MediaServerRPCAddr string `envconfig:"MEDIASERVER_RPC_ADDR" default:"0.0.0.0:5090"`
 	MetricsAddr        string `envconfig:"METRICS_ADDR" default:"0.0.0.0:15008"`
 	BaseInputURL       string `envconfig:"BASE_INPUT_URL" default:""`
 	BaseOutputURL      string `envconfig:"BASE_OUTPUT_URL" default:""`
