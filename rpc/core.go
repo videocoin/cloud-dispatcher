@@ -109,6 +109,20 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 			return task, errors.New("don't allow assign live task to vod worker")
 		} else if task.IsOutputFile() {
 			if req.Type == v1.TaskTypeVOD {
+				logger.Info("checking hw")
+
+				if hw, ok := miner.Tags["hw"]; ok {
+					span.SetTag("miner_hw", hw)
+					if hw == "raspberrypi" {
+						cmdline := strings.Replace(task.Cmdline, "-c:v libx264", "-c:v h264_omx", -1)
+						err := s.dm.UpdateTaskCommandLine(ctx, task, cmdline)
+						if err != nil {
+							logger.WithError(err).Error("update command line for raspberry pi")
+							return task, rpc.ErrRpcInternal
+						}
+					}
+				}
+
 				return task, nil
 			}
 			return task, errors.New("don't allow assign vod task to live worker")
@@ -118,6 +132,8 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 			return task, errors.New("don't allow assign live task to external worker")
 		}
 	}
+
+	logger.Info("checking miner is qualify")
 
 	ok, err := s.isMinerQualify(ctx, miner, task)
 	if err != nil {
@@ -129,6 +145,8 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 		return task, rpc.ErrRpcNotFound
 	}
 
+	logger.Info("checking hw")
+
 	if hw, ok := miner.Tags["hw"]; ok {
 		span.SetTag("miner_hw", hw)
 		if hw == "raspberrypi" {
@@ -136,7 +154,7 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 				cmdline := strings.Replace(task.Cmdline, "-c:v libx264", "-c:v h264_omx", -1)
 				err := s.dm.UpdateTaskCommandLine(ctx, task, cmdline)
 				if err != nil {
-					logger.WithError(err).Error("update command line for raspberrypi")
+					logger.WithError(err).Error("update command line for raspberry pi")
 					return task, rpc.ErrRpcInternal
 				}
 			} else {
