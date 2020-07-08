@@ -30,7 +30,9 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 
 	minerResponseToSpan(span, miner)
 
-	logger := s.logger.WithField("miner_id", miner.Id)
+	logger := s.logger.
+		WithField("miner_id", miner.Id).
+		WithField("tags", miner.Tags)
 
 	if !miner.IsInternal {
 		err := s.checkWorkerState(ctx, miner)
