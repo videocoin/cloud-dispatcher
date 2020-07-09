@@ -554,46 +554,6 @@ func (m *DataManager) UpdateTaskCommandLine(ctx context.Context, task *Task, cmd
 	return nil
 }
 
-func (m *DataManager) LogTask(ctx context.Context, minerID, taskID string) error {
-	ctx, _, tx, err := m.NewContext(ctx)
-	if err != nil {
-		return failedTo("update task stream contract", err)
-	}
-	defer tx.RollbackUnlessCommitted()
-
-	err = m.ds.TasksHistory.Log(ctx, minerID, taskID)
-	if err != nil {
-		return err
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *DataManager) GetTaskLog(ctx context.Context, taskID string) ([]*TaskHistoryItem, error) {
-	ctx, _, tx, err := m.NewContext(ctx)
-	if err != nil {
-		return nil, failedTo("update task stream contract", err)
-	}
-	defer tx.RollbackUnlessCommitted()
-
-	items, err := m.ds.TasksHistory.GetLogByTaskID(ctx, taskID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return nil, err
-	}
-
-	return items, nil
-}
-
 func (m *DataManager) ClearClientID(ctx context.Context, task *Task) error {
 	ctx, _, tx, err := m.NewContext(ctx)
 	if err != nil {
