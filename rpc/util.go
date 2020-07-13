@@ -2,8 +2,6 @@ package rpc
 
 import (
 	"context"
-	"strings"
-
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
 	"github.com/sirupsen/logrus"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
@@ -54,13 +52,9 @@ func (s *Server) markStreamAsCompletedIfNeeded(ctx context.Context, task *datast
 		if relTasksCount == relCompletedTasksCount {
 			if task.Output.Type == v1.TaskOutputTypeFile {
 				logger.Info("muxing input to file")
-
-				urlParts := strings.Split(task.Input.URI, "/")
-				urlParts[len(urlParts)-1] = "index.m3u8"
-				inputURL := strings.Join(urlParts, "/")
+				
 				_, err := s.sc.MediaServer.Mux(ctx, &mediaserverv1.MuxRequest{
 					StreamId: task.StreamID,
-					InputUrl: inputURL,
 				})
 				if err != nil {
 					logger.WithError(err).Error("failed to mux stream")
