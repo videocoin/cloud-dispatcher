@@ -164,7 +164,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 
 			segmentNum := extractNumFromSegmentName(segment.URI)
 			newSegmentNum := segmentNum + 1
-			newSegmentURI := fmt.Sprintf("%d.mkv", newSegmentNum)
+			newSegmentURI := fmt.Sprintf("%d.ts", newSegmentNum)
 			profileReq := &profilesv1.RenderRequest{
 				ID:         stream.ProfileID,
 				Input:      inputURL,
