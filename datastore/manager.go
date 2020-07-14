@@ -140,12 +140,16 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 						}
 					}
 
-					if index > 0 {
+					if index >= 0 {
 						params := append(component.Params[:index], component.Params[index+1:]...)
 						component.Params = params
 					}
 
 					components = append(components, component)
+				} else {
+					if component.Type == profilesv1.ComponentTypeFilter {
+						components = append(components, component)
+					}
 				}
 			}
 			if len(components) > 0 {
