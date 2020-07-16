@@ -38,6 +38,7 @@ config:
   PROFILES_RPC_ADDR: "profiles.console.svc.cluster.local:5004"
   VALIDATOR_RPC_ADDR: "validator.console.svc.cluster.local:5020"
   MINERS_RPC_ADDR: "miners.console.svc.cluster.local:5011"
+  MEDIASERVER_RPC_ADDR: "mediaserver.console.svc.cluster.local:5090"
 
 ingress:
   enabled: false
