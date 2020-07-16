@@ -9,6 +9,7 @@ import (
 	emitterv1 "github.com/videocoin/cloud-api/emitter/v1"
 	mediaserverv1 "github.com/videocoin/cloud-api/mediaserver/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
+	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	usersv1 "github.com/videocoin/cloud-api/users/v1"
 	validatorv1 "github.com/videocoin/cloud-api/validator/v1"
@@ -22,6 +23,7 @@ type ServiceClient struct {
 	Emitter     emitterv1.EmitterServiceClient
 	MediaServer mediaserverv1.MediaServerServiceClient
 	Miners      minersv1.MinersServiceClient
+	Profiles    profilesv1.ProfilesServiceClient
 	Streams     streamsv1.StreamsServiceClient
 	Users       usersv1.UserServiceClient
 	Validator   validatorv1.ValidatorServiceClient
@@ -81,6 +83,14 @@ func NewServiceClientFromEnvconfig(ctx context.Context, config interface{}) (*Se
 					return nil, err
 				}
 				sc.Miners = cli
+			}
+		case "profiles":
+			{
+				cli, err := NewProfilesServiceClient(ctx, item.Addr, opts...)
+				if err != nil {
+					return nil, err
+				}
+				sc.Profiles = cli
 			}
 		case "streams":
 			{
@@ -158,6 +168,14 @@ func NewMinersServiceClient(ctx context.Context, addr string, opts ...grpc.DialO
 		return nil, err
 	}
 	return minersv1.NewMinersServiceClient(conn), nil
+}
+
+func NewProfilesServiceClient(ctx context.Context, addr string, opts ...grpc.DialOption) (profilesv1.ProfilesServiceClient, error) {
+	conn, err := grpc.DialContext(ctx, addr, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return profilesv1.NewProfilesServiceClient(conn), nil
 }
 
 func NewStreamsServiceClient(ctx context.Context, addr string, opts ...grpc.DialOption) (streamsv1.StreamsServiceClient, error) {

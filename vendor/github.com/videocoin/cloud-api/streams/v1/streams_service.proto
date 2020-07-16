@@ -7,8 +7,8 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
 import "streams/v1/stream.proto";
-import "streams/v1/profile.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -65,7 +65,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 		}
 	}
 };
-service StreamsService {
+service StreamService {
     /* This API call creates a new stream with the specified name and output transcoding profile. A stream object is returned from this API call. */
     rpc Create(CreateStreamRequest) returns (StreamResponse) {
       option (grpc.gateway.protoc_gen_swagger.options.openapiv2_operation) = {
@@ -74,15 +74,15 @@ service StreamsService {
 				value: {
 					description: "Stream has been failed to create because a required field is missing.";
 					schema: {
-            example: {
-              value: '{ "message": "invalid argument", "fields": { "name": "Name is a required field" }}'
-            }
-			    }
+                        example: {
+                            value: '{ "message": "invalid argument", "fields": { "name": "Name is a required field" }}'
+                        }
+			        }
 				}
 			}
 		};
 
-    option (google.api.http) = {
+      option (google.api.http) = {
         post: "/api/v1/streams"
         body: "*"
       };
@@ -132,13 +132,6 @@ service StreamsService {
         post: "/api/v1/streams/{id}/stop"
       };
     };
-	
-    /* This API call returns a list of supported output transcoding profiles. Most notably, the items in the response list the ID of a profile which is required when creating a new stream object. */
-    rpc GetProfileList(google.protobuf.Empty) returns (ProfileListResponse)  {
-        option (google.api.http) = {
-            get: "/api/v1/profiles"
-        };
-    }
 }
 
 message CreateStreamRequest {
@@ -277,23 +270,4 @@ message StreamListResponse {
 	};
   
   repeated StreamResponse items = 1;
-}
-
-message ProfileRequest {
-  string id = 1 [
-    (gogoproto.moretags) = "validate:\"required\"",
-    (gogoproto.customname) = "ID"
-  ];
-}
-
-message ProfileResponse {
-  string id = 1 [(gogoproto.customname) = "ID"];
-  string name = 2;
-  string description = 3;
-  bool is_enabled = 4;
-  CapacityInfo capacity = 5;
-}
-
-message ProfileListResponse {
-  repeated ProfileResponse items = 1;
 }

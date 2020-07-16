@@ -16,7 +16,7 @@ func nopAuth(ctx context.Context) (context.Context, error) {
 }
 
 func (s *Server) AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error) {
-	noAuthSuffixMethods := []string{"GetInternalConfig", "Health", "AddInputChunk", "GetDelegatorConfig"}
+	noAuthSuffixMethods := []string{"GetInternalConfig", "Health", "AddInputChunk", "GetDelegatorConfig", "GetDelegatorConfigV2"}
 	for _, suffix := range noAuthSuffixMethods {
 		if strings.HasSuffix(fullMethodName, suffix) {
 			return ctx, nil

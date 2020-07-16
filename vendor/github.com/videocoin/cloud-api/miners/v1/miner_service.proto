@@ -138,6 +138,11 @@ message MinerRequest {
 message UpdateMinerRequest {
     string id = 1;
     string name = 2;
+    string org_name = 3;
+    string org_email = 4;
+    string org_desc = 5;
+    bool allow_thirdparty_delegates = 6;
+    string delegate_policy = 7;
 }
 
 message CreateMinerRequest {
@@ -161,6 +166,11 @@ message MinerResponse {
     bool is_block = 13;
     bool is_internal = 14;
     cloud.api.emitter.v1.WorkerState worker_state = 15;
+    string org_name = 16;
+    string org_email = 17;
+    string org_desc = 18;
+    bool allow_thirdparty_delegates = 19;
+    string delegate_policy = 20;
 }
 
 message MinerListResponse {

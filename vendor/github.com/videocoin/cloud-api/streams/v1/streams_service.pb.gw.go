@@ -32,7 +32,7 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 
-func request_StreamsService_Create_0(ctx context.Context, marshaler runtime.Marshaler, client StreamsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_StreamService_Create_0(ctx context.Context, marshaler runtime.Marshaler, client StreamServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CreateStreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_StreamsService_Create_0(ctx context.Context, marshaler runtime.Mars
 
 }
 
-func local_request_StreamsService_Create_0(ctx context.Context, marshaler runtime.Marshaler, server StreamsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_StreamService_Create_0(ctx context.Context, marshaler runtime.Marshaler, server StreamServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CreateStreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -66,7 +66,7 @@ func local_request_StreamsService_Create_0(ctx context.Context, marshaler runtim
 
 }
 
-func request_StreamsService_Get_0(ctx context.Context, marshaler runtime.Marshaler, client StreamsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_StreamService_Get_0(ctx context.Context, marshaler runtime.Marshaler, client StreamServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -93,7 +93,7 @@ func request_StreamsService_Get_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-func local_request_StreamsService_Get_0(ctx context.Context, marshaler runtime.Marshaler, server StreamsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_StreamService_Get_0(ctx context.Context, marshaler runtime.Marshaler, server StreamServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -120,7 +120,7 @@ func local_request_StreamsService_Get_0(ctx context.Context, marshaler runtime.M
 
 }
 
-func request_StreamsService_Delete_0(ctx context.Context, marshaler runtime.Marshaler, client StreamsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_StreamService_Delete_0(ctx context.Context, marshaler runtime.Marshaler, client StreamServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -147,7 +147,7 @@ func request_StreamsService_Delete_0(ctx context.Context, marshaler runtime.Mars
 
 }
 
-func local_request_StreamsService_Delete_0(ctx context.Context, marshaler runtime.Marshaler, server StreamsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_StreamService_Delete_0(ctx context.Context, marshaler runtime.Marshaler, server StreamServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -174,7 +174,7 @@ func local_request_StreamsService_Delete_0(ctx context.Context, marshaler runtim
 
 }
 
-func request_StreamsService_List_0(ctx context.Context, marshaler runtime.Marshaler, client StreamsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_StreamService_List_0(ctx context.Context, marshaler runtime.Marshaler, client StreamServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq types.Empty
 	var metadata runtime.ServerMetadata
 
@@ -183,7 +183,7 @@ func request_StreamsService_List_0(ctx context.Context, marshaler runtime.Marsha
 
 }
 
-func local_request_StreamsService_List_0(ctx context.Context, marshaler runtime.Marshaler, server StreamsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_StreamService_List_0(ctx context.Context, marshaler runtime.Marshaler, server StreamServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq types.Empty
 	var metadata runtime.ServerMetadata
 
@@ -192,7 +192,7 @@ func local_request_StreamsService_List_0(ctx context.Context, marshaler runtime.
 
 }
 
-func request_StreamsService_Update_0(ctx context.Context, marshaler runtime.Marshaler, client StreamsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_StreamService_Update_0(ctx context.Context, marshaler runtime.Marshaler, client StreamServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UpdateStreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -227,7 +227,7 @@ func request_StreamsService_Update_0(ctx context.Context, marshaler runtime.Mars
 
 }
 
-func local_request_StreamsService_Update_0(ctx context.Context, marshaler runtime.Marshaler, server StreamsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_StreamService_Update_0(ctx context.Context, marshaler runtime.Marshaler, server StreamServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UpdateStreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -262,7 +262,7 @@ func local_request_StreamsService_Update_0(ctx context.Context, marshaler runtim
 
 }
 
-func request_StreamsService_Run_0(ctx context.Context, marshaler runtime.Marshaler, client StreamsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_StreamService_Run_0(ctx context.Context, marshaler runtime.Marshaler, client StreamServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -289,7 +289,7 @@ func request_StreamsService_Run_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-func local_request_StreamsService_Run_0(ctx context.Context, marshaler runtime.Marshaler, server StreamsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_StreamService_Run_0(ctx context.Context, marshaler runtime.Marshaler, server StreamServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -316,7 +316,7 @@ func local_request_StreamsService_Run_0(ctx context.Context, marshaler runtime.M
 
 }
 
-func request_StreamsService_Stop_0(ctx context.Context, marshaler runtime.Marshaler, client StreamsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_StreamService_Stop_0(ctx context.Context, marshaler runtime.Marshaler, client StreamServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -343,7 +343,7 @@ func request_StreamsService_Stop_0(ctx context.Context, marshaler runtime.Marsha
 
 }
 
-func local_request_StreamsService_Stop_0(ctx context.Context, marshaler runtime.Marshaler, server StreamsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_StreamService_Stop_0(ctx context.Context, marshaler runtime.Marshaler, server StreamServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StreamRequest
 	var metadata runtime.ServerMetadata
 
@@ -370,30 +370,12 @@ func local_request_StreamsService_Stop_0(ctx context.Context, marshaler runtime.
 
 }
 
-func request_StreamsService_GetProfileList_0(ctx context.Context, marshaler runtime.Marshaler, client StreamsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq types.Empty
-	var metadata runtime.ServerMetadata
-
-	msg, err := client.GetProfileList(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-
-}
-
-func local_request_StreamsService_GetProfileList_0(ctx context.Context, marshaler runtime.Marshaler, server StreamsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq types.Empty
-	var metadata runtime.ServerMetadata
-
-	msg, err := server.GetProfileList(ctx, &protoReq)
-	return msg, metadata, err
-
-}
-
-// RegisterStreamsServiceHandlerServer registers the http handlers for service StreamsService to "mux".
-// UnaryRPC     :call StreamsServiceServer directly.
+// RegisterStreamServiceHandlerServer registers the http handlers for service StreamService to "mux".
+// UnaryRPC     :call StreamServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-func RegisterStreamsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server StreamsServiceServer) error {
+func RegisterStreamServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server StreamServiceServer) error {
 
-	mux.Handle("POST", pattern_StreamsService_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_StreamService_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -402,18 +384,18 @@ func RegisterStreamsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_StreamsService_Create_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_StreamService_Create_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Create_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Create_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_StreamsService_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_StreamService_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -422,18 +404,18 @@ func RegisterStreamsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_StreamsService_Get_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_StreamService_Get_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Get_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Get_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_StreamsService_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_StreamService_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -442,18 +424,18 @@ func RegisterStreamsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_StreamsService_Delete_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_StreamService_Delete_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Delete_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Delete_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_StreamsService_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_StreamService_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -462,18 +444,18 @@ func RegisterStreamsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_StreamsService_List_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_StreamService_List_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_StreamsService_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_StreamService_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -482,18 +464,18 @@ func RegisterStreamsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_StreamsService_Update_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_StreamService_Update_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Update_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Update_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_StreamsService_Run_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_StreamService_Run_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -502,18 +484,18 @@ func RegisterStreamsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_StreamsService_Run_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_StreamService_Run_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Run_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Run_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_StreamsService_Stop_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_StreamService_Stop_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -522,43 +504,23 @@ func RegisterStreamsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_StreamsService_Stop_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_StreamService_Stop_0(rctx, inboundMarshaler, server, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Stop_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("GET", pattern_StreamsService_GetProfileList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_StreamsService_GetProfileList_0(rctx, inboundMarshaler, server, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_StreamsService_GetProfileList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Stop_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterStreamsServiceHandlerFromEndpoint is same as RegisterStreamsServiceHandler but
+// RegisterStreamServiceHandlerFromEndpoint is same as RegisterStreamServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterStreamsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterStreamServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -578,23 +540,23 @@ func RegisterStreamsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime
 		}()
 	}()
 
-	return RegisterStreamsServiceHandler(ctx, mux, conn)
+	return RegisterStreamServiceHandler(ctx, mux, conn)
 }
 
-// RegisterStreamsServiceHandler registers the http handlers for service StreamsService to "mux".
+// RegisterStreamServiceHandler registers the http handlers for service StreamService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterStreamsServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterStreamsServiceHandlerClient(ctx, mux, NewStreamsServiceClient(conn))
+func RegisterStreamServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterStreamServiceHandlerClient(ctx, mux, NewStreamServiceClient(conn))
 }
 
-// RegisterStreamsServiceHandlerClient registers the http handlers for service StreamsService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "StreamsServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "StreamsServiceClient"
+// RegisterStreamServiceHandlerClient registers the http handlers for service StreamService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "StreamServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "StreamServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "StreamsServiceClient" to call the correct interceptors.
-func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client StreamsServiceClient) error {
+// "StreamServiceClient" to call the correct interceptors.
+func RegisterStreamServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client StreamServiceClient) error {
 
-	mux.Handle("POST", pattern_StreamsService_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_StreamService_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -603,18 +565,18 @@ func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_StreamsService_Create_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_StreamService_Create_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Create_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Create_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_StreamsService_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_StreamService_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -623,18 +585,18 @@ func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_StreamsService_Get_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_StreamService_Get_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Get_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Get_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("DELETE", pattern_StreamsService_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("DELETE", pattern_StreamService_Delete_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -643,18 +605,18 @@ func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_StreamsService_Delete_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_StreamService_Delete_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Delete_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Delete_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_StreamsService_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_StreamService_List_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -663,18 +625,18 @@ func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_StreamsService_List_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_StreamService_List_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_List_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("PUT", pattern_StreamsService_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PUT", pattern_StreamService_Update_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -683,18 +645,18 @@ func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_StreamsService_Update_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_StreamService_Update_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Update_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Update_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_StreamsService_Run_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_StreamService_Run_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -703,18 +665,18 @@ func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_StreamsService_Run_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_StreamService_Run_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Run_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Run_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_StreamsService_Stop_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_StreamService_Stop_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -723,34 +685,14 @@ func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_StreamsService_Stop_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_StreamService_Stop_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_StreamsService_Stop_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
-	mux.Handle("GET", pattern_StreamsService_GetProfileList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_StreamsService_GetProfileList_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_StreamsService_GetProfileList_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_StreamService_Stop_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -758,37 +700,33 @@ func RegisterStreamsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_StreamsService_Create_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "streams"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_StreamService_Create_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "streams"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_StreamsService_Get_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "streams", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_StreamService_Get_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "streams", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_StreamsService_Delete_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "streams", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_StreamService_Delete_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "streams", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_StreamsService_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "streams"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_StreamService_List_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "streams"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_StreamsService_Update_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "streams", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_StreamService_Update_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "streams", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_StreamsService_Run_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "streams", "id", "run"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_StreamService_Run_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "streams", "id", "run"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_StreamsService_Stop_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "streams", "id", "stop"}, "", runtime.AssumeColonVerbOpt(true)))
-
-	pattern_StreamsService_GetProfileList_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "profiles"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_StreamService_Stop_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "streams", "id", "stop"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
-	forward_StreamsService_Create_0 = runtime.ForwardResponseMessage
+	forward_StreamService_Create_0 = runtime.ForwardResponseMessage
 
-	forward_StreamsService_Get_0 = runtime.ForwardResponseMessage
+	forward_StreamService_Get_0 = runtime.ForwardResponseMessage
 
-	forward_StreamsService_Delete_0 = runtime.ForwardResponseMessage
+	forward_StreamService_Delete_0 = runtime.ForwardResponseMessage
 
-	forward_StreamsService_List_0 = runtime.ForwardResponseMessage
+	forward_StreamService_List_0 = runtime.ForwardResponseMessage
 
-	forward_StreamsService_Update_0 = runtime.ForwardResponseMessage
+	forward_StreamService_Update_0 = runtime.ForwardResponseMessage
 
-	forward_StreamsService_Run_0 = runtime.ForwardResponseMessage
+	forward_StreamService_Run_0 = runtime.ForwardResponseMessage
 
-	forward_StreamsService_Stop_0 = runtime.ForwardResponseMessage
-
-	forward_StreamsService_GetProfileList_0 = runtime.ForwardResponseMessage
+	forward_StreamService_Stop_0 = runtime.ForwardResponseMessage
 )

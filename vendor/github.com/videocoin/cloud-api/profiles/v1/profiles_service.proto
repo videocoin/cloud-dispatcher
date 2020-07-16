@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+package cloud.api.profiles.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+import "profiles/v1/profile.proto";
+import "github.com/videocoin/cloud-api/miners/v1/miner.proto";
+
+option go_package = "v1";
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.goproto_registration) = true;
+option (gogoproto.messagename_all) = true;
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+	info: {
+		title: "Videocoin api";
+		version: "1.0";
+	};
+	schemes: HTTPS;
+	consumes: "application/json";
+	produces: "application/json";
+	security_definitions: {
+		security: {
+			key: "ApiKeyAuth";
+			value: {
+				type: TYPE_API_KEY;
+				in: IN_HEADER;
+				name: "Authorization";
+			}
+		}
+	}
+	security: {
+		security_requirement: {
+			key: "ApiKeyAuth";
+			value: {};
+		}
+	}
+	responses: {
+		key: "401";
+		value: {
+			description: "Returned when the user is not logged in.";
+		}
+	}
+	responses: {
+		key: "403";
+		value: {
+			description: "Returned when the user does not have permission to access the resource.";
+		}
+	}
+	responses: {
+		key: "404";
+		value: {
+			description: "Returned when the resource does not exist.";
+			schema: {
+			    example: {
+                    value: '{ "message": "Not found", "fields": null }'
+                }
+			}
+		}
+	}
+};
+
+service ProfilesService {
+    rpc Get(ProfileRequest) returns (GetProfileResponse)  {}
+	
+    /* This API call returns a list of supported output transcoding profiles. Most notably, the items in the response list the ID of a profile which is required when creating a new stream object. */
+    rpc List(google.protobuf.Empty) returns (ProfileListResponse)  {
+        option (google.api.http) = {
+            get: "/api/v1/profiles"
+        };
+    }
+
+    rpc Render(RenderRequest) returns (RenderResponse) {}
+}
+
+message ProfileRequest {
+    string id = 1 [
+		(gogoproto.moretags) = "validate:\"required\"",
+		(gogoproto.customname) = "ID"
+	];
+}
+
+message ProfileResponse {
+    string id = 1 [(gogoproto.customname) = "ID"];
+    string name = 2;
+    string description = 3;
+    bool is_enabled = 4;
+    cloud.api.miners.v1.CapacityInfo capacity = 5;
+}
+
+message GetProfileResponse {
+    string id = 1 [(gogoproto.customname) = "ID"];
+    string name = 2;
+    string description = 3;
+    bool is_enabled = 4;
+    string machine_type = 5;
+    double cost = 6;
+    repeated cloud.api.profiles.v1.Component components = 7;
+    cloud.api.miners.v1.CapacityInfo capacity = 8;
+}
+
+message ProfileListResponse {
+    repeated ProfileResponse items = 1;
+}
+
+message RenderRequest {
+    string id = 1 [
+		(gogoproto.moretags) = "validate:\"required\"",
+		(gogoproto.customname) = "ID"
+	];
+    string input = 2 [
+		(gogoproto.moretags) = "validate:\"required\""
+	];
+    string output = 3 [
+		(gogoproto.moretags) = "validate:\"required\""
+	];
+	repeated cloud.api.profiles.v1.Component components = 4;
+}
+
+message RenderResponse {
+    string render = 1;
+}
