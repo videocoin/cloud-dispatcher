@@ -68,3 +68,33 @@ trigger:
     - pe-1
     - pe-2
     - master
+
+---
+
+kind: pipeline
+type: kubernetes
+name: helm-push
+
+steps:
+  - name: lint-chart
+    image: pelotech/drone-helm3
+    settings:
+      mode: lint
+      chart: ./deploy/helm
+  - name: publish-chart
+    image: devth/helm:v3.1.1
+    environment:
+      USERNAME:
+        from_secret: registry_username
+      PASSWORD:
+        from_secret: registry_password
+    commands:
+      - helm repo add console https://registry.videocoin.net/chartrepo/cloud --username $$USERNAME --password $$PASSWORD
+      - helm plugin install https://github.com/chartmuseum/helm-push
+      - helm push ./deploy/helm console --username $$USERNAME --password $$PASSWORD
+
+trigger:
+  event:
+    - push
+  branch:
+    - infra
