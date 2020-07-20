@@ -1,6 +1,6 @@
 kind: pipeline
 type: kubernetes
-name: accounts
+name: develop
 
 steps:
   - name: build
@@ -30,3 +30,41 @@ trigger:
   branch:
     - drone
     - infra
+
+---
+
+kind: pipeline
+type: kubernetes
+name: release
+
+steps:
+  - name: build
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: registry_username
+      password:
+        from_secret: registry_password
+      registry: registry.videocoin.net
+      repo: registry.videocoin.net/cloud/dispatcher
+      tags:
+        - ${DRONE_TAG}
+  - name: deploy
+    image: devth/helm:v3.1.1
+    environment:
+      KUBE_CONFIG:
+        from_secret: stage_kube_config
+    commands:
+      - echo $KUBE_CONFIG | base64 -d > kube.config
+      - helm --kubeconfig=kube.config upgrade -i --wait --set image.tag=$DRONE_TAG -n console dispatcher ./deploy/helm
+    when:
+      branch:
+      - master
+trigger:
+  event:
+    - push
+    - pull_request
+  branch:
+    - pe-1
+    - pe-2
+    - master
