@@ -3,9 +3,9 @@ syntax = "proto3";
 package cloud.api.emitter.v1;
 
 import "google/protobuf/empty.proto";
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";
-import "emitter/v1/receipt.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "github.com/videocoin/cloud-api/emitter/v1/receipt.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;

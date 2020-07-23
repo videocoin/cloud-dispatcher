@@ -139,7 +139,7 @@ github.com/uber/jaeger-lib/metrics
 github.com/valyala/bytebufferpool
 # github.com/valyala/fasttemplate v1.0.1
 github.com/valyala/fasttemplate
-# github.com/videocoin/cloud-api v0.2.15 => ../cloud-api
+# github.com/videocoin/cloud-api v1.1.0 => ../cloud-api
 ## explicit
 github.com/videocoin/cloud-api/accounts/v1
 github.com/videocoin/cloud-api/billing/private/v1
@@ -149,13 +149,12 @@ github.com/videocoin/cloud-api/dispatcher/v1
 github.com/videocoin/cloud-api/emitter/v1
 github.com/videocoin/cloud-api/mediaserver/v1
 github.com/videocoin/cloud-api/miners/v1
-github.com/videocoin/cloud-api/profiles/v1
 github.com/videocoin/cloud-api/rpc
 github.com/videocoin/cloud-api/streams/private/v1
 github.com/videocoin/cloud-api/streams/v1
 github.com/videocoin/cloud-api/users/v1
 github.com/videocoin/cloud-api/validator/v1
-# github.com/videocoin/cloud-pkg v0.0.6 => ../cloud-pkg
+# github.com/videocoin/cloud-pkg v1.0.0 => ../cloud-pkg
 ## explicit
 github.com/videocoin/cloud-pkg/dbrutil
 github.com/videocoin/cloud-pkg/grpcutil

@@ -16,7 +16,6 @@ import (
 	clientv1 "github.com/videocoin/cloud-api/client/v1"
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	minersv1 "github.com/videocoin/cloud-api/miners/v1"
-	profilesv1 "github.com/videocoin/cloud-api/profiles/v1"
 	pstreamsv1 "github.com/videocoin/cloud-api/streams/private/v1"
 	streamsv1 "github.com/videocoin/cloud-api/streams/v1"
 	"github.com/videocoin/cloud-pkg/dbrutil"
@@ -92,11 +91,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 
 	tasks := []*Task{}
 
-	getProfileReq := &profilesv1.ProfileRequest{
-		ID: stream.ProfileID,
-	}
-
-	p, err := m.sc.Profiles.Get(ctx, getProfileReq)
+	p, err := m.sc.Streams.GetProfile(ctx, &pstreamsv1.ProfileRequest{ID: stream.ProfileID})
 	if err != nil {
 		return nil, failedTo("get profile", err)
 	}
@@ -126,9 +121,9 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 			inputURL := fmt.Sprintf("%s/%s", baseInputURL, segment.URI)
 			outputPath := fmt.Sprintf("$OUTPUT/%s", stream.ID)
 
-			var components []*profilesv1.Component
+			var components []*streamsv1.Component
 			for _, component := range p.Components {
-				if component.Type == profilesv1.ComponentTypeEncoder {
+				if component.Type == streamsv1.ComponentTypeEncoder {
 					index := -1
 
 					// dirty workaround to remove framerate option setting
@@ -147,15 +142,15 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 
 					components = append(components, component)
 				} else {
-					if component.Type == profilesv1.ComponentTypeFilter {
+					if component.Type == streamsv1.ComponentTypeFilter {
 						components = append(components, component)
 					}
 				}
 			}
 			if len(components) > 0 {
-				muxer := &profilesv1.Component{
-					Type: profilesv1.ComponentTypeMuxer,
-					Params: []*profilesv1.Param{
+				muxer := &streamsv1.Component{
+					Type: streamsv1.ComponentTypeMuxer,
+					Params: []*streamsv1.Param{
 						{Key: "-f", Value: "mpegts"},
 					},
 				}
@@ -165,13 +160,13 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 			segmentNum := extractNumFromSegmentName(segment.URI)
 			newSegmentNum := segmentNum + 1
 			newSegmentURI := fmt.Sprintf("%d.ts", newSegmentNum)
-			profileReq := &profilesv1.RenderRequest{
+			profileReq := &pstreamsv1.ProfileRenderRequest{
 				ID:         stream.ProfileID,
 				Input:      inputURL,
 				Output:     fmt.Sprintf("%s/%s", outputPath, newSegmentURI),
 				Components: components,
 			}
-			renderResp, err := m.sc.Profiles.Render(ctx, profileReq)
+			renderResp, err := m.sc.Streams.RenderProfile(ctx, profileReq)
 			if err != nil {
 				return nil, failedTo("render profile", err)
 			}
@@ -201,7 +196,10 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				MachineType:           dbr.NewNullString(p.MachineType),
 				Cmdline:               renderResp.Render,
 				IsLive:                false,
-				Capacity:              p.Capacity,
+				Capacity:              &minersv1.CapacityInfo{
+					Encode: p.Capacity.Encode,
+					Cpu: p.Capacity.Cpu,
+				},
 			}
 
 			err = m.ds.Tasks.Create(ctx, task)
@@ -228,14 +226,17 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	task.MachineType = dbr.NewNullString(p.MachineType)
 	task.Status = v1.TaskStatusPending
 	task.IsLive = true
-	task.Capacity = p.Capacity
+	task.Capacity = &minersv1.CapacityInfo{
+		Encode: p.Capacity.Encode,
+		Cpu: p.Capacity.Cpu,
+	}
 
-	profileReq := &profilesv1.RenderRequest{
+	profileReq := &pstreamsv1.ProfileRenderRequest{
 		ID:     task.ProfileID,
 		Input:  task.Input.GetURI(),
 		Output: fmt.Sprintf("%s/%s", task.Output.GetPath(), "index.m3u8"),
 	}
-	renderResp, err := m.sc.Profiles.Render(ctx, profileReq)
+	renderResp, err := m.sc.Streams.RenderProfile(ctx, profileReq)
 	if err != nil {
 		return nil, failedTo("render profile", err)
 	}
@@ -574,8 +575,8 @@ func (m *DataManager) ClearClientID(ctx context.Context, task *Task) error {
 	return nil
 }
 
-func (m *DataManager) GetProfile(ctx context.Context, profileID string) (*profilesv1.GetProfileResponse, error) {
-	return m.sc.Profiles.Get(ctx, &profilesv1.ProfileRequest{
+func (m *DataManager) GetProfile(ctx context.Context, profileID string) (*pstreamsv1.ProfileResponse, error) {
+	return m.sc.Streams.GetProfile(ctx, &pstreamsv1.ProfileRequest{
 		ID: profileID,
 	})
 }

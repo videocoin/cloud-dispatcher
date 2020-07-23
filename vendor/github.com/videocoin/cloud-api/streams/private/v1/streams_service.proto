@@ -6,6 +6,7 @@ import "google/protobuf/timestamp.proto";
 import "google/api/annotations.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "github.com/videocoin/cloud-api/streams/v1/stream.proto";
+import "github.com/videocoin/cloud-api/streams/v1/profile.proto";
 
 option go_package = "v1";
 option (gogoproto.marshaler_all) = true;
@@ -22,6 +23,8 @@ service StreamsService {
   rpc Run(StreamRequest) returns (StreamResponse) {}
   rpc Stop(StreamRequest) returns (StreamResponse) {}
   rpc UpdateStatus(UpdateStatusRequest) returns (StreamResponse) {}
+  rpc GetProfile(ProfileRequest) returns (ProfileResponse)  {}
+  rpc RenderProfile(ProfileRenderRequest) returns (ProfileRenderResponse) {}
 }
 
 message StreamRequest {
@@ -70,4 +73,40 @@ message StreamResponse {
 message UpdateStatusRequest {
   string id = 1 [(gogoproto.customname) = "ID"];
   streams.v1.StreamStatus status = 2;
+}
+
+message ProfileRequest {
+  string id = 1 [
+    (gogoproto.moretags) = "validate:\"required\"",
+    (gogoproto.customname) = "ID"
+  ];
+}
+
+message ProfileResponse {
+  string id = 1 [(gogoproto.customname) = "ID"];
+  string name = 2;
+  string description = 3;
+  bool is_enabled = 4;
+  string machine_type = 5;
+  double cost = 6;
+  repeated cloud.api.streams.v1.Component components = 7;
+  cloud.api.streams.v1.CapacityInfo capacity = 8;
+}
+
+message ProfileRenderRequest {
+  string id = 1 [
+  (gogoproto.moretags) = "validate:\"required\"",
+  (gogoproto.customname) = "ID"
+];
+  string input = 2 [
+  (gogoproto.moretags) = "validate:\"required\""
+];
+  string output = 3 [
+  (gogoproto.moretags) = "validate:\"required\""
+];
+repeated cloud.api.streams.v1.Component components = 4;
+}
+
+message ProfileRenderResponse {
+  string render = 1;
 }

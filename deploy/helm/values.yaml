@@ -35,7 +35,6 @@ config:
   ACCOUNTS_RPC_ADDR: "accounts.console.svc.cluster.local:5001"
   STREAMS_RPC_ADDR: "streams.console.svc.cluster.local:5102"
   EMITTER_RPC_ADDR: "emitter.console.svc.cluster.local:5003"
-  PROFILES_RPC_ADDR: "profiles.console.svc.cluster.local:5004"
   VALIDATOR_RPC_ADDR: "validator.console.svc.cluster.local:5020"
   MINERS_RPC_ADDR: "miners.console.svc.cluster.local:5011"
   MEDIASERVER_RPC_ADDR: "mediaserver.console.svc.cluster.local:5090"
@@ -54,13 +53,13 @@ annotations:
   prometheus.io/port: "15008"
   vault.hashicorp.com/agent-inject: "true"
   vault.hashicorp.com/role: "console-dispatcher"
-  vault.hashicorp.com/agent-inject-secret-common: "videocoin/v1/networks/everest-dev/console/common"
-  vault.hashicorp.com/agent-inject-secret-config: "videocoin/v1/networks/everest-dev/console/dispatcher"
+  vault.hashicorp.com/agent-inject-secret-common: "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/console/common/config"
+  vault.hashicorp.com/agent-inject-secret-config: "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/console/dispatcher/config"
   vault.hashicorp.com/agent-inject-template-common: |
-    {{ with secret "videocoin/v1/networks/everest-dev/console/common" }}{{ range $k, $v := .Data }}
+    {{ with secret "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/console/common/config" }}{{ range $k, $v := .Data }}
     export {{ $k }}="{{ $v }}"
     {{ end }}{{ end }}
   vault.hashicorp.com/agent-inject-template-config: |
-    {{ with secret "videocoin/v1/networks/everest-dev/console/dispatcher" }}{{ range $k, $v := .Data }}
+    {{ with secret "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/console/dispatcher/config" }}{{ range $k, $v := .Data }}
     export {{ $k }}="{{ $v }}"
     {{ end }}{{ end }}

@@ -8,7 +8,6 @@ type Config struct {
 	AccountsRPCAddr    string `envconfig:"ACCOUNTS_RPC_ADDR" default:"0.0.0.0:5001"`
 	StreamsRPCAddr     string `envconfig:"STREAMS_RPC_ADDR" default:"0.0.0.0:5102"`
 	EmitterRPCAddr     string `envconfig:"EMITTER_RPC_ADDR" default:"0.0.0.0:5003"`
-	ProfilesRPCAddr    string `envconfig:"PROFILES_RPC_ADDR" default:"0.0.0.0:5004"`
 	ValidatorRPCAddr   string `envconfig:"VALIDATOR_RPC_ADDR" default:"0.0.0.0:5020"`
 	MinersRPCAddr      string `envconfig:"MINERS_RPC_ADDR" default:"0.0.0.0:5011"`
 	MediaServerRPCAddr string `envconfig:"MEDIASERVER_RPC_ADDR" default:"0.0.0.0:5090"`
