@@ -1,7 +1,6 @@
 kind: pipeline
 type: kubernetes
-name: develop
-
+name: release
 steps:
   - name: build
     image: plugins/docker
@@ -15,6 +14,7 @@ steps:
       tags:
         - latest
         - ${DRONE_COMMIT_SHA}
+        - ${DRONE_TAG}
   - name: deploy
     image: devth/helm:v3.1.1
     environment:
@@ -23,56 +23,21 @@ steps:
     commands:
       - echo $KUBE_CONFIG | base64 -d > kube.config
       - helm --kubeconfig=kube.config upgrade -i --wait --set image.tag=$DRONE_COMMIT_SHA -n console dispatcher ./deploy/helm
-
+    when:
+      branch:
+        - infra
 trigger:
   event:
     - push
+    - tag
   branch:
     - infra
 
----
-
-kind: pipeline
-type: kubernetes
-name: release
-
-steps:
-  - name: build
-    image: plugins/docker
-    settings:
-      username:
-        from_secret: registry_username
-      password:
-        from_secret: registry_password
-      registry: registry.videocoin.net
-      repo: registry.videocoin.net/cloud/dispatcher
-      tags:
-        - ${DRONE_TAG}
-  - name: deploy
-    image: devth/helm:v3.1.1
-    environment:
-      KUBE_CONFIG:
-        from_secret: stage_kube_config
-    commands:
-      - echo $KUBE_CONFIG | base64 -d > kube.config
-      - helm --kubeconfig=kube.config upgrade -i --wait --set image.tag=$DRONE_TAG -n console dispatcher ./deploy/helm
-    when:
-      branch:
-      - master
-trigger:
-  event:
-    - push
-  branch:
-    - pe-1
-    - pe-2
-    - master
 
 ---
-
 kind: pipeline
 type: kubernetes
 name: helm-push
-
 steps:
   - name: lint-chart
     image: pelotech/drone-helm3
@@ -90,7 +55,6 @@ steps:
       - helm repo add console https://registry.videocoin.net/chartrepo/cloud --username $$USERNAME --password $$PASSWORD
       - helm plugin install https://github.com/chartmuseum/helm-push
       - helm push ./deploy/helm console --username $$USERNAME --password $$PASSWORD
-
 trigger:
   event:
     - push
