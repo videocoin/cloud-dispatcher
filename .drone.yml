@@ -1,6 +1,6 @@
 kind: pipeline
 type: kubernetes
-name: release
+name: develop
 steps:
   - name: build
     image: plugins/docker
@@ -14,7 +14,6 @@ steps:
       tags:
         - latest
         - ${DRONE_COMMIT_SHA}
-        - ${DRONE_TAG}
   - name: deploy
     image: devth/helm:v3.1.1
     environment:
@@ -29,9 +28,29 @@ steps:
 trigger:
   event:
     - push
-    - tag
   branch:
     - infra
+
+
+---
+kind: pipeline
+type: kubernetes
+name: release
+steps:
+  - name: build
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: registry_username
+      password:
+        from_secret: registry_password
+      registry: registry.videocoin.net
+      repo: registry.videocoin.net/cloud/dispatcher
+      tags:
+        - ${DRONE_TAG}
+trigger:
+  event:
+    - tag
 
 
 ---
