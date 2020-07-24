@@ -161,6 +161,19 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 				return task, rpc.ErrRpcNotFound
 			}
 		}
+
+		if hw == "jetson" {
+			if task.IsOutputFile() {
+				cmdline := strings.Replace(task.Cmdline, "-c:v libx264", "-c:v h264_nvmpi", -1)
+				err := s.dm.UpdateTaskCommandLine(ctx, task, cmdline)
+				if err != nil {
+					logger.WithError(err).Error("update command line for jetson")
+					return task, rpc.ErrRpcInternal
+				}
+			} else {
+				return task, rpc.ErrRpcNotFound
+			}
+		}
 	}
 
 	return task, nil
