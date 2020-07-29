@@ -22,14 +22,11 @@ steps:
     commands:
       - echo $KUBE_CONFIG | base64 -d > kube.config
       - helm --kubeconfig=kube.config upgrade -i --wait --set image.tag=$DRONE_COMMIT_SHA -n console dispatcher ./deploy/helm
-    when:
-      branch:
-        - infra
 trigger:
   event:
     - push
   branch:
-    - infra
+    - develop
 
 
 ---
@@ -77,5 +74,3 @@ steps:
 trigger:
   event:
     - push
-  branch:
-    - infra
