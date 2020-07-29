@@ -4,8 +4,6 @@ metadata:
   name: {{ .Chart.Name }}
   labels:
     app: {{ .Chart.Name }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    heritage: {{ .Release.Service }}
 spec:
   ports:
     - port: {{ .Values.service.ports.grpc }}

@@ -1,15 +1,13 @@
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Chart.Name }}
   labels:
-    app: {{ .Release.Name }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-    heritage: {{ .Release.Service }}
+    app: {{ .Chart.Name }}
 spec:
   scaleTargetRef:
     kind: Deployment
-    name: {{ .Release.Name }}
+    name: {{ .Chart.Name }}
   minReplicas: {{ .Values.autoscaler.minCount }}
   maxReplicas: {{ .Values.autoscaler.maxCount }}
 {{ toYaml .Values.autoscaler.targets | indent 2 }}

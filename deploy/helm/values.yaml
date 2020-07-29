@@ -4,7 +4,7 @@ maxUnavailableCount: 0
 image:
   repository: registry.videocoin.net/cloud/dispatcher
   tag: latest
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   pullSecrets: 
   - name: regcred
 
@@ -22,8 +22,8 @@ resources:
    cpu: 500m
    memory: 512Mi
   requests:
-   cpu: 500m
-   memory: 512Mi
+   cpu: 50m
+   memory: 32Mi
 
 autoscaler:
   minCount: 1
@@ -38,15 +38,6 @@ config:
   VALIDATOR_RPC_ADDR: "validator.console.svc.cluster.local:5020"
   MINERS_RPC_ADDR: "miners.console.svc.cluster.local:5011"
   MEDIASERVER_RPC_ADDR: "mediaserver.console.svc.cluster.local:5090"
-
-ingress:
-  enabled: false
-  host: d.dev.videocoinapis.com
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-dns-prod
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
-  secret: tls-cert-cloud-dispatcher
 
 annotations:
   prometheus.io/scrape: "true"
