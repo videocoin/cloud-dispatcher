@@ -332,6 +332,290 @@ func (m *UpdateStatusRequest) GetStatus() v1.StreamStatus {
 func (*UpdateStatusRequest) XXX_MessageName() string {
 	return "cloud.api.streams.private.v1.UpdateStatusRequest"
 }
+
+type ProfileRequest struct {
+	ID                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" validate:"required"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ProfileRequest) Reset()         { *m = ProfileRequest{} }
+func (m *ProfileRequest) String() string { return proto.CompactTextString(m) }
+func (*ProfileRequest) ProtoMessage()    {}
+func (*ProfileRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_55d803021125e230, []int{3}
+}
+func (m *ProfileRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ProfileRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ProfileRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ProfileRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProfileRequest.Merge(m, src)
+}
+func (m *ProfileRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *ProfileRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProfileRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProfileRequest proto.InternalMessageInfo
+
+func (m *ProfileRequest) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (*ProfileRequest) XXX_MessageName() string {
+	return "cloud.api.streams.private.v1.ProfileRequest"
+}
+
+type ProfileResponse struct {
+	ID                   string           `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                 string           `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description          string           `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	IsEnabled            bool             `protobuf:"varint,4,opt,name=is_enabled,json=isEnabled,proto3" json:"is_enabled,omitempty"`
+	MachineType          string           `protobuf:"bytes,5,opt,name=machine_type,json=machineType,proto3" json:"machine_type,omitempty"`
+	Cost                 float64          `protobuf:"fixed64,6,opt,name=cost,proto3" json:"cost,omitempty"`
+	Components           []*v1.Component  `protobuf:"bytes,7,rep,name=components,proto3" json:"components,omitempty"`
+	Capacity             *v1.CapacityInfo `protobuf:"bytes,8,opt,name=capacity,proto3" json:"capacity,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *ProfileResponse) Reset()         { *m = ProfileResponse{} }
+func (m *ProfileResponse) String() string { return proto.CompactTextString(m) }
+func (*ProfileResponse) ProtoMessage()    {}
+func (*ProfileResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_55d803021125e230, []int{4}
+}
+func (m *ProfileResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ProfileResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ProfileResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ProfileResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProfileResponse.Merge(m, src)
+}
+func (m *ProfileResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *ProfileResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProfileResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProfileResponse proto.InternalMessageInfo
+
+func (m *ProfileResponse) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *ProfileResponse) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *ProfileResponse) GetDescription() string {
+	if m != nil {
+		return m.Description
+	}
+	return ""
+}
+
+func (m *ProfileResponse) GetIsEnabled() bool {
+	if m != nil {
+		return m.IsEnabled
+	}
+	return false
+}
+
+func (m *ProfileResponse) GetMachineType() string {
+	if m != nil {
+		return m.MachineType
+	}
+	return ""
+}
+
+func (m *ProfileResponse) GetCost() float64 {
+	if m != nil {
+		return m.Cost
+	}
+	return 0
+}
+
+func (m *ProfileResponse) GetComponents() []*v1.Component {
+	if m != nil {
+		return m.Components
+	}
+	return nil
+}
+
+func (m *ProfileResponse) GetCapacity() *v1.CapacityInfo {
+	if m != nil {
+		return m.Capacity
+	}
+	return nil
+}
+
+func (*ProfileResponse) XXX_MessageName() string {
+	return "cloud.api.streams.private.v1.ProfileResponse"
+}
+
+type ProfileRenderRequest struct {
+	ID                   string          `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty" validate:"required"`
+	Input                string          `protobuf:"bytes,2,opt,name=input,proto3" json:"input,omitempty" validate:"required"`
+	Output               string          `protobuf:"bytes,3,opt,name=output,proto3" json:"output,omitempty" validate:"required"`
+	Components           []*v1.Component `protobuf:"bytes,4,rep,name=components,proto3" json:"components,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
+}
+
+func (m *ProfileRenderRequest) Reset()         { *m = ProfileRenderRequest{} }
+func (m *ProfileRenderRequest) String() string { return proto.CompactTextString(m) }
+func (*ProfileRenderRequest) ProtoMessage()    {}
+func (*ProfileRenderRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_55d803021125e230, []int{5}
+}
+func (m *ProfileRenderRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ProfileRenderRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ProfileRenderRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ProfileRenderRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProfileRenderRequest.Merge(m, src)
+}
+func (m *ProfileRenderRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *ProfileRenderRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProfileRenderRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProfileRenderRequest proto.InternalMessageInfo
+
+func (m *ProfileRenderRequest) GetID() string {
+	if m != nil {
+		return m.ID
+	}
+	return ""
+}
+
+func (m *ProfileRenderRequest) GetInput() string {
+	if m != nil {
+		return m.Input
+	}
+	return ""
+}
+
+func (m *ProfileRenderRequest) GetOutput() string {
+	if m != nil {
+		return m.Output
+	}
+	return ""
+}
+
+func (m *ProfileRenderRequest) GetComponents() []*v1.Component {
+	if m != nil {
+		return m.Components
+	}
+	return nil
+}
+
+func (*ProfileRenderRequest) XXX_MessageName() string {
+	return "cloud.api.streams.private.v1.ProfileRenderRequest"
+}
+
+type ProfileRenderResponse struct {
+	Render               string   `protobuf:"bytes,1,opt,name=render,proto3" json:"render,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ProfileRenderResponse) Reset()         { *m = ProfileRenderResponse{} }
+func (m *ProfileRenderResponse) String() string { return proto.CompactTextString(m) }
+func (*ProfileRenderResponse) ProtoMessage()    {}
+func (*ProfileRenderResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_55d803021125e230, []int{6}
+}
+func (m *ProfileRenderResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ProfileRenderResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ProfileRenderResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ProfileRenderResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ProfileRenderResponse.Merge(m, src)
+}
+func (m *ProfileRenderResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *ProfileRenderResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ProfileRenderResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ProfileRenderResponse proto.InternalMessageInfo
+
+func (m *ProfileRenderResponse) GetRender() string {
+	if m != nil {
+		return m.Render
+	}
+	return ""
+}
+
+func (*ProfileRenderResponse) XXX_MessageName() string {
+	return "cloud.api.streams.private.v1.ProfileRenderResponse"
+}
 func init() {
 	proto.RegisterType((*StreamRequest)(nil), "cloud.api.streams.private.v1.StreamRequest")
 	golang_proto.RegisterType((*StreamRequest)(nil), "cloud.api.streams.private.v1.StreamRequest")
@@ -339,6 +623,14 @@ func init() {
 	golang_proto.RegisterType((*StreamResponse)(nil), "cloud.api.streams.private.v1.StreamResponse")
 	proto.RegisterType((*UpdateStatusRequest)(nil), "cloud.api.streams.private.v1.UpdateStatusRequest")
 	golang_proto.RegisterType((*UpdateStatusRequest)(nil), "cloud.api.streams.private.v1.UpdateStatusRequest")
+	proto.RegisterType((*ProfileRequest)(nil), "cloud.api.streams.private.v1.ProfileRequest")
+	golang_proto.RegisterType((*ProfileRequest)(nil), "cloud.api.streams.private.v1.ProfileRequest")
+	proto.RegisterType((*ProfileResponse)(nil), "cloud.api.streams.private.v1.ProfileResponse")
+	golang_proto.RegisterType((*ProfileResponse)(nil), "cloud.api.streams.private.v1.ProfileResponse")
+	proto.RegisterType((*ProfileRenderRequest)(nil), "cloud.api.streams.private.v1.ProfileRenderRequest")
+	golang_proto.RegisterType((*ProfileRenderRequest)(nil), "cloud.api.streams.private.v1.ProfileRenderRequest")
+	proto.RegisterType((*ProfileRenderResponse)(nil), "cloud.api.streams.private.v1.ProfileRenderResponse")
+	golang_proto.RegisterType((*ProfileRenderResponse)(nil), "cloud.api.streams.private.v1.ProfileRenderResponse")
 }
 
 func init() {
@@ -349,55 +641,71 @@ func init() {
 }
 
 var fileDescriptor_55d803021125e230 = []byte{
-	// 759 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0xcd, 0x6e, 0xda, 0x4a,
-	0x14, 0xbe, 0x26, 0x04, 0xf0, 0x81, 0x70, 0x73, 0xe7, 0xfe, 0x59, 0x28, 0xc2, 0x84, 0xbb, 0xe1,
-	0xaa, 0x89, 0x2d, 0x52, 0x29, 0x8b, 0x46, 0x6a, 0xc5, 0x8f, 0x54, 0x21, 0x55, 0x6a, 0x64, 0xc2,
-	0xa6, 0x1b, 0x64, 0xec, 0x09, 0x99, 0x0a, 0x3c, 0x8e, 0x67, 0x8c, 0x94, 0xb7, 0xc8, 0x23, 0x75,
-	0x99, 0x65, 0x9f, 0x80, 0x56, 0xce, 0xba, 0xef, 0x50, 0x79, 0x66, 0x1c, 0x92, 0x36, 0x8d, 0xc8,
-	0x82, 0xdd, 0xcc, 0x99, 0xef, 0x67, 0x7c, 0xfc, 0xcd, 0x81, 0x16, 0xe3, 0x11, 0x76, 0xe7, 0xcc,
-	0x0e, 0x23, 0xb2, 0x70, 0x39, 0xb6, 0x17, 0x6d, 0x5b, 0x95, 0xc6, 0x0c, 0x47, 0x0b, 0xe2, 0x61,
-	0x2b, 0x8c, 0x28, 0xa7, 0x68, 0xcf, 0x9b, 0xd1, 0xd8, 0xb7, 0xdc, 0x90, 0x58, 0x0a, 0x60, 0x29,
-	0x8e, 0xb5, 0x68, 0xd7, 0xcc, 0x29, 0xa5, 0xd3, 0x19, 0xb6, 0x05, 0x76, 0x12, 0x9f, 0xdb, 0x9c,
-	0xcc, 0x31, 0xe3, 0xee, 0x3c, 0x94, 0xf4, 0xda, 0x9e, 0x02, 0xb8, 0x21, 0xb1, 0xdd, 0x20, 0xa0,
-	0xdc, 0xe5, 0x84, 0x06, 0x4c, 0x9d, 0x1e, 0x4e, 0x09, 0xbf, 0x88, 0x27, 0x96, 0x47, 0xe7, 0xf6,
-	0x94, 0x4e, 0xe9, 0x4a, 0x27, 0xdd, 0x89, 0x8d, 0x58, 0x29, 0xf8, 0xf1, 0x3d, 0xf8, 0x82, 0xf8,
-	0x98, 0x7a, 0x94, 0x04, 0xb6, 0xb8, 0xe0, 0x61, 0x6a, 0x90, 0x7d, 0xd4, 0xdd, 0xc7, 0x48, 0x5e,
-	0xf3, 0x04, 0x76, 0x86, 0x62, 0xef, 0xe0, 0xcb, 0x18, 0x33, 0x8e, 0xaa, 0x90, 0x23, 0xbe, 0xa1,
-	0x35, 0xb4, 0x96, 0xee, 0xe4, 0x88, 0x8f, 0x6a, 0x50, 0xf2, 0xe3, 0x48, 0x5c, 0xcd, 0xc8, 0x35,
-	0xb4, 0x96, 0xe6, 0xdc, 0xed, 0x9b, 0xd7, 0x45, 0xa8, 0x66, 0x6c, 0x16, 0xd2, 0x80, 0x61, 0xf4,
-	0xcf, 0x8a, 0xde, 0x2d, 0x24, 0x4b, 0x33, 0x37, 0xe8, 0x0b, 0x19, 0x04, 0xf9, 0xc0, 0x9d, 0x63,
-	0x21, 0xa1, 0x3b, 0x62, 0x8d, 0x0e, 0x00, 0xc2, 0x88, 0x9e, 0x93, 0x19, 0x1e, 0x13, 0xdf, 0xd8,
-	0x12, 0x9c, 0x9d, 0x64, 0x69, 0xea, 0xa7, 0xb2, 0x3a, 0xe8, 0x3b, 0xba, 0x02, 0x0c, 0x7c, 0xb4,
-	0x0f, 0x95, 0x0c, 0xed, 0x51, 0xc6, 0x8d, 0x5d, 0x71, 0x99, 0xb2, 0xaa, 0xf5, 0x28, 0xe3, 0xe8,
-	0x7f, 0xd0, 0x49, 0x10, 0xc6, 0x7c, 0x1c, 0x47, 0x33, 0x23, 0x2f, 0xf4, 0x2a, 0xc9, 0xd2, 0x2c,
-	0x0d, 0xd2, 0xe2, 0xc8, 0x79, 0xe7, 0x94, 0xc4, 0xf1, 0x28, 0x9a, 0xa5, 0xde, 0x34, 0xe6, 0x19,
-	0x76, 0x7b, 0xe5, 0xfd, 0x5e, 0x54, 0x53, 0xb0, 0x2e, 0x01, 0x29, 0xba, 0x0b, 0x48, 0x76, 0x6d,
-	0xec, 0xd1, 0x80, 0x47, 0xae, 0xc7, 0xd3, 0x1b, 0x17, 0x1b, 0x5a, 0x2b, 0xdf, 0xfd, 0x2b, 0x59,
-	0x9a, 0xbb, 0xb2, 0x0b, 0x3d, 0x75, 0x38, 0xe8, 0x3b, 0xbb, 0xec, 0x61, 0xc5, 0x47, 0xc7, 0xf0,
-	0xef, 0x8f, 0x1a, 0xae, 0xef, 0x47, 0x98, 0x31, 0xa3, 0x24, 0x9a, 0xf2, 0xf7, 0x43, 0x4a, 0x47,
-	0x1e, 0xa2, 0x57, 0x50, 0x60, 0xdc, 0xe5, 0x31, 0x33, 0xf4, 0x86, 0xd6, 0xaa, 0x1e, 0x35, 0xad,
-	0x9f, 0x63, 0xb7, 0x68, 0x5b, 0xf2, 0x06, 0x43, 0x81, 0x74, 0x14, 0x03, 0xf5, 0xa1, 0x22, 0x1b,
-	0xa2, 0x14, 0x40, 0x28, 0xec, 0x3f, 0xae, 0x20, 0xba, 0xa4, 0x04, 0xca, 0x64, 0xb5, 0x41, 0x6f,
-	0x00, 0xbc, 0x08, 0xbb, 0x1c, 0xfb, 0x63, 0x97, 0x1b, 0xe5, 0x86, 0xd6, 0x2a, 0x1f, 0xd5, 0x2c,
-	0x99, 0x5e, 0x2b, 0x8b, 0xa5, 0x75, 0x96, 0xc5, 0xbb, 0x9b, 0xbf, 0xfe, 0x62, 0x6a, 0x8e, 0xae,
-	0x38, 0x1d, 0x9e, 0x0a, 0xc4, 0xa1, 0x9f, 0x09, 0xfc, 0xb1, 0xae, 0x80, 0xe2, 0x74, 0x38, 0x3a,
-	0x81, 0x52, 0x84, 0x5d, 0xff, 0x2a, 0xa5, 0x57, 0xd6, 0xa4, 0x17, 0x05, 0xa3, 0xc3, 0x51, 0x0f,
-	0x2a, 0x1e, 0x9d, 0x87, 0x33, 0xac, 0xfc, 0x77, 0xd6, 0x14, 0x28, 0xdf, 0xb1, 0x3a, 0x1c, 0xfd,
-	0x07, 0xc5, 0x98, 0xe1, 0x28, 0xfd, 0xed, 0x55, 0x11, 0x16, 0x48, 0x96, 0x66, 0x61, 0xc4, 0x70,
-	0x34, 0xe8, 0x3b, 0x85, 0xf4, 0x68, 0xe0, 0xa3, 0xd7, 0x00, 0xb2, 0xdd, 0xfc, 0x2a, 0xc4, 0xc6,
-	0xef, 0xa2, 0xd9, 0xe6, 0x13, 0xcd, 0x3e, 0xbb, 0x0a, 0xb1, 0x23, 0x23, 0x9b, 0x2e, 0x51, 0x07,
-	0xca, 0x2a, 0x94, 0x42, 0x00, 0x09, 0x81, 0xc6, 0xe3, 0x02, 0x32, 0xa7, 0x42, 0x41, 0x25, 0x39,
-	0x5d, 0x37, 0x09, 0xfc, 0x39, 0x12, 0x6d, 0x53, 0x3f, 0x52, 0xbd, 0xea, 0x5f, 0x3d, 0xcb, 0x55,
-	0xb8, 0x72, 0xcf, 0x0d, 0xd7, 0xd1, 0xb7, 0xed, 0xec, 0xf5, 0xb3, 0xa1, 0x9c, 0x8b, 0x68, 0x02,
-	0x5b, 0x6f, 0x31, 0x47, 0x2f, 0xac, 0xa7, 0x26, 0xa3, 0xf5, 0x60, 0xe0, 0xd4, 0x0e, 0xd6, 0x03,
-	0xcb, 0xf9, 0xd2, 0xfc, 0x0d, 0x9d, 0x43, 0xf1, 0x34, 0x9e, 0xcc, 0x08, 0xbb, 0xd8, 0xac, 0xcf,
-	0x47, 0x28, 0x2b, 0x9f, 0x3e, 0x0d, 0xf0, 0x66, 0xbd, 0xa6, 0x50, 0xea, 0xa9, 0xb0, 0x6d, 0xd6,
-	0x68, 0x02, 0x5b, 0x4e, 0x1c, 0x6c, 0xd6, 0xc3, 0x83, 0xfc, 0x90, 0xd3, 0x70, 0xb3, 0x26, 0x97,
-	0x50, 0xb9, 0x9f, 0x73, 0xd4, 0x7e, 0x9a, 0xff, 0xc8, 0x9b, 0x78, 0xae, 0x65, 0xd7, 0xb8, 0x49,
-	0xea, 0xda, 0xe7, 0xa4, 0xae, 0x7d, 0x4d, 0xea, 0xda, 0xa7, 0xdb, 0xba, 0x76, 0x73, 0x5b, 0xd7,
-	0x3e, 0xe4, 0x16, 0xed, 0x49, 0x41, 0xcc, 0x90, 0x97, 0xdf, 0x03, 0x00, 0x00, 0xff, 0xff, 0x14,
-	0xb0, 0xe6, 0x9a, 0x3b, 0x08, 0x00, 0x00,
+	// 1015 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0x4d, 0x6f, 0xdb, 0xb6,
+	0x1b, 0xff, 0xcb, 0x71, 0xfc, 0xf2, 0xc8, 0x49, 0xf3, 0x67, 0xdb, 0x55, 0x30, 0x5a, 0xdb, 0xd5,
+	0x2e, 0x1e, 0x56, 0x4b, 0x70, 0x0a, 0x74, 0x40, 0x0b, 0xb4, 0xf0, 0xcb, 0x50, 0x18, 0x18, 0xb0,
+	0x42, 0x69, 0x2e, 0xbb, 0x18, 0xb2, 0xc4, 0x38, 0xdc, 0x6c, 0x51, 0x21, 0x29, 0x03, 0xd9, 0xa7,
+	0xe8, 0xa7, 0xd9, 0x79, 0xc7, 0x1e, 0x77, 0xda, 0xd1, 0x1b, 0x5c, 0x60, 0x1f, 0x60, 0x9f, 0x60,
+	0x10, 0x49, 0xd9, 0x4e, 0x16, 0x67, 0x4e, 0x01, 0xdf, 0xc8, 0x87, 0xbf, 0x17, 0xf2, 0xe1, 0xc3,
+	0x87, 0xd0, 0xe4, 0x82, 0x61, 0x7f, 0xca, 0xdd, 0x98, 0x91, 0x99, 0x2f, 0xb0, 0x3b, 0x6b, 0xbb,
+	0x3a, 0x34, 0xe4, 0x98, 0xcd, 0x48, 0x80, 0x9d, 0x98, 0x51, 0x41, 0xd1, 0xe3, 0x60, 0x42, 0x93,
+	0xd0, 0xf1, 0x63, 0xe2, 0x68, 0x80, 0xa3, 0x39, 0xce, 0xac, 0x5d, 0xad, 0x8f, 0x29, 0x1d, 0x4f,
+	0xb0, 0x2b, 0xb1, 0xa3, 0xe4, 0xcc, 0x15, 0x64, 0x8a, 0xb9, 0xf0, 0xa7, 0xb1, 0xa2, 0x57, 0x1f,
+	0x6b, 0x80, 0x1f, 0x13, 0xd7, 0x8f, 0x22, 0x2a, 0x7c, 0x41, 0x68, 0xc4, 0xf5, 0x6a, 0x6b, 0x4c,
+	0xc4, 0x79, 0x32, 0x72, 0x02, 0x3a, 0x75, 0xc7, 0x74, 0x4c, 0x57, 0x3a, 0xe9, 0x4c, 0x4e, 0xe4,
+	0x48, 0xc3, 0x5f, 0xac, 0xc1, 0x67, 0x24, 0xc4, 0x34, 0xa0, 0x24, 0x72, 0xe5, 0x06, 0x5b, 0xa9,
+	0x41, 0x76, 0xa8, 0xe5, 0x61, 0x34, 0xef, 0x9b, 0xed, 0x79, 0x31, 0xa3, 0x67, 0x64, 0xa2, 0x0f,
+	0x6f, 0xbf, 0x82, 0x83, 0x13, 0xb9, 0xe6, 0xe1, 0x8b, 0x04, 0x73, 0x81, 0x0e, 0x21, 0x47, 0x42,
+	0xcb, 0x68, 0x18, 0xcd, 0xb2, 0x97, 0x23, 0x21, 0xaa, 0x42, 0x29, 0x4c, 0x98, 0x3c, 0x93, 0x95,
+	0x6b, 0x18, 0x4d, 0xc3, 0x5b, 0xce, 0xed, 0x0f, 0x45, 0x38, 0xcc, 0xd8, 0x3c, 0xa6, 0x11, 0xc7,
+	0xe8, 0x8b, 0x15, 0xbd, 0x5b, 0x58, 0xcc, 0xeb, 0xb9, 0x41, 0x5f, 0xca, 0x20, 0xc8, 0x47, 0xfe,
+	0x14, 0x4b, 0x89, 0xb2, 0x27, 0xc7, 0xe8, 0x19, 0x80, 0xde, 0xcc, 0x90, 0x84, 0xd6, 0x9e, 0xe4,
+	0x1c, 0x2c, 0xe6, 0xf5, 0xf2, 0x3b, 0x15, 0x1d, 0xf4, 0xbd, 0xb2, 0x06, 0x0c, 0x42, 0xf4, 0x14,
+	0x2a, 0x19, 0x3a, 0xa0, 0x5c, 0x58, 0x47, 0x72, 0x33, 0xa6, 0x8e, 0xf5, 0x28, 0x17, 0xe8, 0x2b,
+	0x28, 0x93, 0x28, 0x4e, 0xc4, 0x30, 0x61, 0x13, 0x2b, 0x2f, 0xf5, 0x2a, 0x8b, 0x79, 0xbd, 0x34,
+	0x48, 0x83, 0xa7, 0xde, 0x77, 0x5e, 0x49, 0x2e, 0x9f, 0xb2, 0x49, 0xea, 0x4d, 0x13, 0x91, 0x61,
+	0xf7, 0x57, 0xde, 0xdf, 0xcb, 0x68, 0x0a, 0x2e, 0x2b, 0x40, 0x8a, 0xee, 0x02, 0x52, 0x19, 0x1c,
+	0x06, 0x34, 0x12, 0xcc, 0x0f, 0x44, 0xba, 0xe3, 0x62, 0xc3, 0x68, 0xe6, 0xbb, 0x0f, 0x16, 0xf3,
+	0xfa, 0x91, 0xca, 0x42, 0x4f, 0x2f, 0x0e, 0xfa, 0xde, 0x11, 0xbf, 0x1a, 0x09, 0xd1, 0x0b, 0x78,
+	0x74, 0x5d, 0xc3, 0x0f, 0x43, 0x86, 0x39, 0xb7, 0x4a, 0x32, 0x29, 0x0f, 0xaf, 0x52, 0x3a, 0x6a,
+	0x11, 0xbd, 0x84, 0x02, 0x17, 0xbe, 0x48, 0xb8, 0x55, 0x6e, 0x18, 0xcd, 0xc3, 0x63, 0xdb, 0xf9,
+	0x77, 0xbd, 0xce, 0xda, 0x8e, 0xda, 0xc1, 0x89, 0x44, 0x7a, 0x9a, 0x81, 0xfa, 0x50, 0x51, 0x09,
+	0xd1, 0x0a, 0x20, 0x15, 0x9e, 0xde, 0xac, 0x20, 0xb3, 0xa4, 0x05, 0x4c, 0xb2, 0x9a, 0xa0, 0x37,
+	0x00, 0x01, 0xc3, 0xbe, 0xc0, 0xe1, 0xd0, 0x17, 0x96, 0xd9, 0x30, 0x9a, 0xe6, 0x71, 0xd5, 0x51,
+	0x65, 0xef, 0x64, 0xf5, 0xec, 0xbc, 0xcf, 0xde, 0x45, 0x37, 0xff, 0xe1, 0x8f, 0xba, 0xe1, 0x95,
+	0x35, 0xa7, 0x23, 0x52, 0x81, 0x24, 0x0e, 0x33, 0x81, 0xff, 0x6f, 0x2b, 0xa0, 0x39, 0x1d, 0x81,
+	0x5e, 0x41, 0x89, 0x61, 0x3f, 0xbc, 0x4c, 0xe9, 0x95, 0x2d, 0xe9, 0x45, 0xc9, 0xe8, 0x08, 0xd4,
+	0x83, 0x4a, 0x40, 0xa7, 0xf1, 0x04, 0x6b, 0xff, 0x83, 0x2d, 0x05, 0xcc, 0x25, 0xab, 0x23, 0xd0,
+	0x97, 0x50, 0x4c, 0x38, 0x66, 0xe9, 0xb5, 0x1f, 0xca, 0x62, 0x81, 0xc5, 0xbc, 0x5e, 0x38, 0xe5,
+	0x98, 0x0d, 0xfa, 0x5e, 0x21, 0x5d, 0x1a, 0x84, 0xe8, 0x35, 0x80, 0x4a, 0xb7, 0xb8, 0x8c, 0xb1,
+	0x75, 0x4f, 0x26, 0xbb, 0x7e, 0x4b, 0xb2, 0xdf, 0x5f, 0xc6, 0xd8, 0x53, 0x25, 0x9b, 0x0e, 0x51,
+	0x07, 0x4c, 0x5d, 0x94, 0x52, 0x00, 0x49, 0x81, 0xc6, 0xcd, 0x02, 0xaa, 0x4e, 0xa5, 0x82, 0xae,
+	0xe4, 0x74, 0x6c, 0x13, 0xb8, 0x7f, 0x2a, 0xd3, 0xa6, 0x2f, 0x52, 0xbf, 0xea, 0x4d, 0xcf, 0x72,
+	0x55, 0x5c, 0xb9, 0xbb, 0x16, 0x97, 0xfd, 0x06, 0x0e, 0xf5, 0x43, 0xcd, 0x5c, 0x5a, 0x6b, 0x2e,
+	0x4f, 0x94, 0xcb, 0xdf, 0xf3, 0xfa, 0xfd, 0x99, 0x3f, 0x21, 0xe9, 0x96, 0x5e, 0xda, 0x0c, 0x5f,
+	0x24, 0x84, 0xe1, 0xd0, 0x4e, 0xcd, 0xed, 0x5f, 0x72, 0x70, 0x6f, 0xa9, 0xf0, 0x19, 0xfd, 0xa3,
+	0x01, 0x66, 0x88, 0x79, 0xc0, 0x48, 0x2c, 0xbb, 0x93, 0x6c, 0x20, 0xde, 0x7a, 0x08, 0x3d, 0x01,
+	0x20, 0x7c, 0x88, 0x23, 0x7f, 0x34, 0xc1, 0xa1, 0xec, 0x08, 0x25, 0xaf, 0x4c, 0xf8, 0xb7, 0x2a,
+	0x90, 0xb6, 0x94, 0xa9, 0x1f, 0x9c, 0x93, 0x08, 0xab, 0x84, 0xef, 0x2b, 0x05, 0x1d, 0x93, 0x57,
+	0x82, 0x20, 0x2f, 0xbb, 0x4d, 0x41, 0x76, 0x1b, 0x39, 0x96, 0xef, 0x81, 0x4e, 0x63, 0x1a, 0xe1,
+	0x48, 0x70, 0xab, 0xd8, 0xd8, 0x6b, 0x9a, 0x9b, 0xae, 0xb9, 0x97, 0xe1, 0xbc, 0x35, 0x0a, 0x7a,
+	0x0d, 0xa5, 0xc0, 0x8f, 0xfd, 0x80, 0x88, 0x4b, 0xf9, 0xf6, 0xcd, 0x4d, 0x79, 0xef, 0x69, 0xd4,
+	0x20, 0x3a, 0xa3, 0xde, 0x92, 0x63, 0xff, 0x65, 0xc0, 0x83, 0x65, 0xe2, 0xa2, 0x10, 0xb3, 0xcf,
+	0xbb, 0x00, 0xd4, 0x82, 0x7d, 0x59, 0x7c, 0x2a, 0xab, 0xdd, 0x47, 0x9b, 0xb0, 0x0a, 0x85, 0x5c,
+	0x28, 0xa8, 0x4a, 0xd3, 0xbd, 0x7a, 0x23, 0x5e, 0xc3, 0xae, 0x25, 0x2a, 0x7f, 0xe7, 0x44, 0xd9,
+	0x2e, 0x3c, 0xbc, 0x76, 0xce, 0x65, 0x99, 0x14, 0x98, 0x8c, 0xe8, 0x9f, 0x4a, 0xcf, 0x8e, 0x7f,
+	0x5f, 0xfe, 0x48, 0xfc, 0x44, 0x7d, 0xf2, 0x68, 0x04, 0x7b, 0x6f, 0xb1, 0x40, 0x5f, 0x3b, 0xb7,
+	0x7d, 0xf3, 0xce, 0x95, 0x4f, 0xb0, 0xfa, 0x6c, 0x3b, 0xb0, 0xda, 0x8c, 0xfd, 0x3f, 0x74, 0x06,
+	0xc5, 0x77, 0xc9, 0x68, 0x42, 0xf8, 0xf9, 0x6e, 0x7d, 0x7e, 0x04, 0x53, 0xfb, 0xf4, 0x69, 0x84,
+	0x77, 0xeb, 0x35, 0x86, 0x52, 0x4f, 0x37, 0xc0, 0xdd, 0x1a, 0x8d, 0x60, 0xcf, 0x4b, 0xa2, 0xdd,
+	0x7a, 0x04, 0x90, 0x3f, 0x11, 0x34, 0xde, 0xad, 0xc9, 0x05, 0x54, 0xd6, 0x7b, 0x2f, 0x6a, 0xdf,
+	0xce, 0xbf, 0xa1, 0x4f, 0xdf, 0xd9, 0xf2, 0x27, 0x80, 0xb7, 0x58, 0xe8, 0x37, 0x82, 0xfe, 0x83,
+	0x7d, 0xb5, 0x5b, 0x57, 0x5b, 0x5b, 0xa2, 0x97, 0x66, 0x3f, 0xc3, 0x81, 0x7a, 0x86, 0x99, 0xdf,
+	0xf1, 0x96, 0x0a, 0x6b, 0x2d, 0xaa, 0xfa, 0xfc, 0x4e, 0x9c, 0xcc, 0xbb, 0x6b, 0x7d, 0x5c, 0xd4,
+	0x8c, 0xdf, 0x16, 0x35, 0xe3, 0xcf, 0x45, 0xcd, 0xf8, 0xf5, 0x53, 0xcd, 0xf8, 0xf8, 0xa9, 0x66,
+	0xfc, 0x90, 0x9b, 0xb5, 0x47, 0x05, 0xf9, 0x81, 0x3f, 0xff, 0x27, 0x00, 0x00, 0xff, 0xff, 0x6b,
+	0x4a, 0xe4, 0x25, 0xf1, 0x0b, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -419,6 +727,8 @@ type StreamsServiceClient interface {
 	Run(ctx context.Context, in *StreamRequest, opts ...grpc.CallOption) (*StreamResponse, error)
 	Stop(ctx context.Context, in *StreamRequest, opts ...grpc.CallOption) (*StreamResponse, error)
 	UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*StreamResponse, error)
+	GetProfile(ctx context.Context, in *ProfileRequest, opts ...grpc.CallOption) (*ProfileResponse, error)
+	RenderProfile(ctx context.Context, in *ProfileRenderRequest, opts ...grpc.CallOption) (*ProfileRenderResponse, error)
 }
 
 type streamsServiceClient struct {
@@ -492,6 +802,24 @@ func (c *streamsServiceClient) UpdateStatus(ctx context.Context, in *UpdateStatu
 	return out, nil
 }
 
+func (c *streamsServiceClient) GetProfile(ctx context.Context, in *ProfileRequest, opts ...grpc.CallOption) (*ProfileResponse, error) {
+	out := new(ProfileResponse)
+	err := c.cc.Invoke(ctx, "/cloud.api.streams.private.v1.StreamsService/GetProfile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *streamsServiceClient) RenderProfile(ctx context.Context, in *ProfileRenderRequest, opts ...grpc.CallOption) (*ProfileRenderResponse, error) {
+	out := new(ProfileRenderResponse)
+	err := c.cc.Invoke(ctx, "/cloud.api.streams.private.v1.StreamsService/RenderProfile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StreamsServiceServer is the server API for StreamsService service.
 type StreamsServiceServer interface {
 	Get(context.Context, *StreamRequest) (*StreamResponse, error)
@@ -501,6 +829,8 @@ type StreamsServiceServer interface {
 	Run(context.Context, *StreamRequest) (*StreamResponse, error)
 	Stop(context.Context, *StreamRequest) (*StreamResponse, error)
 	UpdateStatus(context.Context, *UpdateStatusRequest) (*StreamResponse, error)
+	GetProfile(context.Context, *ProfileRequest) (*ProfileResponse, error)
+	RenderProfile(context.Context, *ProfileRenderRequest) (*ProfileRenderResponse, error)
 }
 
 // UnimplementedStreamsServiceServer can be embedded to have forward compatible implementations.
@@ -527,6 +857,12 @@ func (*UnimplementedStreamsServiceServer) Stop(ctx context.Context, req *StreamR
 }
 func (*UnimplementedStreamsServiceServer) UpdateStatus(ctx context.Context, req *UpdateStatusRequest) (*StreamResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatus not implemented")
+}
+func (*UnimplementedStreamsServiceServer) GetProfile(ctx context.Context, req *ProfileRequest) (*ProfileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfile not implemented")
+}
+func (*UnimplementedStreamsServiceServer) RenderProfile(ctx context.Context, req *ProfileRenderRequest) (*ProfileRenderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RenderProfile not implemented")
 }
 
 func RegisterStreamsServiceServer(s *grpc.Server, srv StreamsServiceServer) {
@@ -659,6 +995,42 @@ func _StreamsService_UpdateStatus_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StreamsService_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamsServiceServer).GetProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cloud.api.streams.private.v1.StreamsService/GetProfile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamsServiceServer).GetProfile(ctx, req.(*ProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StreamsService_RenderProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProfileRenderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StreamsServiceServer).RenderProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cloud.api.streams.private.v1.StreamsService/RenderProfile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StreamsServiceServer).RenderProfile(ctx, req.(*ProfileRenderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _StreamsService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "cloud.api.streams.private.v1.StreamsService",
 	HandlerType: (*StreamsServiceServer)(nil),
@@ -690,6 +1062,14 @@ var _StreamsService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateStatus",
 			Handler:    _StreamsService_UpdateStatus_Handler,
+		},
+		{
+			MethodName: "GetProfile",
+			Handler:    _StreamsService_GetProfile_Handler,
+		},
+		{
+			MethodName: "RenderProfile",
+			Handler:    _StreamsService_RenderProfile_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -928,6 +1308,233 @@ func (m *UpdateStatusRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *ProfileRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ProfileRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ProfileRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.ID) > 0 {
+		i -= len(m.ID)
+		copy(dAtA[i:], m.ID)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.ID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ProfileResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ProfileResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ProfileResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if m.Capacity != nil {
+		{
+			size, err := m.Capacity.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintStreamsService(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x42
+	}
+	if len(m.Components) > 0 {
+		for iNdEx := len(m.Components) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Components[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintStreamsService(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x3a
+		}
+	}
+	if m.Cost != 0 {
+		i -= 8
+		encoding_binary.LittleEndian.PutUint64(dAtA[i:], uint64(math.Float64bits(float64(m.Cost))))
+		i--
+		dAtA[i] = 0x31
+	}
+	if len(m.MachineType) > 0 {
+		i -= len(m.MachineType)
+		copy(dAtA[i:], m.MachineType)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.MachineType)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.IsEnabled {
+		i--
+		if m.IsEnabled {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ID) > 0 {
+		i -= len(m.ID)
+		copy(dAtA[i:], m.ID)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.ID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ProfileRenderRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ProfileRenderRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ProfileRenderRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.Components) > 0 {
+		for iNdEx := len(m.Components) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Components[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintStreamsService(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
+	if len(m.Output) > 0 {
+		i -= len(m.Output)
+		copy(dAtA[i:], m.Output)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.Output)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Input) > 0 {
+		i -= len(m.Input)
+		copy(dAtA[i:], m.Input)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.Input)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ID) > 0 {
+		i -= len(m.ID)
+		copy(dAtA[i:], m.ID)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.ID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ProfileRenderResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ProfileRenderResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ProfileRenderResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if len(m.Render) > 0 {
+		i -= len(m.Render)
+		copy(dAtA[i:], m.Render)
+		i = encodeVarintStreamsService(dAtA, i, uint64(len(m.Render)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintStreamsService(dAtA []byte, offset int, v uint64) int {
 	offset -= sovStreamsService(v)
 	base := offset
@@ -1044,6 +1651,112 @@ func (m *UpdateStatusRequest) Size() (n int) {
 	}
 	if m.Status != 0 {
 		n += 1 + sovStreamsService(uint64(m.Status))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ProfileRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ID)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ProfileResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ID)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	l = len(m.Name)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	l = len(m.Description)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	if m.IsEnabled {
+		n += 2
+	}
+	l = len(m.MachineType)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	if m.Cost != 0 {
+		n += 9
+	}
+	if len(m.Components) > 0 {
+		for _, e := range m.Components {
+			l = e.Size()
+			n += 1 + l + sovStreamsService(uint64(l))
+		}
+	}
+	if m.Capacity != nil {
+		l = m.Capacity.Size()
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ProfileRenderRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ID)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	l = len(m.Input)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	l = len(m.Output)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
+	}
+	if len(m.Components) > 0 {
+		for _, e := range m.Components {
+			l = e.Size()
+			n += 1 + l + sovStreamsService(uint64(l))
+		}
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *ProfileRenderResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Render)
+	if l > 0 {
+		n += 1 + l + sovStreamsService(uint64(l))
 	}
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
@@ -1762,6 +2475,645 @@ func (m *UpdateStatusRequest) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStreamsService(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ProfileRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStreamsService
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ProfileRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ProfileRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStreamsService(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ProfileResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStreamsService
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ProfileResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ProfileResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Name = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Description = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IsEnabled", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.IsEnabled = bool(v != 0)
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MachineType", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MachineType = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 1 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Cost", wireType)
+			}
+			var v uint64
+			if (iNdEx + 8) > l {
+				return io.ErrUnexpectedEOF
+			}
+			v = uint64(encoding_binary.LittleEndian.Uint64(dAtA[iNdEx:]))
+			iNdEx += 8
+			m.Cost = float64(math.Float64frombits(v))
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Components", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Components = append(m.Components, &v1.Component{})
+			if err := m.Components[len(m.Components)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Capacity", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Capacity == nil {
+				m.Capacity = &v1.CapacityInfo{}
+			}
+			if err := m.Capacity.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStreamsService(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ProfileRenderRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStreamsService
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ProfileRenderRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ProfileRenderRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Input", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Input = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Output", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Output = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Components", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Components = append(m.Components, &v1.Component{})
+			if err := m.Components[len(m.Components)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipStreamsService(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ProfileRenderResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowStreamsService
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ProfileRenderResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ProfileRenderResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Render", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowStreamsService
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthStreamsService
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Render = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipStreamsService(dAtA[iNdEx:])

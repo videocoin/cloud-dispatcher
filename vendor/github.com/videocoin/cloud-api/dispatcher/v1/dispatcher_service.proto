@@ -21,25 +21,22 @@ service DispatcherService {
   rpc GetInternalConfig(InternalConfigRequest) returns (InternalConfigResponse) {}
   rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
   rpc GetDelegatorConfig(ConfigRequest) returns (ConfigResponse) {}
-
-  rpc GetDelegatorConfigV2(ConfigRequest) returns (DelegatorConfigResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/delegator/config"
-    };
-  }
-
   rpc Register(cloud.api.miners.v1.RegistrationRequest) returns (google.protobuf.Empty) {}
   rpc Ping(cloud.api.miners.v1.PingRequest) returns (cloud.api.miners.v1.PingResponse) {}
-
   rpc GetPendingTask(TaskPendingRequest) returns (cloud.api.dispatcher.v1.Task) {}
   rpc GetTask(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
   rpc MarkTaskAsCompleted(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
   rpc MarkTaskAsFailed(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
   rpc MarkTaskAsPaused(TaskRequest) returns (cloud.api.dispatcher.v1.Task) {}
   rpc MarkSegmentAsTranscoded(TaskSegmentRequest) returns (google.protobuf.Empty) {}
-    
   rpc ValidateProof(cloud.api.validator.v1.ValidateProofRequest) returns (cloud.api.validator.v1.ValidateProofResponse) {}
   rpc AddInputChunk(AddInputChunkRequest) returns (AddInputChunkResponse) {}
+
+  rpc GetDelegatorConfigV2(ConfigRequest) returns (DelegatorConfigResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/delegator/config"
+    };
+  }
 }
 
 message TaskPendingRequest {
@@ -72,11 +69,6 @@ message ConfigResponse {
     string staking_manager_address = 4;
 }
 
-message DelegatorConfigResponse {
-  string rpc_node_url = 1 [(gogoproto.customname) = "RPCNodeURL"];
-  string access_key = 2;
-}
-
 message TaskSegmentRequest {
   string id = 1 [(gogoproto.customname) = "ID"];
   uint64 num = 2;
@@ -93,4 +85,9 @@ message AddInputChunkRequest {
 message AddInputChunkResponse {
   string tx = 1;
   cloud.api.emitter.v1.ReceiptStatus status = 2;
+}
+
+message DelegatorConfigResponse {
+  string rpc_node_url = 1 [(gogoproto.customname) = "RPCNodeURL"];
+  string access_key = 2;
 }
