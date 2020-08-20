@@ -17,7 +17,7 @@ type Config struct {
 	DBURI              string `envconfig:"DBURI" default:"root:@/videocoin?charset=utf8&parseTime=True&loc=Local"`
 	MQURI              string `envconfig:"MQURI" default:"amqp://guest:guest@127.0.0.1:5672"`
 	AuthTokenSecret    string `envconfig:"AUTH_TOKEN_SECRET" default:""`
-	RPCNodeURL         string `envconfig:"RPC_NODE_URL" default:"https://dev1:D6msEL93LJT5RaPk@rpc.dev.kili.videocoin.network"`
+	RPCNodeURL         string `envconfig:"RPC_NODE_URL"`
 	SyncerURL          string `envconfig:"SYNCER_URL" default:"https://dev.videocoin.network/api/v1/sync"`
 	IamEndpoint        string `envconfig:"IAM_ENDPOINT" default:"https://iam.dev.videocoinapis.com"`
 	DelegatorUserID    string `envconfig:"DELEGATOR_USER_ID" default:"113a66d2-c75e-4885-4371-2d54bbaf3144"`
