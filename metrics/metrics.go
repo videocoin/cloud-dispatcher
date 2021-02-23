@@ -84,6 +84,11 @@ func (mc *Collector) collectMetrics() {
 			if task.IsOutputHLS() {
 				taskType = v1.TaskTypeLive
 			}
+
+			if taskType == v1.TaskTypeVOD {
+				continue
+			}
+
 			k := fmt.Sprintf("%s/%s/%s", task.Status, task.MachineType.String, taskType.String())
 			tasksStat[k]++
 			mts = append(mts, task.MachineType.String)
