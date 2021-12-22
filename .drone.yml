@@ -70,7 +70,7 @@ steps:
     commands:
       - helm repo add console https://registry.videocoin.net/chartrepo/cloud --username $$USERNAME --password $$PASSWORD
       - helm plugin install https://github.com/chartmuseum/helm-push
-      - helm push ./deploy/helm console --username $$USERNAME --password $$PASSWORD
+      - helm cm-push ./deploy/helm console --username $$USERNAME --password $$PASSWORD
 trigger:
   event:
     - push
