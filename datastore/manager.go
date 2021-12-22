@@ -151,7 +151,8 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				muxer := &streamsv1.Component{
 					Type: streamsv1.ComponentTypeMuxer,
 					Params: []*streamsv1.Param{
-						{Key: "-f", Value: "mpegts"},
+						{Key: "-f", Value: "mp4"},
+						{Key: "-movflags", Value: "frag_keyframe+empty_moov"},
 					},
 				}
 				components = append(components, muxer)
@@ -159,7 +160,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 
 			segmentNum := extractNumFromSegmentName(segment.URI)
 			newSegmentNum := segmentNum + 1
-			newSegmentURI := fmt.Sprintf("%d.ts", newSegmentNum)
+			newSegmentURI := fmt.Sprintf("%d.mp4", newSegmentNum)
 			profileReq := &pstreamsv1.ProfileRenderRequest{
 				ID:         stream.ProfileID,
 				Input:      inputURL,
@@ -196,9 +197,9 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 				MachineType:           dbr.NewNullString(p.MachineType),
 				Cmdline:               renderResp.Render,
 				IsLive:                false,
-				Capacity:              &minersv1.CapacityInfo{
+				Capacity: &minersv1.CapacityInfo{
 					Encode: p.Capacity.Encode,
-					Cpu: p.Capacity.Cpu,
+					Cpu:    p.Capacity.Cpu,
 				},
 			}
 
@@ -228,7 +229,7 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 	task.IsLive = true
 	task.Capacity = &minersv1.CapacityInfo{
 		Encode: p.Capacity.Encode,
-		Cpu: p.Capacity.Cpu,
+		Cpu:    p.Capacity.Cpu,
 	}
 
 	profileReq := &pstreamsv1.ProfileRenderRequest{
