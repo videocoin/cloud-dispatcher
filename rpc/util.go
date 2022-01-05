@@ -71,6 +71,10 @@ func (s *Server) markStreamAsCompletedIfNeeded(ctx context.Context, task *datast
 			})
 			if err != nil {
 				logger.WithError(err).Error("failed to mux stream")
+				s.sc.Streams.UpdateStatus(ctx, &pstreamsv1.UpdateStatusRequest{
+					ID:     streamID,
+					Status: streamsv1.StreamStatusFailed,
+				})
 				return
 			}
 
