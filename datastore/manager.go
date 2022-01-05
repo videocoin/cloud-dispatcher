@@ -175,6 +175,10 @@ func (m *DataManager) CreateTasksFromStreamResponse(
 			taskOutputType := v1.TaskOutputTypeHLS
 			if stream.OutputType == streamsv1.OutputTypeFile {
 				taskOutputType = v1.TaskOutputTypeFile
+			} else if stream.OutputType == streamsv1.OutputTypeDash {
+				taskOutputType = v1.TaskOutputTypeDash
+			} else if stream.OutputType == streamsv1.OutputTypeDashWithDRM {
+				taskOutputType = v1.TaskOutputTypeDashDrm
 			}
 
 			task := &Task{
