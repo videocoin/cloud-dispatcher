@@ -165,6 +165,8 @@ message CreateStreamRequest {
   OutputType output_type = 4 [
     (grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Output type of stream", required: ['output_type']}
   ];
+
+  string drm_xml = 5;
 }
 
 message StreamRequest {

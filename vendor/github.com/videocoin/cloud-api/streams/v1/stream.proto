@@ -69,4 +69,6 @@ enum OutputType {
 
     OUTPUT_TYPE_HLS = 0 [ (gogoproto.enumvalue_customname) = "OutputTypeHLS" ];
     OUTPUT_TYPE_FILE = 1 [ (gogoproto.enumvalue_customname) = "OutputTypeFile" ];
+    OUTPUT_TYPE_DASH = 2 [ (gogoproto.enumvalue_customname) = "OutputTypeDash" ];
+    OUTPUT_TYPE_DASH_DRM = 3 [ (gogoproto.enumvalue_customname) = "OutputTypeDashWithDRM" ];
 }

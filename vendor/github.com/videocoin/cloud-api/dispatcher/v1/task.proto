@@ -42,6 +42,8 @@ enum TaskOutputType {
 
     TASK_OUTPUT_TYPE_HLS = 0 [ (gogoproto.enumvalue_customname) = "TaskOutputTypeHLS" ];
     TASK_OUTPUT_TYPE_FILE = 1 [ (gogoproto.enumvalue_customname) = "TaskOutputTypeFile" ];
+    TASK_OUTPUT_TYPE_DASH = 2 [ (gogoproto.enumvalue_customname) = "TaskOutputTypeDash" ];
+    TASK_OUTPUT_TYPE_DASH_DRM = 3 [ (gogoproto.enumvalue_customname) = "TaskOutputTypeDashDrm" ];
 }
 
 message TaskInput {
