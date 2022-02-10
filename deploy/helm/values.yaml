@@ -4,7 +4,7 @@ maxUnavailableCount: 0
 image:
   repository: registry.videocoin.net/cloud/dispatcher
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   pullSecrets: 
   - name: regcred
 
@@ -44,13 +44,13 @@ annotations:
   prometheus.io/port: "15008"
   vault.hashicorp.com/agent-inject: "true"
   vault.hashicorp.com/role: "console-dispatcher"
-  vault.hashicorp.com/agent-inject-secret-common: "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/console/common/config"
-  vault.hashicorp.com/agent-inject-secret-config: "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/console/dispatcher/config"
+  vault.hashicorp.com/agent-inject-secret-common: "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/dev-videocoin-network/console-dev-videocoin-network/common/config"
+  vault.hashicorp.com/agent-inject-secret-config: "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/dev-videocoin-network/console-dev-videocoin-network/dispatcher/config"
   vault.hashicorp.com/agent-inject-template-common: |
-    {{ with secret "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/console/common/config" }}{{ range $k, $v := .Data }}
+    {{ with secret "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/dev-videocoin-network/console-dev-videocoin-network/common/config" }}{{ range $k, $v := .Data }}
     export {{ $k }}="{{ $v }}"
     {{ end }}{{ end }}
   vault.hashicorp.com/agent-inject-template-config: |
-    {{ with secret "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/console/dispatcher/config" }}{{ range $k, $v := .Data }}
+    {{ with secret "dev-videocoin-net/github-repo/dev-apps-videocoin-net/charts/dev-videocoin-network/console-dev-videocoin-network/dispatcher/config" }}{{ range $k, $v := .Data }}
     export {{ $k }}="{{ $v }}"
     {{ end }}{{ end }}
