@@ -22,6 +22,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const (
+	MpegDashMinWorkerVersion = "2.0.0"
+	MpegDashProfileName      = "mpeg-dash-drm-copy"
+)
+
 func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest) (*v1.Task, error) {
 	miner, _ := MinerFromContext(ctx)
 
@@ -85,21 +90,30 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 		}
 	}()
 
+	profile, err := s.dm.GetProfile(otCtx, task.ProfileID)
+	if err != nil {
+		errMsg := "failed to get profile"
+		spanErr(span, err, errMsg)
+		logger.WithError(err).Error(errMsg)
+
+		return &v1.Task{}, nil
+	}
+
+	if profile.Name == MpegDashProfileName {
+		if semver.IsValid(req.Version) &&
+			semver.IsValid(MpegDashMinWorkerVersion) &&
+			semver.Compare(req.Version, MpegDashMinWorkerVersion) == -1 {
+			logger.Info("miner does not support mpeg-dash processing")
+			return &v1.Task{}, nil
+		}
+	}
+
 	taskToSpan(span, task)
 
 	var taskTx *datastore.TaskTx
 
 	if task.IsOutputFile() {
 		if task.Status == v1.TaskStatusPending {
-			profile, err := s.dm.GetProfile(otCtx, task.ProfileID)
-			if err != nil {
-				errMsg := "failed to get profile"
-				spanErr(span, err, errMsg)
-				logger.WithError(err).Error(errMsg)
-
-				return &v1.Task{}, nil
-			}
-
 			reward := profile.Cost / 60 * task.Output.Duration
 
 			span.SetTag("reward", reward)
