@@ -19,9 +19,6 @@ type Config struct {
 	AuthTokenSecret    string `envconfig:"AUTH_TOKEN_SECRET" default:""`
 	RPCNodeURL         string `envconfig:"RPC_NODE_URL"`
 	SyncerURL          string `envconfig:"SYNCER_URL" default:"https://dev.videocoin.network/api/v1/sync"`
-	IamEndpoint        string `envconfig:"IAM_ENDPOINT" default:"https://iam.dev.videocoinapis.com"`
-	DelegatorUserID    string `envconfig:"DELEGATOR_USER_ID" default:"113a66d2-c75e-4885-4371-2d54bbaf3144"`
-	DelegatorToken     string `envconfig:"DELEGATOR_TOKEN" default:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoxLCJleHAiOjE2MTEyNTk3NzIsInN1YiI6IjExM2E2NmQyLWM3NWUtNDg4NS00MzcxLTJkNTRiYmFmMzE0NCJ9.7tKmeJR2LNMSeoziGcApxL9ek9mXbw-Rqb5SOXzaWsc"`
 	ModeOnlyInternal   bool   `envconfig:"MODE_ONLY_INTERNAL" default:"false"`
 	ModeMinimalVersion string `envconfig:"MODE_MINIMAL_VERSION" default:""`
 	StakingManagerAddr string `envconfig:"STAKING_MANAGER_ADDR" default:"0x74feC37C1CEe00F2EA987080D27e370d79cb46dd"`

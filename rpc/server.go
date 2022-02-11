@@ -16,7 +16,6 @@ import (
 	v1 "github.com/videocoin/cloud-api/dispatcher/v1"
 	"github.com/videocoin/cloud-dispatcher/datastore"
 	"github.com/videocoin/cloud-dispatcher/eventbus"
-	"github.com/videocoin/cloud-pkg/iam"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
 	healthv1 "google.golang.org/grpc/health/grpc_health_v1"
@@ -27,14 +26,11 @@ type ServerOpts struct {
 	Addr               string
 	SyncerURL          string
 	RPCNodeURL         string
-	DelegatorUserID    string
-	DelegatorToken     string
 	StakingManagerAddr string
 	Mode               *Mode
 	DM                 *datastore.DataManager
 	EB                 *eventbus.EventBus
 	SC                 *clientv1.ServiceClient
-	IAM                *iam.Client
 }
 
 type Mode struct {
@@ -49,14 +45,11 @@ type Server struct {
 	syncerURL          string
 	rpcNodeURL         string
 	stakingManagerAddr string
-	delegatorUserID    string
-	delegatorToken     string
 	grpc               *grpc.Server
 	listen             net.Listener
 	sc                 *clientv1.ServiceClient
 	dm                 *datastore.DataManager
 	eb                 *eventbus.EventBus
-	iam                *iam.Client
 }
 
 func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
@@ -85,13 +78,10 @@ func NewServer(ctx context.Context, opts *ServerOpts) (*Server, error) {
 		syncerURL:          opts.SyncerURL,
 		rpcNodeURL:         opts.RPCNodeURL,
 		stakingManagerAddr: opts.StakingManagerAddr,
-		delegatorUserID:    opts.DelegatorUserID,
-		delegatorToken:     opts.DelegatorToken,
 		mode:               opts.Mode,
 		sc:                 opts.SC,
 		dm:                 opts.DM,
 		eb:                 opts.EB,
-		iam:                opts.IAM,
 		grpc:               grpcServer,
 		listen:             listen,
 	}

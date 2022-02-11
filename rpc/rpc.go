@@ -495,28 +495,14 @@ func (s *Server) GetConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.Conf
 }
 
 func (s *Server) GetDelegatorConfig(ctx context.Context, req *v1.ConfigRequest) (*v1.ConfigResponse, error) {
-	sa, err := s.iam.CreateServiceAccountJSON(s.delegatorToken, s.delegatorUserID)
-	if err != nil {
-		s.logger.WithError(err).Error("failed to create symphony service account")
-		return nil, rpc.ErrRpcInternal
-	}
-
 	return &v1.ConfigResponse{
 		RPCNodeURL: s.rpcNodeURL,
-		AccessKey:  string(sa),
 	}, nil
 }
 
 func (s *Server) GetDelegatorConfigV2(ctx context.Context, req *v1.ConfigRequest) (*v1.DelegatorConfigResponse, error) {
-	sa, err := s.iam.CreateServiceAccountJSON(s.delegatorToken, s.delegatorUserID)
-	if err != nil {
-		s.logger.WithError(err).Error("failed to create symphony service account")
-		return nil, rpc.ErrRpcInternal
-	}
-
 	return &v1.DelegatorConfigResponse{
 		RPCNodeURL: s.rpcNodeURL,
-		AccessKey:  string(sa),
 	}, nil
 }
 
