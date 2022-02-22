@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	MpegDashMinWorkerVersion = "2.0.0"
+	MpegDashMinWorkerVersion = "v2.0.0"
 	MpegDashProfileName      = "mpeg-dash-drm-copy"
 )
 
