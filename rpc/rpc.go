@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
+	"strings"
 
 	prototypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus/ctxlogrus"
@@ -100,9 +101,12 @@ func (s *Server) GetPendingTask(ctx context.Context, req *v1.TaskPendingRequest)
 	}
 
 	if profile.Name == MpegDashProfileName {
-		if semver.IsValid(req.Version) &&
-			semver.IsValid(MpegDashMinWorkerVersion) &&
-			semver.Compare(req.Version, MpegDashMinWorkerVersion) == -1 {
+		if !semver.IsValid(req.Version) || !semver.IsValid(MpegDashMinWorkerVersion) {
+			logger.Info("miner has wrong version")
+			return &v1.Task{}, nil
+		}
+		workerVersion := strings.Split(req.Version, "-")[0]
+		if semver.Compare(workerVersion, MpegDashMinWorkerVersion) == -1 {
 			logger.Info("miner does not support mpeg-dash processing")
 			return &v1.Task{}, nil
 		}
