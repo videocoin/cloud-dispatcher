@@ -39,13 +39,14 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 		}
 
 		if s.mode.MinimalVersion != "" {
+			workerVersion := strings.Split(req.Version, "-")[0]
 			if semver.IsValid(s.mode.MinimalVersion) {
-				if !semver.IsValid(req.Version) {
+				if !semver.IsValid(workerVersion) {
 					logger.Warning("no valid miner version")
 					return nil, nil
 				}
 
-				if semver.Compare(s.mode.MinimalVersion, req.Version) > 0 {
+				if semver.Compare(s.mode.MinimalVersion, workerVersion) > 0 {
 					logger.Warning("miner version is deprecated")
 					return nil, nil
 				}
