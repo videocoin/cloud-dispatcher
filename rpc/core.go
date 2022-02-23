@@ -134,17 +134,18 @@ func (s *Server) getPendingTask(ctx context.Context, req *v1.TaskPendingRequest,
 		}
 	}
 
-	logger.Info("checking miner is qualify")
+	// logger.Info("checking miner is qualify")
 
-	ok, err := s.isMinerQualify(ctx, miner, task)
-	if err != nil {
-		logger.WithError(err).Error("failed to qualify miner")
-		return task, rpc.ErrRpcInternal
-	}
+	// ok, err := s.isMinerQualify(ctx, miner, task)
+	// if err != nil {
+	// 	logger.WithError(err).Error("failed to qualify miner")
+	// 	return task, rpc.ErrRpcInternal
+	// }
 
-	if !ok {
-		return task, rpc.ErrRpcNotFound
-	}
+	// if !ok {
+	// 	logger.Warning("miner is not qualify")
+	// 	return task, rpc.ErrRpcNotFound
+	// }
 
 	logger.Info("checking hw")
 
